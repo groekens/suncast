@@ -1,22 +1,25 @@
-async function getSolarData() {
-  const address = document.getElementById("addressInput").value;
-  if (!address) {
-    alert("Merci d'entrer une adresse !");
-    return;
-  }
+async function getSolarData(lat=null, lon=null) {
+  const addressInput = document.getElementById("addressInput").value;
 
   document.getElementById("results").innerHTML = "<p>Chargement...</p>";
 
   try {
-    // 1. Convertir adresse → coordonnées GPS
-    const geoRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`);
-    const geoData = await geoRes.json();
-    if (!geoData || geoData.length === 0) {
-      document.getElementById("results").innerHTML = "<p>Adresse introuvable.</p>";
-      return;
+    if (!lat || !lon) {
+      if (!addressInput) {
+        alert("Merci d'entrer une adresse ou d'utiliser votre localisation !");
+        return;
+      }
+
+      // 1. Convertir adresse → coordonnées GPS
+      const geoRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(addressInput)}`);
+      const geoData = await geoRes.json();
+      if (!geoData || geoData.length === 0) {
+        document.getElementById("results").innerHTML = "<p>Adresse introuvable.</p>";
+        return;
+      }
+      lat = geoData[0].lat;
+      lon = geoData[0].lon;
     }
-    const lat = geoData[0].lat;
-    const lon = geoData[0].lon;
 
     // 2. Récupérer irradiation solaire
     const weatherRes = await fetch(
@@ -69,3 +72,14 @@ async function getSolarData() {
   }
 }
 
+// Fonction pour utiliser la localisation GPS du navigateur
+function useMyLocation() {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      position => getSolarData(position.coords.latitude, position.coords.longitude),
+      error => alert("Impossible de récupérer votre localisation : " + error.message)
+    );
+  } else {
+    alert("La géolocalisation n'est pas supportée par votre navigateur.");
+  }
+}
