@@ -9,9 +9,22 @@
   <h1>☀️ Solar Planner</h1>
   <p>Planifiez vos appareils électriques selon la production solaire prévue.</p>
 
-  <input type="text" id="addressInput" placeholder="Entrez votre adresse">
-  <button onclick="getSolarData()">Voir la production</button>
-  <button onclick="useMyLocation()">Utiliser ma localisation</button>
+  <div class="settings">
+    <input type="text" id="addressInput" placeholder="Entrez votre adresse">
+    <button onclick="getSolarData()">Voir la production</button>
+    <button onclick="useMyLocation()">📍 Utiliser ma localisation</button>
+    <br><br>
+    <label>Orientation des panneaux :</label>
+    <select id="orientation">
+      <option value="1">Sud</option>
+      <option value="0.95">Sud-Est / Sud-Ouest</option>
+      <option value="0.8">Est / Ouest</option>
+      <option value="0.5">Nord</option>
+    </select>
+    <br><br>
+    <label>Puissance max (Wc) :</label>
+    <input type="number" id="power" placeholder="3300">
+  </div>
 
   <div id="results"></div>
 
