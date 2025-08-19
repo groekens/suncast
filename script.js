@@ -86,8 +86,9 @@ async function getSolarData(lat=null, lon=null) {
       html += `<div class="day"><h3>${day}</h3>`;
       hours.forEach(h => {
         const intensity = h.value / maxVal;
-        const color = `rgb(${255 * intensity}, ${200 - 150 * intensity}, 0)`;
-        const isTop = top10.some(t => t.day === day && t.hour === h.hour);
+        const red = Math.round(255 * intensity);
+        const color = `rgb(${255 - red}, ${255 - red}, ${255 - red})`; // blanc → rouge
+
         html += `<div class="hour ${isTop ? 'top-hour' : ''}" style="background:${color}">
           ${h.hour} - ${Math.round(h.value)} Wh
         </div>`;
