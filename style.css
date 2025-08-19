@@ -7,25 +7,37 @@ body {
 
 h1 {
   color: #e67e22;
+  text-align: center;
 }
 
 .settings {
   margin-bottom: 20px;
+  text-align: center;
+}
+
+#results {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 15px;
 }
 
 .day {
-  margin-bottom: 20px;
   padding: 10px;
   border: 1px solid #ddd;
   border-radius: 10px;
   background: #fff;
 }
 
+.day h3 {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
 .hour {
   padding: 5px;
   margin: 2px 0;
   border-radius: 5px;
-  color: #fff;
+  color: #000;
 }
 
 .top-hour {
