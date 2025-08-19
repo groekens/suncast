@@ -1,5 +1,25 @@
+// Charger préférences sauvegardées
+window.onload = () => {
+  if (localStorage.getItem("address")) {
+    document.getElementById("addressInput").value = localStorage.getItem("address");
+  }
+  if (localStorage.getItem("orientation")) {
+    document.getElementById("orientation").value = localStorage.getItem("orientation");
+  }
+  if (localStorage.getItem("power")) {
+    document.getElementById("power").value = localStorage.getItem("power");
+  }
+};
+
 async function getSolarData(lat=null, lon=null) {
   const addressInput = document.getElementById("addressInput").value;
+  const orientation = parseFloat(document.getElementById("orientation").value);
+  const power = parseFloat(document.getElementById("power").value) || 3300;
+
+  // Sauvegarder préférences
+  localStorage.setItem("address", addressInput);
+  localStorage.setItem("orientation", orientation);
+  localStorage.setItem("power", power);
 
   document.getElementById("results").innerHTML = "<p>Chargement...</p>";
 
@@ -10,7 +30,7 @@ async function getSolarData(lat=null, lon=null) {
         return;
       }
 
-      // 1. Convertir adresse → coordonnées GPS
+      // Adresse → GPS
       const geoRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(addressInput)}`);
       const geoData = await geoRes.json();
       if (!geoData || geoData.length === 0) {
@@ -21,7 +41,7 @@ async function getSolarData(lat=null, lon=null) {
       lon = geoData[0].lon;
     }
 
-    // 2. Récupérer irradiation solaire
+    // Données irradiation
     const weatherRes = await fetch(
       `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=shortwave_radiation&timezone=auto`
     );
@@ -35,31 +55,42 @@ async function getSolarData(lat=null, lon=null) {
     const times = weatherData.hourly.time;
     const radiation = weatherData.hourly.shortwave_radiation;
 
-    // 3. Regrouper par jour
+    // Regrouper par jour
     const days = {};
+    const allHours = [];
+
     for (let i = 0; i < times.length; i++) {
       const date = new Date(times[i]);
       const dayName = date.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" });
       const hour = date.getHours() + "h";
 
-      // Filtrer la nuit (production nulle)
       if (radiation[i] > 0) {
+        // appliquer orientation et puissance (Wh estimés)
+        const estimatedWh = radiation[i] * orientation * (power / 1000);
+
         if (!days[dayName]) days[dayName] = [];
-        days[dayName].push({ hour, value: radiation[i] });
+        days[dayName].push({ hour, value: estimatedWh });
+
+        allHours.push({ day: dayName, hour, value: estimatedWh });
       }
     }
 
-    // 4. Déterminer la valeur max pour échelle couleurs
-    const maxVal = Math.max(...radiation);
+    // Trouver les 10 heures les plus productives
+    const top10 = allHours.sort((a, b) => b.value - a.value).slice(0, 10);
 
-    // 5. Construire affichage
+    const maxVal = Math.max(...allHours.map(h => h.value));
+
+    // Affichage
     let html = "";
     for (const [day, hours] of Object.entries(days)) {
       html += `<div class="day"><h3>${day}</h3>`;
       hours.forEach(h => {
         const intensity = h.value / maxVal;
-        const color = `rgb(${255 * intensity}, ${200 - 150 * intensity}, 0)`; // dégradé jaune → rouge
-        html += `<div class="hour" style="background:${color}">${h.hour} - ${Math.round(h.value)} W/m²</div>`;
+        const color = `rgb(${255 * intensity}, ${200 - 150 * intensity}, 0)`;
+        const isTop = top10.some(t => t.day === day && t.hour === h.hour);
+        html += `<div class="hour ${isTop ? 'top-hour' : ''}" style="background:${color}">
+          ${h.hour} - ${Math.round(h.value)} Wh
+        </div>`;
       });
       html += "</div>";
     }
@@ -72,7 +103,7 @@ async function getSolarData(lat=null, lon=null) {
   }
 }
 
-// Fonction pour utiliser la localisation GPS du navigateur
+// Utiliser la localisation GPS du navigateur
 function useMyLocation() {
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(
