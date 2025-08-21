@@ -1,32 +1,62 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Solar Planner</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <h1>☀️ Solar Planner</h1>
-  <p>Planifiez vos appareils électriques selon la production solaire prévue.</p>
+  <main class="container">
+    <h1>☀️ Solar Planner</h1>
+    <p class="subtitle">
+      Planifiez vos appareils selon la production solaire prévue (prévisions Open-Meteo).
+    </p>
 
-  <div class="settings">
-    <input type="text" id="addressInput" placeholder="Entrez votre adresse">
-    <button onclick="getSolarData()">Voir la production</button>
-    <button onclick="useMyLocation()">📍 Utiliser ma localisation</button>
-    <br><br>
-    <label>Orientation des panneaux :</label>
-    <select id="orientation">
-      <option value="1">Sud</option>
-      <option value="0.95">Sud-Est / Sud-Ouest</option>
-      <option value="0.8">Est / Ouest</option>
-      <option value="0.5">Nord</option>
-    </select>
-    <br><br>
-    <label>Puissance max (Wc) :</label>
-    <input type="number" id="power" placeholder="3300">
-  </div>
+    <!-- Formulaire (les IDs correspondent au script.js) -->
+    <form id="location-form" class="card form">
+      <div class="field">
+        <label for="address">Adresse</label>
+        <input id="address" type="text" placeholder="Ex. Sunset Boulevard" />
+        <small class="hint">Astuce : cliquez « 📍 Ma position » ou tapez <b>moi</b> pour utiliser la géolocalisation.</small>
+      </div>
 
-  <div id="results"></div>
+      <div class="field">
+        <label for="orientation">Orientation des panneaux</label>
+        <!-- Valeur = azimut en degrés (Sud = 180). Conservée pour évolutions futures -->
+        <select id="orientation">
+          <option value="0">Nord (0°)</option>
+          <option value="45">Nord-Est (45°)</option>
+          <option value="90">Est (90°)</option>
+          <option value="135">Sud-Est (135°)</option>
+          <option value="180" selected>Sud (180°)</option>
+          <option value="225">Sud-Ouest (225°)</option>
+          <option value="270">Ouest (270°)</option>
+          <option value="315">Nord-Ouest (315°)</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="capacity">Puissance installée (kWc)</label>
+        <input id="capacity" type="number" step="0.1" value="3.3" />
+        <small class="hint">Ex. 3.3 pour 3,3 kWc.</small>
+      </div>
+
+      <div class="actions">
+        <button type="submit" class="btn primary">Charger mes heures</button>
+        <!-- Ce bouton met l’adresse à 'moi' et déclenche le submit (géo navigateur) -->
+        <button type="button" class="btn" onclick="
+          document.getElementById('address').value='moi';
+          document.getElementById('location-form').requestSubmit();
+        ">📍 Ma position</button>
+      </div>
+    </form>
+
+    <div id="message" class="message"></div>
+
+    <!-- Agenda rendu par script.js -->
+    <section id="agenda"></section>
+  </main>
 
   <script src="script.js"></script>
 </body>
