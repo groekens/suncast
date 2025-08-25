@@ -1,150 +1,150 @@
-const btn = document.getElementById("getForecast");
-const grid = document.getElementById("forecastGrid");
-const usedAddress = document.getElementById("usedAddress");
-const addressInput = document.getElementById("address");
-const suggestionsEl = document.getElementById("suggestions");
+// script.js
 
-// ---- Suggestions d'adresses (Nominatim) ----
-let typingTimer;
-addressInput.addEventListener("input", () => {
-  clearTimeout(typingTimer);
-  const query = addressInput.value.trim();
-  if (query.length < 3 || query === "moi") {
-    suggestionsEl.innerHTML = "";
-    return;
+const form = document.getElementById("location-form");
+const agenda = document.getElementById("agenda");
+const messageBox = document.getElementById("message");
+
+// Charger les préférences utilisateur
+window.onload = () => {
+  const savedPrefs = JSON.parse(localStorage.getItem("solarPrefs"));
+  if (savedPrefs) {
+    document.getElementById("address").value = savedPrefs.address || "";
+    document.getElementById("orientation").value = savedPrefs.orientation || "180";
+    document.getElementById("capacity").value = savedPrefs.capacity || "3.3";
   }
-  typingTimer = setTimeout(async () => {
-    const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5&addressdetails=1`);
-    const data = await res.json();
-    suggestionsEl.innerHTML = "";
-    data.forEach(item => {
-      const li = document.createElement("li");
-      li.textContent = item.display_name;
-      li.addEventListener("click", () => {
-        addressInput.value = item.display_name;
-        suggestionsEl.innerHTML = "";
-      });
-      suggestionsEl.appendChild(li);
-    });
-  }, 400);
-});
+};
 
-// ---- Fonction principale ----
-btn.addEventListener("click", async () => {
-  let address = addressInput.value.trim();
-  let lat, lon, displayAddr;
+// Sauvegarde des préférences
+function savePreferences(address, orientation, capacity) {
+  localStorage.setItem(
+    "solarPrefs",
+    JSON.stringify({ address, orientation, capacity })
+  );
+}
 
-  if (address.toLowerCase() === "moi") {
-    // Localisation utilisateur
-    try {
-      const pos = await new Promise((res, rej) => {
-        navigator.geolocation.getCurrentPosition(res, rej);
-      });
-      lat = pos.coords.latitude;
-      lon = pos.coords.longitude;
-      const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`);
-      const data = await res.json();
-      displayAddr = data.display_name;
-    } catch (e) {
-      alert("Impossible d'obtenir votre localisation.");
-      return;
-    }
-  } else {
-    // Géocodage d'adresse
-    try {
-      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1`);
-      const data = await res.json();
-      if (!data.length) {
-        alert("Adresse introuvable.");
-        return;
-      }
-      lat = data[0].lat;
-      lon = data[0].lon;
-      displayAddr = data[0].display_name;
-    } catch (e) {
-      alert("Erreur lors de la recherche d'adresse.");
-      return;
-    }
-  }
+// Conversion irradiance (W/m²) → production estimée (Wh)
+function irradianceToWh(irradiance, capacity) {
+  // Hypothèse simple : 1000 W/m² = 100% de la puissance nominale
+  // Production Wh = irradiance/1000 * capacité(kW) * 1000 (pour W)
+  return Math.round((irradiance / 1000) * capacity * 1000);
+}
 
-  const tilt = document.getElementById("tilt").value || 40;
-  const azimuth = document.getElementById("azimuth").value || 135;
-  const capacity = document.getElementById("capacity").value || 3.3;
-
-  // API Open-Meteo
-  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=global_horizontal_irradiance&timezone=auto`;
-  let data;
-  try {
-    const res = await fetch(url);
-    data = await res.json();
-  } catch (e) {
-    alert("Erreur de connexion à l'API.");
-    return;
-  }
-
-  if (!data.hourly) {
-    alert("Pas de données météo disponibles.");
-    return;
-  }
-
-  usedAddress.textContent = `📍 Prévisions pour : ${displayAddr}`;
-  renderForecast(data.hourly, capacity);
-});
-
-// ---- Affichage prévisions ----
-function renderForecast(hourly, capacity) {
-  grid.innerHTML = "";
-  const times = hourly.time;
-  const irradiance = hourly.global_horizontal_irradiance;
+// Affichage
+function renderAgenda(times, values, capacity) {
+  agenda.innerHTML = "";
 
   // Regrouper par jour
   const days = {};
-  times.forEach((t, i) => {
-    const d = new Date(t);
-    const dayKey = d.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" });
-    if (!days[dayKey]) days[dayKey] = [];
-    days[dayKey].push({ hour: d.getHours(), val: irradiance[i] });
-  });
-
-  // Calculer totaux journaliers pour marquer les meilleurs jours
-  const dailyTotals = [];
-
-  Object.entries(days).forEach(([dayLabel, arr]) => {
-    const col = document.createElement("div");
-    col.className = "day-col";
-
-    const title = document.createElement("div");
-    title.className = "day-title";
-    title.textContent = dayLabel;
-    col.appendChild(title);
-
-    let dailyTotal = 0;
-    arr.forEach(obj => {
-      if (obj.val <= 0) return; // Ignorer nuit
-      const prodWh = obj.val * capacity;
-      dailyTotal += prodWh;
-      const hourCell = document.createElement("div");
-      hourCell.className = "hour-cell";
-      hourCell.style.background = `linear-gradient(to right, #fff ${100 - Math.min(prodWh/30,100)}%, #f87171)`;
-      hourCell.innerHTML = `<span>${obj.hour}h</span><span>${Math.round(prodWh)} Wh</span>`;
-      col.appendChild(hourCell);
+  times.forEach((time, i) => {
+    const date = new Date(time);
+    const day = date.toLocaleDateString("fr-FR", {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
     });
 
-    const totalEl = document.createElement("div");
-    totalEl.className = "day-total";
-    totalEl.textContent = `⚡ Total: ${(dailyTotal/1000).toFixed(1)} kWh`;
-    col.appendChild(totalEl);
-
-    grid.appendChild(col);
-
-    dailyTotals.push({ col, total: dailyTotal });
+    const hour = date.getHours();
+    if (hour >= 6 && hour <= 21) {
+      if (!days[day]) days[day] = [];
+      days[day].push({ hour, value: irradianceToWh(values[i], capacity) });
+    }
   });
 
-  // Ajouter ⭐ aux 2 meilleurs jours
-  dailyTotals.sort((a,b) => b.total - a.total);
-  dailyTotals.slice(0,2).forEach(d => {
-    const star = document.createElement("span");
-    star.textContent = " ⭐";
-    d.col.querySelector(".day-title").appendChild(star);
+  // Trouver la valeur max pour le dégradé
+  const maxVal = Math.max(...values.map(v => irradianceToWh(v, capacity)));
+
+  // Créer les colonnes par jour
+  const container = document.createElement("div");
+  container.style.display = "flex";
+  container.style.gap = "10px";
+
+  Object.entries(days).forEach(([day, hours]) => {
+    const col = document.createElement("div");
+    col.style.flex = "1";
+    col.style.border = "1px solid #ddd";
+    col.style.borderRadius = "8px";
+    col.style.overflow = "hidden";
+
+    const title = document.createElement("div");
+    title.textContent = day;
+    title.style.textAlign = "center";
+    title.style.fontWeight = "bold";
+    title.style.padding = "5px";
+    title.style.background = "#f0f0f0";
+    col.appendChild(title);
+
+    hours.forEach(({ hour, value }) => {
+      const cell = document.createElement("div");
+      cell.textContent = `${hour}h : ${value} Wh`;
+
+      const intensity = value / maxVal;
+      cell.style.background = `rgba(255, ${255 - 200 * intensity}, ${255 - 200 * intensity}, 1)`;
+      cell.style.padding = "4px";
+      cell.style.fontSize = "0.9em";
+
+      col.appendChild(cell);
+    });
+
+    container.appendChild(col);
   });
+
+  agenda.appendChild(container);
 }
+
+// Récupération des coordonnées avec Nominatim
+async function getCoordinates(address) {
+  const response = await fetch(
+    `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`
+  );
+  const results = await response.json();
+  if (results.length === 0) throw new Error("Adresse introuvable");
+  return {
+    lat: results[0].lat,
+    lon: results[0].lon,
+    display: results[0].display_name,
+  };
+}
+
+// Form submit
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  messageBox.textContent = "";
+
+  const address = document.getElementById("address").value.trim();
+  const orientation = document.getElementById("orientation").value.trim();
+  const capacity = parseFloat(document.getElementById("capacity").value.trim());
+
+  try {
+    let coords;
+
+    if (address.toLowerCase() === "moi") {
+      // Localisation via navigateur
+      coords = await new Promise((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(
+          pos => resolve({ lat: pos.coords.latitude, lon: pos.coords.longitude, display: "Ma position" }),
+          err => reject(err)
+        );
+      });
+    } else {
+      coords = await getCoordinates(address);
+    }
+
+    // Sauvegarde des prefs
+    savePreferences(address, orientation, capacity);
+
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${coords.lat}&longitude=${coords.lon}&hourly=shortwave_radiation&timezone=auto`;
+    const res = await fetch(url);
+
+    if (!res.ok) throw new Error("Erreur API");
+    const data = await res.json();
+
+    const times = data.hourly.time;
+    const values = data.hourly.shortwave_radiation;
+
+    renderAgenda(times, values, capacity);
+
+  } catch (err) {
+    console.error(err);
+    messageBox.textContent = "Erreur de connexion à l'API.";
+  }
+});
