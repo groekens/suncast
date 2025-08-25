@@ -111,3 +111,24 @@ input, select{
   outline: 2px solid #111;
   font-weight: 700;
 }
+
+.suggestions {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--border);
+  background: #fff;
+  max-height: 160px;
+  overflow-y: auto;
+  position: absolute;
+  z-index: 1000;
+  width: calc(100% - 20px);
+}
+.suggestions li {
+  padding: 6px 10px;
+  cursor: pointer;
+}
+.suggestions li:hover {
+  background: #f3f4f6;
+}
+
