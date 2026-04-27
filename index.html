@@ -6,7 +6,14 @@
   <title>Suncast ☀️</title>
   <meta name="description" content="Prévision de production solaire sur 7 jours" />
   <meta name="theme-color" content="#FAFAF7" />
-  <link rel="apple-touch-icon" href="https://fav.farm/☀️" />
+
+  <!-- PWA manifest -->
+  <link rel="manifest" href="manifest.json" />
+
+  <!-- Icons -->
+  <link rel="apple-touch-icon" href="images/apple-touch-icon.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16x16.png" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -18,40 +25,21 @@
 
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
-      --bg:          #FAFAF7;
-      --bg-warm:     #F5F2EC;
-      --card:        #FFFFFF;
-      --border:      #E8E2D6;
-      --border-dark: #D4CBB8;
-      --sun:         #E8960A;
-      --sun-light:   #FFC83A;
-      --sun-pale:    #FFF3CC;
-      --sun-glow:    #FFEDD0;
-      --accent:      #2E7D4F;
-      --accent-pale: #EAF5EE;
-      --warn:        #C0440A;
-      --warn-pale:   #FFF0E8;
-      --text:        #1C1A16;
-      --text-mid:    #5C5649;
-      --text-dim:    #9C9285;
-      --shadow-sm:   0 1px 3px #00000010, 0 1px 8px #00000008;
-      --shadow-md:   0 4px 16px #00000010, 0 2px 6px #0000000A;
-      --radius-sm:   10px;
-      --radius:      16px;
-      --radius-lg:   22px;
+      --bg: #FAFAF7; --bg-warm: #F5F2EC; --card: #FFFFFF;
+      --border: #E8E2D6; --border-dark: #D4CBB8;
+      --sun: #E8960A; --sun-light: #FFC83A; --sun-pale: #FFF3CC; --sun-glow: #FFEDD0;
+      --accent: #2E7D4F; --accent-pale: #EAF5EE;
+      --warn: #C0440A; --warn-pale: #FFF0E8;
+      --text: #1C1A16; --text-mid: #5C5649; --text-dim: #9C9285;
+      --shadow-sm: 0 1px 3px #00000010, 0 1px 8px #00000008;
+      --shadow-md: 0 4px 16px #00000010, 0 2px 6px #0000000A;
+      --radius-sm: 10px; --radius: 16px; --radius-lg: 22px;
     }
-
     html, body { height: 100%; }
     body { background: var(--bg); color: var(--text); font-family: 'Outfit', sans-serif; -webkit-font-smoothing: antialiased; }
     #root { min-height: 100vh; }
-
-    .app {
-      min-height: 100vh;
-      background: radial-gradient(ellipse 80% 40% at 50% -10%, #FFE8A855 0%, transparent 70%), var(--bg);
-      padding-bottom: 60px;
-    }
+    .app { min-height: 100vh; background: radial-gradient(ellipse 80% 40% at 50% -10%, #FFE8A855 0%, transparent 70%), var(--bg); padding-bottom: 60px; }
 
     /* Header */
     .header { padding: 52px 22px 20px; display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
@@ -75,6 +63,12 @@
     .badge-poor  { background: var(--warn-pale);   color: var(--warn);   border: 1px solid #F4C4A4; }
     .badge-dot   { width: 7px; height: 7px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
 
+    /* Accuracy pill */
+    .accuracy-row { display: flex; align-items: center; gap: 6px; margin-top: 10px; }
+    .accuracy-pill { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 100px; font-size: 11px; font-weight: 500; background: var(--bg-warm); border: 1px solid var(--border-dark); color: var(--text-dim); }
+    .accuracy-pill.good  { background: var(--accent-pale); border-color: #B8DFC6; color: var(--accent); }
+    .accuracy-pill.warn  { background: var(--warn-pale);   border-color: #F4C4A4; color: var(--warn); }
+
     /* Section */
     .section { margin: 0 16px 20px; }
     .section-title { font-size: 10.5px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--text-dim); font-weight: 600; margin-bottom: 12px; }
@@ -83,7 +77,7 @@
     .days-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
     .day-bar { display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; padding: 10px 4px 8px; border-radius: var(--radius-sm); border: 1.5px solid transparent; background: var(--card); box-shadow: var(--shadow-sm); transition: all 0.18s; }
     .day-bar:hover { border-color: var(--border-dark); }
-    .day-bar.active { border-color: var(--sun-light); background: var(--sun-pale); box-shadow: 0 0 0 3px var(--sun-pale), var(--shadow-sm); }
+    .day-bar.active { border-color: var(--sun-light); background: var(--sun-pale); }
     .day-name { font-size: 9.5px; font-weight: 600; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; }
     .day-bar.active .day-name { color: var(--sun); }
     .bar-wrap { width: 26px; height: 56px; background: var(--bg-warm); border-radius: 5px; display: flex; align-items: flex-end; overflow: hidden; }
@@ -91,14 +85,19 @@
     .day-kwh { font-size: 9px; color: var(--text-dim); font-weight: 500; }
     .day-bar.active .day-kwh { color: var(--sun); font-weight: 600; }
 
+    /* Clipping indicator on bar */
+    .bar-clipped { position: relative; }
+    .bar-clipped::after { content: ''; position: absolute; top: 2px; left: 50%; transform: translateX(-50%); width: 6px; height: 2px; background: var(--warn); border-radius: 1px; }
+
     /* Hourly */
     .hourly-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 4px; scrollbar-width: none; }
     .hourly-scroll::-webkit-scrollbar { display: none; }
     .hourly-track { display: flex; gap: 7px; min-width: max-content; padding: 2px 0 6px; }
     .hour-col { display: flex; flex-direction: column; align-items: center; gap: 5px; width: 42px; }
     .hour-label { font-size: 9.5px; color: var(--text-dim); font-weight: 500; }
-    .hour-bar-wrap { height: 72px; width: 26px; background: var(--bg-warm); border-radius: 5px; display: flex; align-items: flex-end; overflow: hidden; }
-    .hour-bar-fill { width: 100%; border-radius: 5px 5px 0 0; background: linear-gradient(to top, #E8960A, #FFC83A88); }
+    .hour-bar-wrap { height: 72px; width: 26px; background: var(--bg-warm); border-radius: 5px; display: flex; align-items: flex-end; overflow: hidden; position: relative; }
+    .hour-bar-fill { width: 100%; border-radius: 5px 5px 0 0; }
+    .hour-bar-fill.clipped { background: linear-gradient(to top, #E8960A, #E8960ADD) !important; }
     .hour-wh { font-size: 8.5px; color: var(--text-dim); text-align: center; line-height: 1.3; }
 
     /* Rec card */
@@ -117,6 +116,11 @@
     .stat-val { font-family: 'Playfair Display', serif; font-size: 22px; color: var(--sun); font-weight: 600; letter-spacing: -0.5px; }
     .stat-lbl { font-size: 10.5px; color: var(--text-dim); margin-top: 4px; line-height: 1.35; }
 
+    /* Model note */
+    .model-note { background: var(--bg-warm); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; }
+    .model-note-title { font-size: 11px; font-weight: 600; color: var(--text-mid); letter-spacing: 0.5px; margin-bottom: 4px; }
+    .model-note-body { font-size: 12px; color: var(--text-dim); line-height: 1.5; }
+
     /* Panel */
     .panel-overlay { position: fixed; inset: 0; background: #00000030; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); z-index: 50; display: flex; align-items: flex-end; animation: fadeIn 0.2s; }
     @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
@@ -124,6 +128,7 @@
     @keyframes slideUp { from { transform: translateY(100%) } to { transform: translateY(0) } }
     .panel-handle { width: 36px; height: 4px; background: var(--border-dark); border-radius: 2px; margin: 0 auto 18px; }
     .panel-title { font-family: 'Playfair Display', serif; font-size: 18px; color: var(--text); margin-bottom: 20px; }
+    .panel-section-label { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--text-dim); font-weight: 600; margin: 18px 0 10px; padding-top: 14px; border-top: 1px solid var(--border); }
 
     .field { margin-bottom: 15px; }
     .field label { display: block; font-size: 10.5px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-dim); font-weight: 600; margin-bottom: 7px; }
@@ -135,20 +140,21 @@
     .field input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; background: var(--sun); border-radius: 50%; margin-top: -9px; cursor: pointer; box-shadow: 0 2px 8px #E8960A44; }
     .range-val { font-size: 13px; color: var(--sun); font-weight: 600; text-align: right; margin-top: 4px; }
     .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .field-hint { font-size: 11px; color: var(--text-dim); margin-top: 5px; line-height: 1.4; }
 
     .gps-btn { width: 100%; padding: 12px; margin-bottom: 14px; background: var(--accent-pale); color: var(--accent); border: 1.5px solid #B8DFC6; border-radius: var(--radius-sm); font-size: 14px; cursor: pointer; font-family: 'Outfit', sans-serif; font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 8px; transition: background 0.2s; }
     .gps-btn:disabled { opacity: 0.5; cursor: default; }
     .gps-btn:not(:disabled):hover { background: #D4EFD9; }
 
     .btn-row { display: flex; gap: 10px; margin-top: 20px; }
-    .btn-primary { flex: 1; padding: 14px; background: var(--sun); color: #fff; border: none; border-radius: var(--radius-sm); font-weight: 600; font-size: 15px; cursor: pointer; font-family: 'Outfit', sans-serif; box-shadow: 0 4px 12px #E8960A33; transition: opacity 0.2s, transform 0.1s; }
-    .btn-primary:active { opacity: 0.88; transform: scale(0.98); }
+    .btn-primary { flex: 1; padding: 14px; background: var(--sun); color: #fff; border: none; border-radius: var(--radius-sm); font-weight: 600; font-size: 15px; cursor: pointer; font-family: 'Outfit', sans-serif; box-shadow: 0 4px 12px #E8960A33; transition: opacity 0.2s; }
+    .btn-primary:active { opacity: 0.88; }
     .btn-secondary { padding: 14px 20px; background: var(--bg-warm); color: var(--text-mid); border: 1.5px solid var(--border-dark); border-radius: var(--radius-sm); font-size: 14px; cursor: pointer; font-family: 'Outfit', sans-serif; font-weight: 500; }
 
     /* Loading */
     .loading-wrap { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 60vh; gap: 18px; }
     .sun-spin { width: 56px; height: 56px; border-radius: 50%; background: radial-gradient(circle, var(--sun-light) 30%, var(--sun-glow) 60%, transparent 100%); box-shadow: 0 0 30px var(--sun-light), 0 0 60px var(--sun-pale); animation: pulse 1.6s ease-in-out infinite; }
-    @keyframes pulse { 0%, 100% { transform: scale(1); box-shadow: 0 0 30px var(--sun-light), 0 0 60px var(--sun-pale); } 50% { transform: scale(1.12); box-shadow: 0 0 50px var(--sun-light), 0 0 90px var(--sun-pale); } }
+    @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.12); } }
     .loading-text { color: var(--text-dim); font-size: 13px; font-weight: 500; letter-spacing: 0.5px; }
 
     /* Error */
@@ -159,309 +165,452 @@
   </style>
 </head>
 <body>
-  <div id="root"></div>
+<div id="root"></div>
 
-  <script type="text/babel">
-    const { useState, useEffect, useCallback } = React;
+<script type="text/babel">
+const { useState, useEffect, useCallback } = React;
 
-    const DAYS_FR = ["Dim","Lun","Mar","Mer","Jeu","Ven","Sam"];
-    const ORIENTATIONS = [
-      { value: 0,   label: "Nord (0°)" },
-      { value: 45,  label: "Nord-Est (45°)" },
-      { value: 90,  label: "Est (90°)" },
-      { value: 135, label: "Sud-Est (135°)" },
-      { value: 180, label: "Sud (180°) ← optimal" },
-      { value: 225, label: "Sud-Ouest (225°)" },
-      { value: 270, label: "Ouest (270°)" },
-      { value: 315, label: "Nord-Ouest (315°)" },
-    ];
-    const STORAGE_KEY = "suncast_config";
-    const DEFAULT_CONFIG = {
-      lat: 50.637, lon: 4.611,
-      locationName: "Genval, Belgique",
-      peakPower: 5, azimuth: 180, tilt: 35, efficiency: 0.80,
-    };
+// ── Constants ────────────────────────────────────────────────────────────
+const DAYS_FR = ["Dim","Lun","Mar","Mer","Jeu","Ven","Sam"];
+const ORIENTATIONS = [
+  { value: 0,   label: "Nord (0°)" },
+  { value: 45,  label: "Nord-Est (45°)" },
+  { value: 90,  label: "Est (90°)" },
+  { value: 135, label: "Sud-Est (135°)" },
+  { value: 180, label: "Sud (180°) ← optimal" },
+  { value: 225, label: "Sud-Ouest (225°)" },
+  { value: 270, label: "Ouest (270°)" },
+  { value: 315, label: "Nord-Ouest (315°)" },
+];
+const STORAGE_KEY = "suncast_config_v2";
+const DEFAULT_CONFIG = {
+  lat: 50.637, lon: 4.611,
+  locationName: "Genval, Belgique",
+  dcPower: 3.3,      // kWc DC réel (ou estimé)
+  acPower: 3.3,      // kW onduleur (puissance AC max)
+  azimuth: 135,      // Sud-Est
+  tilt: 40,
+  systemLoss: 0.10,  // 10% pertes système (câbles, température, salissures)
+};
 
-    function loadConfig() {
-      try { const s = localStorage.getItem(STORAGE_KEY); return s ? { ...DEFAULT_CONFIG, ...JSON.parse(s) } : DEFAULT_CONFIG; }
-      catch { return DEFAULT_CONFIG; }
+function loadConfig() {
+  try { const s = localStorage.getItem(STORAGE_KEY); return s ? { ...DEFAULT_CONFIG, ...JSON.parse(s) } : DEFAULT_CONFIG; }
+  catch { return DEFAULT_CONFIG; }
+}
+function saveConfig(cfg) { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(cfg)); } catch {} }
+
+// ── POA (Plane of Array) irradiance model ────────────────────────────────
+// Converts DNI + DHI + GHI to irradiance on a tilted/oriented surface
+// Uses the Perez transposition model (simplified isotropic sky)
+function calcPOA(dni, dhi, ghi, solarZenithDeg, solarAzimuthDeg, panelTiltDeg, panelAzimuthDeg) {
+  const toRad = d => d * Math.PI / 180;
+  const tilt   = toRad(panelTiltDeg);
+  const panAz  = toRad(panelAzimuthDeg);
+  const solZen = toRad(Math.max(0, Math.min(90, solarZenithDeg)));
+  const solAz  = toRad(solarAzimuthDeg);
+
+  // Angle of incidence between sun and panel normal
+  const cosAOI = Math.cos(solZen) * Math.cos(tilt) +
+                 Math.sin(solZen) * Math.sin(tilt) * Math.cos(solAz - panAz);
+
+  // Direct beam on tilted surface
+  const beamPOA = Math.max(0, dni * cosAOI);
+
+  // Diffuse sky (isotropic model)
+  const diffusePOA = dhi * (1 + Math.cos(tilt)) / 2;
+
+  // Ground reflected
+  const albedo = 0.2;
+  const reflectedPOA = ghi * albedo * (1 - Math.cos(tilt)) / 2;
+
+  return Math.max(0, beamPOA + diffusePOA + reflectedPOA);
+}
+
+// Estimate hourly AC output (kWh) from POA irradiance
+function estimateACkWh(poaW, dcPower, acPower, systemLoss) {
+  if (poaW <= 0) return 0;
+  // DC power at this irradiance level (linear model, STC = 1000 W/m²)
+  const dcKw = (poaW / 1000) * dcPower * (1 - systemLoss);
+  // Clip to inverter AC capacity
+  return Math.min(dcKw, acPower);
+}
+
+// ── Sun position (simplified NOAA algorithm) ────────────────────────────
+function sunPosition(dateUTC, lat, lon) {
+  const toRad = d => d * Math.PI / 180;
+  const toDeg = r => r * 180 / Math.PI;
+
+  const JD = dateUTC.getTime() / 86400000 + 2440587.5;
+  const n  = JD - 2451545.0;
+  const L  = (280.460 + 0.9856474 * n) % 360;
+  const g  = toRad((357.528 + 0.9856003 * n) % 360);
+  const lambda = toRad(L + 1.915 * Math.sin(g) + 0.020 * Math.sin(2 * g));
+  const eps = toRad(23.439 - 0.0000004 * n);
+
+  const sinDec = Math.sin(eps) * Math.sin(lambda);
+  const dec    = Math.asin(sinDec);
+
+  // Equation of time (minutes)
+  const E = 4 * toDeg(
+    Math.atan2(Math.cos(eps) * Math.sin(lambda), Math.cos(lambda)) - toRad(L)
+  );
+
+  const utcH = dateUTC.getUTCHours() + dateUTC.getUTCMinutes() / 60;
+  const solarNoon = 12 - lon / 15 - E / 60;
+  const HRA = toRad(15 * (utcH - solarNoon));
+
+  const latR   = toRad(lat);
+  const cosZen = Math.sin(latR) * sinDec + Math.cos(latR) * Math.cos(dec) * Math.cos(HRA);
+  const zenith  = toDeg(Math.acos(Math.max(-1, Math.min(1, cosZen))));
+
+  // Azimuth (0=N, 90=E, 180=S, 270=W)
+  const sinAz = -Math.cos(dec) * Math.sin(HRA) / Math.sin(toRad(zenith));
+  const cosAz = (Math.sin(latR) * Math.cos(toRad(zenith)) - sinDec) /
+                (Math.cos(latR) * Math.sin(toRad(zenith)));
+  let az = toDeg(Math.atan2(sinAz, cosAz));
+  if (az < 0) az += 360;
+
+  return { zenith, azimuth: az };
+}
+
+// ── API ──────────────────────────────────────────────────────────────────
+async function fetchSolarForecast(cfg) {
+  const params = new URLSearchParams({
+    latitude:  cfg.lat,
+    longitude: cfg.lon,
+    hourly:    "direct_normal_irradiance,diffuse_radiation,global_tilted_irradiance,shortwave_radiation",
+    daily:     "sunrise,sunset",
+    forecast_days: 7,
+    timezone:  "Europe/Brussels",
+    tilt:      cfg.tilt,
+    azimuth:   cfg.azimuth - 180, // Open-Meteo uses -180..180, 0=south
+  });
+
+  const res = await fetch(`https://api.open-meteo.com/v1/forecast?${params}`);
+  if (!res.ok) throw new Error(`Erreur API Open-Meteo (${res.status})`);
+  const data = await res.json();
+
+  const times = data.hourly.time;
+  const dni   = data.hourly.direct_normal_irradiance;
+  const dhi   = data.hourly.diffuse_radiation;
+  const ghi   = data.hourly.shortwave_radiation;
+  // global_tilted_irradiance is computed by Open-Meteo directly for our tilt/azimuth
+  const gti   = data.hourly.global_tilted_irradiance;
+
+  const dailyMap = {};
+
+  for (let i = 0; i < times.length; i++) {
+    const dateStr = times[i].substring(0, 10);
+    const hour    = parseInt(times[i].substring(11, 13));
+
+    // Use GTI from API (most accurate - already accounts for tilt+azimuth)
+    // Fallback to POA calculation if GTI is null
+    let poaW = gti[i] ?? 0;
+    if (poaW === null || poaW === undefined) {
+      const dt = new Date(times[i] + "Z");
+      const { zenith, azimuth: solAz } = sunPosition(dt, cfg.lat, cfg.lon);
+      poaW = calcPOA(dni[i]??0, dhi[i]??0, ghi[i]??0, zenith, solAz, cfg.tilt, cfg.azimuth);
     }
-    function saveConfig(cfg) { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(cfg)); } catch {} }
 
-    function estimateKwh(ghi, peakPower, efficiency) {
-      return (ghi * peakPower * efficiency) / 1000;
+    const acKw  = estimateACkWh(poaW, cfg.dcPower, cfg.acPower, cfg.systemLoss);
+    const clipped = acKw >= cfg.acPower * 0.98 && poaW > 100;
+
+    if (!dailyMap[dateStr]) dailyMap[dateStr] = { totalKwh: 0, hours: [], clippedHours: 0 };
+    dailyMap[dateStr].totalKwh += acKw;
+    dailyMap[dateStr].hours.push({ hour, poaW, acKw, clipped });
+    if (clipped) dailyMap[dateStr].clippedHours++;
+  }
+
+  for (let i = 0; i < data.daily.time.length; i++) {
+    const d = data.daily.time[i];
+    if (dailyMap[d]) {
+      dailyMap[d].sunrise = data.daily.sunrise[i];
+      dailyMap[d].sunset  = data.daily.sunset[i];
     }
+  }
 
-    function getRecommendation(days) {
-      if (!days.length) return null;
-      const today  = days[0];
-      const sorted = [...days].sort((a, b) => b.totalKwh - a.totalKwh);
-      const best   = sorted[0];
-      const bestDayStr  = DAYS_FR[new Date(best.date + "T12:00:00").getDay()];
-      const todayIsBest = best.date === today.date;
+  return Object.entries(dailyMap).map(([date, v]) => ({ date, ...v }));
+}
 
-      if (today.totalKwh >= best.totalKwh * 0.85) {
-        return { quality: "great", icon: "⚡", title: "Aujourd'hui est optimal",
-          body: `Excellente production prévue aujourd'hui (${today.totalKwh.toFixed(1)} kWh). C'est le bon moment pour charger votre véhicule ou lancer vos gros appareils.`,
-          actions: ["🚗 Charger VE", "🧺 Lave-linge", "🍽️ Lave-vaisselle"] };
-      } else if (best.totalKwh > today.totalKwh * 1.25 && !todayIsBest) {
-        return { quality: "poor", icon: "⏳", title: `Attendre ${bestDayStr} sera plus rentable`,
-          body: `La production de ${bestDayStr} sera ~${best.totalKwh.toFixed(1)} kWh contre ${today.totalKwh.toFixed(1)} kWh aujourd'hui. Décaler votre recharge maximisera l'autoconsommation.`,
-          actions: ["📅 Reporter au " + bestDayStr] };
-      } else {
-        return { quality: "ok", icon: "🌤️", title: "Production correcte toute la semaine",
-          body: `La production oscillera entre ${Math.min(...days.map(d=>d.totalKwh)).toFixed(1)} et ${best.totalKwh.toFixed(1)} kWh/jour. ${todayIsBest ? "Aujourd'hui" : bestDayStr} reste légèrement meilleur.`,
-          actions: ["🚗 Charger VE", "🔌 Autoconsommation"] };
-      }
-    }
+// ── Recommendation ───────────────────────────────────────────────────────
+function getRecommendation(days) {
+  if (!days.length) return null;
+  const today  = days[0];
+  const sorted = [...days].sort((a, b) => b.totalKwh - a.totalKwh);
+  const best   = sorted[0];
+  const bestDayStr  = DAYS_FR[new Date(best.date + "T12:00:00").getDay()];
+  const todayIsBest = best.date === today.date;
 
-    async function fetchSolarForecast(lat, lon, peakPower, efficiency) {
-      const params = new URLSearchParams({
-        latitude: lat, longitude: lon,
-        hourly: "shortwave_radiation",
-        daily: "sunrise,sunset",
-        forecast_days: 7,
-        timezone: "Europe/Brussels",
-      });
-      const res = await fetch(`https://api.open-meteo.com/v1/forecast?${params}`);
-      if (!res.ok) throw new Error(`Erreur API Open-Meteo (${res.status})`);
-      const data = await res.json();
-      const times = data.hourly.time;
-      const ghi   = data.hourly.shortwave_radiation;
-      const dailyMap = {};
-      for (let i = 0; i < times.length; i++) {
-        const dateStr = times[i].substring(0, 10);
-        const hour    = parseInt(times[i].substring(11, 13));
-        const kwh     = estimateKwh(ghi[i] ?? 0, peakPower, efficiency);
-        if (!dailyMap[dateStr]) dailyMap[dateStr] = { totalKwh: 0, hours: [] };
-        dailyMap[dateStr].totalKwh += kwh;
-        dailyMap[dateStr].hours.push({ hour, ghi: ghi[i] ?? 0, kwh });
-      }
-      for (let i = 0; i < data.daily.time.length; i++) {
-        const d = data.daily.time[i];
-        if (dailyMap[d]) { dailyMap[d].sunrise = data.daily.sunrise[i]; dailyMap[d].sunset = data.daily.sunset[i]; }
-      }
-      return Object.entries(dailyMap).map(([date, v]) => ({ date, ...v }));
-    }
+  if (today.totalKwh >= best.totalKwh * 0.85) {
+    return { quality: "great", icon: "⚡", title: "Aujourd'hui est optimal",
+      body: `Excellente production prévue aujourd'hui (${today.totalKwh.toFixed(1)} kWh). C'est le bon moment pour charger votre véhicule ou lancer vos gros appareils.`,
+      actions: ["🚗 Charger VE", "🧺 Lave-linge", "🍽️ Lave-vaisselle"] };
+  } else if (best.totalKwh > today.totalKwh * 1.2 && !todayIsBest) {
+    return { quality: "poor", icon: "⏳", title: `Attendre ${bestDayStr} sera plus rentable`,
+      body: `La production de ${bestDayStr} sera ~${best.totalKwh.toFixed(1)} kWh contre ${today.totalKwh.toFixed(1)} kWh aujourd'hui. Décaler votre recharge maximisera l'autoconsommation.`,
+      actions: ["📅 Reporter au " + bestDayStr] };
+  } else {
+    return { quality: "ok", icon: "🌤️", title: "Production correcte toute la semaine",
+      body: `La production oscillera entre ${Math.min(...days.map(d=>d.totalKwh)).toFixed(1)} et ${best.totalKwh.toFixed(1)} kWh/jour. ${todayIsBest ? "Aujourd'hui" : bestDayStr} reste légèrement meilleur.`,
+      actions: ["🚗 Charger VE", "🔌 Autoconsommation"] };
+  }
+}
 
-    function barColor(pct) {
-      if (pct > 0.70) return "#E8960A";
-      if (pct > 0.40) return "#FFC83A";
-      return "#D4CBB8";
-    }
-    function fmtDate(dateStr) {
-      return new Date(dateStr + "T12:00:00").toLocaleDateString("fr-BE", { day: "numeric", month: "short" });
-    }
+function barColor(pct) {
+  if (pct > 0.70) return "#E8960A";
+  if (pct > 0.40) return "#FFC83A";
+  return "#D4CBB8";
+}
+function fmtDate(dateStr) {
+  return new Date(dateStr + "T12:00:00").toLocaleDateString("fr-BE", { day: "numeric", month: "short" });
+}
 
-    function App() {
-      const [config,       setConfig]       = useState(loadConfig);
-      const [draftConfig,  setDraftConfig]  = useState(loadConfig);
-      const [days,         setDays]         = useState([]);
-      const [selectedDay,  setSelectedDay]  = useState(0);
-      const [loading,      setLoading]      = useState(true);
-      const [error,        setError]        = useState(null);
-      const [showSettings, setShowSettings] = useState(false);
-      const [locating,     setLocating]     = useState(false);
+// ── App ──────────────────────────────────────────────────────────────────
+function App() {
+  const [config,       setConfig]       = useState(loadConfig);
+  const [draftConfig,  setDraftConfig]  = useState(loadConfig);
+  const [days,         setDays]         = useState([]);
+  const [selectedDay,  setSelectedDay]  = useState(0);
+  const [loading,      setLoading]      = useState(true);
+  const [error,        setError]        = useState(null);
+  const [showSettings, setShowSettings] = useState(false);
+  const [locating,     setLocating]     = useState(false);
 
-      const load = useCallback(async (cfg) => {
-        setLoading(true); setError(null);
-        try { const result = await fetchSolarForecast(cfg.lat, cfg.lon, cfg.peakPower, cfg.efficiency); setDays(result); setSelectedDay(0); }
-        catch (e) { setError(e.message); }
-        finally { setLoading(false); }
-      }, []);
+  const load = useCallback(async (cfg) => {
+    setLoading(true); setError(null);
+    try { const r = await fetchSolarForecast(cfg); setDays(r); setSelectedDay(0); }
+    catch (e) { setError(e.message); }
+    finally { setLoading(false); }
+  }, []);
 
-      useEffect(() => { load(config); }, [config]);
+  useEffect(() => { load(config); }, [config]);
 
-      const handleGPS = () => {
-        if (!navigator.geolocation) return;
-        setLocating(true);
-        navigator.geolocation.getCurrentPosition(
-          pos => { setDraftConfig(d => ({ ...d, lat: parseFloat(pos.coords.latitude.toFixed(4)), lon: parseFloat(pos.coords.longitude.toFixed(4)), locationName: "Ma position GPS" })); setLocating(false); },
-          () => setLocating(false),
-          { timeout: 8000 }
-        );
-      };
+  const handleGPS = () => {
+    if (!navigator.geolocation) return;
+    setLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      pos => { setDraftConfig(d => ({ ...d, lat: parseFloat(pos.coords.latitude.toFixed(4)), lon: parseFloat(pos.coords.longitude.toFixed(4)), locationName: "Ma position GPS" })); setLocating(false); },
+      () => setLocating(false), { timeout: 8000 }
+    );
+  };
 
-      const handleSave = () => { saveConfig(draftConfig); setConfig(draftConfig); setShowSettings(false); };
+  const handleSave = () => { saveConfig(draftConfig); setConfig(draftConfig); setShowSettings(false); };
 
-      const maxKwh     = Math.max(...days.map(d => d.totalKwh), 0.1);
-      const sel        = days[selectedDay];
-      const rec        = days.length ? getRecommendation([...days]) : null;
-      const maxHourKwh = sel ? Math.max(...sel.hours.map(h => h.kwh), 0.001) : 1;
-      const orientLabel = ORIENTATIONS.find(o => o.value === config.azimuth)?.label.split(" ")[0] ?? "";
+  const maxKwh     = Math.max(...days.map(d => d.totalKwh), 0.1);
+  const sel        = days[selectedDay];
+  const rec        = days.length ? getRecommendation([...days]) : null;
+  const maxHourKw  = sel ? Math.max(...sel.hours.map(h => h.acKw), 0.001) : 1;
+  const totalClippedHours = sel ? sel.clippedHours : 0;
+  const orientLabel = ORIENTATIONS.find(o => o.value === config.azimuth)?.label.split(" ")[0] ?? "";
 
-      return (
-        <div className="app">
-          <div className="header">
-            <div>
-              <div className="header-eyebrow">☀ Suncast</div>
-              <div className="header-location">{config.locationName}</div>
-              <div className="header-sub">{config.peakPower} kWc · {config.tilt}° · {orientLabel}</div>
-            </div>
-            <button className="settings-btn" onClick={() => { setDraftConfig(config); setShowSettings(true); }} aria-label="Paramètres">⚙</button>
-          </div>
+  return (
+    <div className="app">
+      <div className="header">
+        <div>
+          <div className="header-eyebrow">☀ Suncast</div>
+          <div className="header-location">{config.locationName}</div>
+          <div className="header-sub">{config.dcPower} kWc · {config.tilt}° · {orientLabel} · onduleur {config.acPower} kW</div>
+        </div>
+        <button className="settings-btn" onClick={() => { setDraftConfig(config); setShowSettings(true); }} aria-label="Paramètres">⚙</button>
+      </div>
 
-          {loading ? (
-            <div className="loading-wrap">
-              <div className="sun-spin" />
-              <div className="loading-text">Chargement des prévisions…</div>
-            </div>
-          ) : error ? (
-            <div className="error-card">
-              <div className="error-icon">⚠️</div>
-              <div className="error-msg">{error}</div>
-              <button className="error-retry" onClick={() => load(config)}>Réessayer</button>
-            </div>
-          ) : (
-            <>
-              {sel && (
-                <div className="hero">
-                  <div className="hero-sun-bg" />
-                  <div className="hero-label">Production estimée · {fmtDate(sel.date)}</div>
-                  <div className="hero-value-row">
-                    <span className="hero-value">{sel.totalKwh.toFixed(1)}</span>
-                    <span className="hero-unit">kWh</span>
-                  </div>
-                  <div className="hero-sub">
-                    {sel.sunrise ? `🌅 ${sel.sunrise.substring(11,16)}` : ""}
-                    {sel.sunset  ? ` · 🌇 ${sel.sunset.substring(11,16)}` : ""}
-                  </div>
-                  {rec && (
-                    <div className={`hero-badge badge-${rec.quality}`}>
-                      <div className="badge-dot" />
-                      {rec.icon} {rec.title}
-                    </div>
-                  )}
+      {loading ? (
+        <div className="loading-wrap">
+          <div className="sun-spin" />
+          <div className="loading-text">Chargement des prévisions…</div>
+        </div>
+      ) : error ? (
+        <div className="error-card">
+          <div className="error-icon">⚠️</div>
+          <div className="error-msg">{error}</div>
+          <button className="error-retry" onClick={() => load(config)}>Réessayer</button>
+        </div>
+      ) : (
+        <>
+          {sel && (
+            <div className="hero">
+              <div className="hero-sun-bg" />
+              <div className="hero-label">Production estimée · {fmtDate(sel.date)}</div>
+              <div className="hero-value-row">
+                <span className="hero-value">{sel.totalKwh.toFixed(1)}</span>
+                <span className="hero-unit">kWh</span>
+              </div>
+              <div className="hero-sub">
+                {sel.sunrise ? `🌅 ${sel.sunrise.substring(11,16)}` : ""}
+                {sel.sunset  ? ` · 🌇 ${sel.sunset.substring(11,16)}` : ""}
+                {totalClippedHours > 0 ? ` · ⚡ onduleur saturé ~${totalClippedHours}h` : ""}
+              </div>
+              {rec && (
+                <div className={`hero-badge badge-${rec.quality}`}>
+                  <div className="badge-dot" />
+                  {rec.icon} {rec.title}
                 </div>
               )}
+            </div>
+          )}
 
-              <div className="section">
-                <div className="section-title">Prévision 7 jours</div>
-                <div className="days-grid">
-                  {days.map((d, i) => {
-                    const pct = d.totalKwh / maxKwh;
-                    const active = i === selectedDay;
-                    const dayName = i === 0 ? "Auj." : DAYS_FR[new Date(d.date + "T12:00:00").getDay()];
+          <div className="section">
+            <div className="section-title">Prévision 7 jours</div>
+            <div className="days-grid">
+              {days.map((d, i) => {
+                const pct    = d.totalKwh / maxKwh;
+                const active = i === selectedDay;
+                const dName  = i === 0 ? "Auj." : DAYS_FR[new Date(d.date+"T12:00:00").getDay()];
+                return (
+                  <div key={d.date} className={`day-bar${active ? " active" : ""}`} onClick={() => setSelectedDay(i)}>
+                    <div className="day-name">{dName}</div>
+                    <div className={`bar-wrap${d.clippedHours > 2 ? " bar-clipped" : ""}`}>
+                      <div className="bar-fill" style={{ height: `${Math.max(pct*100, 4)}%`, background: active ? `linear-gradient(to top, ${barColor(pct)}, ${barColor(pct)}BB)` : barColor(pct)+"99" }} />
+                    </div>
+                    <div className="day-kwh">{d.totalKwh.toFixed(1)}</div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {sel && (
+            <div className="section">
+              <div className="section-title">Courbe horaire · {DAYS_FR[new Date(sel.date+"T12:00:00").getDay()]} {fmtDate(sel.date)}</div>
+              <div className="hourly-scroll">
+                <div className="hourly-track">
+                  {sel.hours.filter(h => h.hour >= 5 && h.hour <= 22).map(h => {
+                    const pct = h.acKw / maxHourKw;
                     return (
-                      <div key={d.date} className={`day-bar${active ? " active" : ""}`} onClick={() => setSelectedDay(i)}>
-                        <div className="day-name">{dayName}</div>
-                        <div className="bar-wrap">
-                          <div className="bar-fill" style={{ height: `${Math.max(pct * 100, 4)}%`, background: active ? `linear-gradient(to top, ${barColor(pct)}, ${barColor(pct)}BB)` : barColor(pct) + "99" }} />
+                      <div key={h.hour} className="hour-col">
+                        <div className="hour-label">{String(h.hour).padStart(2,"0")}h</div>
+                        <div className="hour-bar-wrap">
+                          <div className={`hour-bar-fill${h.clipped ? " clipped" : ""}`}
+                            style={{ height: `${Math.max(pct*100, h.acKw>0.01?3:0)}%`, background: h.clipped ? undefined : `linear-gradient(to top, #E8960A, #FFC83A88)` }} />
                         </div>
-                        <div className="day-kwh">{d.totalKwh.toFixed(1)}</div>
+                        <div className="hour-wh">{h.acKw > 0.01 ? (h.acKw*1000).toFixed(0)+"W" : "—"}</div>
                       </div>
                     );
                   })}
                 </div>
               </div>
-
-              {sel && (
-                <div className="section">
-                  <div className="section-title">Courbe horaire · {DAYS_FR[new Date(sel.date+"T12:00:00").getDay()]} {fmtDate(sel.date)}</div>
-                  <div className="hourly-scroll">
-                    <div className="hourly-track">
-                      {sel.hours.filter(h => h.hour >= 5 && h.hour <= 22).map(h => (
-                        <div key={h.hour} className="hour-col">
-                          <div className="hour-label">{String(h.hour).padStart(2,"0")}h</div>
-                          <div className="hour-bar-wrap">
-                            <div className="hour-bar-fill" style={{ height: `${Math.max((h.kwh / maxHourKwh) * 100, h.kwh > 0.01 ? 3 : 0)}%` }} />
-                          </div>
-                          <div className="hour-wh">{h.kwh > 0.01 ? Math.round(h.kwh * 1000) + "W" : "—"}</div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              <div className="section">
-                <div className="section-title">Résumé semaine</div>
-                <div className="stats-row">
-                  <div className="stat-card">
-                    <div className="stat-val">{days.reduce((s,d)=>s+d.totalKwh,0).toFixed(0)}</div>
-                    <div className="stat-lbl">kWh total 7 jours</div>
-                  </div>
-                  <div className="stat-card">
-                    <div className="stat-val">{maxKwh.toFixed(1)}</div>
-                    <div className="stat-lbl">kWh meilleur jour</div>
-                  </div>
-                  <div className="stat-card">
-                    <div className="stat-val">{(days.reduce((s,d)=>s+d.totalKwh,0)/Math.max(days.length,1)).toFixed(1)}</div>
-                    <div className="stat-lbl">kWh/j moyenne</div>
-                  </div>
-                </div>
-              </div>
-
-              {rec && (
-                <div className="section">
-                  <div className="section-title">Recommandation</div>
-                  <div className={`rec-card ${rec.quality}`}>
-                    <div className="rec-title">{rec.icon} {rec.title}</div>
-                    <div className="rec-body">{rec.body}</div>
-                    <div className="rec-action">
-                      {rec.actions.map(a => <div key={a} className="action-chip">{a}</div>)}
-                    </div>
-                  </div>
-                </div>
-              )}
-            </>
+            </div>
           )}
 
-          {showSettings && (
-            <div className="panel-overlay" onClick={e => e.target===e.currentTarget && setShowSettings(false)}>
-              <div className="panel">
-                <div className="panel-handle" />
-                <div className="panel-title">Configuration installation</div>
-                <button className="gps-btn" onClick={handleGPS} disabled={locating}>
-                  📍 {locating ? "Localisation en cours…" : "Utiliser ma position GPS"}
-                </button>
-                <div className="field">
-                  <label>Nom du lieu</label>
-                  <input value={draftConfig.locationName} onChange={e => setDraftConfig(d=>({...d, locationName: e.target.value}))} placeholder="ex: Genval, Belgique" />
-                </div>
-                <div className="two-col">
-                  <div className="field">
-                    <label>Latitude</label>
-                    <input type="number" step="0.0001" value={draftConfig.lat} onChange={e => setDraftConfig(d=>({...d, lat: parseFloat(e.target.value)}))} />
-                  </div>
-                  <div className="field">
-                    <label>Longitude</label>
-                    <input type="number" step="0.0001" value={draftConfig.lon} onChange={e => setDraftConfig(d=>({...d, lon: parseFloat(e.target.value)}))} />
-                  </div>
-                </div>
-                <div className="field">
-                  <label>Puissance crête</label>
-                  <input type="range" min="0.5" max="30" step="0.5" value={draftConfig.peakPower} onChange={e => setDraftConfig(d=>({...d, peakPower: parseFloat(e.target.value)}))} />
-                  <div className="range-val">{draftConfig.peakPower} kWc</div>
-                </div>
-                <div className="field">
-                  <label>Inclinaison des panneaux</label>
-                  <input type="range" min="0" max="90" step="5" value={draftConfig.tilt} onChange={e => setDraftConfig(d=>({...d, tilt: parseInt(e.target.value)}))} />
-                  <div className="range-val">{draftConfig.tilt}°</div>
-                </div>
-                <div className="field">
-                  <label>Orientation (azimut)</label>
-                  <select value={draftConfig.azimuth} onChange={e => setDraftConfig(d=>({...d, azimuth: parseInt(e.target.value)}))}>
-                    {ORIENTATIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-                  </select>
-                </div>
-                <div className="field">
-                  <label>Performance ratio</label>
-                  <input type="range" min="0.50" max="1.00" step="0.01" value={draftConfig.efficiency} onChange={e => setDraftConfig(d=>({...d, efficiency: parseFloat(e.target.value)}))} />
-                  <div className="range-val">{Math.round(draftConfig.efficiency * 100)}%</div>
-                </div>
-                <div className="btn-row">
-                  <button className="btn-secondary" onClick={() => setShowSettings(false)}>Annuler</button>
-                  <button className="btn-primary" onClick={handleSave}>Appliquer</button>
+          <div className="section">
+            <div className="section-title">Résumé semaine</div>
+            <div className="stats-row">
+              <div className="stat-card">
+                <div className="stat-val">{days.reduce((s,d)=>s+d.totalKwh,0).toFixed(0)}</div>
+                <div className="stat-lbl">kWh total 7 jours</div>
+              </div>
+              <div className="stat-card">
+                <div className="stat-val">{maxKwh.toFixed(1)}</div>
+                <div className="stat-lbl">kWh meilleur jour</div>
+              </div>
+              <div className="stat-card">
+                <div className="stat-val">{(days.reduce((s,d)=>s+d.totalKwh,0)/Math.max(days.length,1)).toFixed(1)}</div>
+                <div className="stat-lbl">kWh/j moyenne</div>
+              </div>
+            </div>
+          </div>
+
+          {rec && (
+            <div className="section">
+              <div className="section-title">Recommandation</div>
+              <div className={`rec-card ${rec.quality}`}>
+                <div className="rec-title">{rec.icon} {rec.title}</div>
+                <div className="rec-body">{rec.body}</div>
+                <div className="rec-action">
+                  {rec.actions.map(a => <div key={a} className="action-chip">{a}</div>)}
                 </div>
               </div>
             </div>
           )}
-        </div>
-      );
-    }
 
-    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
-  </script>
+          <div className="section">
+            <div className="model-note">
+              <div className="model-note-title">🔬 Modèle de calcul</div>
+              <div className="model-note-body">Rayonnement sur plan incliné (GTI) via Open-Meteo · Clipping onduleur appliqué à {config.acPower} kW · Pertes système {Math.round(config.systemLoss*100)}%</div>
+            </div>
+          </div>
+        </>
+      )}
+
+      {showSettings && (
+        <div className="panel-overlay" onClick={e => e.target===e.currentTarget && setShowSettings(false)}>
+          <div className="panel">
+            <div className="panel-handle" />
+            <div className="panel-title">Configuration installation</div>
+
+            <button className="gps-btn" onClick={handleGPS} disabled={locating}>
+              📍 {locating ? "Localisation en cours…" : "Utiliser ma position GPS"}
+            </button>
+            <div className="field">
+              <label>Nom du lieu</label>
+              <input value={draftConfig.locationName} onChange={e => setDraftConfig(d=>({...d, locationName: e.target.value}))} placeholder="ex: Genval, Belgique" />
+            </div>
+            <div className="two-col">
+              <div className="field">
+                <label>Latitude</label>
+                <input type="number" step="0.0001" value={draftConfig.lat} onChange={e => setDraftConfig(d=>({...d, lat: parseFloat(e.target.value)}))} />
+              </div>
+              <div className="field">
+                <label>Longitude</label>
+                <input type="number" step="0.0001" value={draftConfig.lon} onChange={e => setDraftConfig(d=>({...d, lon: parseFloat(e.target.value)}))} />
+              </div>
+            </div>
+
+            <div className="panel-section-label">⚡ Installation photovoltaïque</div>
+
+            <div className="two-col">
+              <div className="field">
+                <label>Puissance DC (kWc)</label>
+                <input type="number" step="0.1" min="0.5" max="50" value={draftConfig.dcPower} onChange={e => setDraftConfig(d=>({...d, dcPower: parseFloat(e.target.value)}))} />
+                <div className="field-hint">Somme des panneaux</div>
+              </div>
+              <div className="field">
+                <label>Onduleur AC (kW)</label>
+                <input type="number" step="0.1" min="0.5" max="50" value={draftConfig.acPower} onChange={e => setDraftConfig(d=>({...d, acPower: parseFloat(e.target.value)}))} />
+                <div className="field-hint">Puissance max injectée</div>
+              </div>
+            </div>
+
+            <div className="field">
+              <label>Inclinaison des panneaux</label>
+              <input type="range" min="0" max="90" step="5" value={draftConfig.tilt} onChange={e => setDraftConfig(d=>({...d, tilt: parseInt(e.target.value)}))} />
+              <div className="range-val">{draftConfig.tilt}°</div>
+            </div>
+            <div className="field">
+              <label>Orientation (azimut)</label>
+              <select value={draftConfig.azimuth} onChange={e => setDraftConfig(d=>({...d, azimuth: parseInt(e.target.value)}))}>
+                {ORIENTATIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+              </select>
+            </div>
+            <div className="field">
+              <label>Pertes système (câbles, temp., salissures)</label>
+              <input type="range" min="0.03" max="0.25" step="0.01" value={draftConfig.systemLoss} onChange={e => setDraftConfig(d=>({...d, systemLoss: parseFloat(e.target.value)}))} />
+              <div className="range-val">{Math.round(draftConfig.systemLoss*100)}%</div>
+              <div className="field-hint">Typiquement 8–15%. Inclut câblage, température panneaux, salissures.</div>
+            </div>
+
+            <div className="btn-row">
+              <button className="btn-secondary" onClick={() => setShowSettings(false)}>Annuler</button>
+              <button className="btn-primary" onClick={handleSave}>Appliquer</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+
+<script>
+// ── Service Worker registration ──────────────────────────────────────────
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js')
+      .catch(err => console.log('SW registration failed:', err));
+  });
+}
+</script>
 </body>
 </html>
