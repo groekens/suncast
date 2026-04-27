@@ -73,16 +73,18 @@
     .day-kwh { font-size: 9px; color: var(--text-dim); font-weight: 500; }
     .day-bar.active .day-kwh { color: var(--sun); font-weight: 600; }
 
-    /* ── Hourly ── */
-    .hourly-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 4px; scrollbar-width: none; }
-    .hourly-scroll::-webkit-scrollbar { display: none; }
-    .hourly-track { display: flex; gap: 7px; min-width: max-content; padding: 2px 0 6px; }
-    .hour-col { display: flex; flex-direction: column; align-items: center; gap: 5px; width: 42px; }
-    .hour-label { font-size: 9.5px; color: var(--text-dim); font-weight: 500; }
-    .hour-bar-wrap { height: 72px; width: 26px; background: var(--bg-warm); border-radius: 5px; display: flex; align-items: flex-end; overflow: hidden; }
-    .hour-bar-fill { width: 100%; border-radius: 5px 5px 0 0; }
-    .hour-bar-fill.clipped { background: linear-gradient(to top, #E8960A, #E8960ADD) !important; }
-    .hour-wh { font-size: 8.5px; color: var(--text-dim); text-align: center; line-height: 1.3; }
+    /* ── Hourly SVG chart ── */
+    .hourly-chart-wrap { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 6px 10px; box-shadow: var(--shadow-sm); }
+    .hourly-chart-wrap svg { display: block; width: 100%; overflow: visible; }
+    .chart-axis-label { font-size: 9px; fill: var(--text-dim); font-family: Outfit, sans-serif; }
+    .chart-peak-label { font-size: 10px; fill: var(--sun); font-weight: 600; font-family: Outfit, sans-serif; }
+
+    /* ── Best day highlight ── */
+    .day-bar.best { border-color: #FFD87A; background: linear-gradient(to bottom, #FFF8E6, #FFFCF4); }
+    .day-bar.best .day-name { color: var(--sun); }
+    .day-bar.best .day-kwh { color: var(--sun); font-weight: 600; }
+    .day-bar.best.active { border-color: var(--sun); background: var(--sun-pale); }
+    .best-star { font-size: 9px; line-height: 1; }
 
     /* ── Rec card ── */
     .rec-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow-sm); }
@@ -110,7 +112,8 @@
     @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
     .panel { background: var(--card); border: 1px solid var(--border); border-top: 3px solid var(--sun-light); border-radius: 24px 24px 0 0; padding: 20px 20px 52px; width: 100%; max-height: 92vh; overflow-y: auto; box-shadow: 0 -8px 40px #00000018; animation: slideUp 0.3s cubic-bezier(0.34, 1.3, 0.64, 1); }
     @keyframes slideUp { from { transform: translateY(100%) } to { transform: translateY(0) } }
-    .panel-handle { width: 36px; height: 4px; background: var(--border-dark); border-radius: 2px; margin: 0 auto 18px; }
+    .panel-handle-area { padding: 8px 0 10px; margin: -20px -20px 8px; cursor: grab; display: flex; justify-content: center; align-items: center; }
+    .panel-handle { width: 36px; height: 4px; background: var(--border-dark); border-radius: 2px; }
     .panel-title { font-family: 'Playfair Display', serif; font-size: 18px; color: var(--text); margin-bottom: 20px; }
     .panel-section-label { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--text-dim); font-weight: 600; margin: 18px 0 12px; padding-top: 16px; border-top: 1px solid var(--border); }
 
@@ -144,6 +147,7 @@
     .info-btn:hover, .info-btn.active { background: var(--sun-light); color: var(--text); }
     .tooltip-box {
       margin-top: 8px;
+      margin-bottom: 10px;
       padding: 12px 14px;
       background: #FFFFF8;
       border: 1px solid #FFD87A;
@@ -474,6 +478,98 @@ function MiniMap({ lat, lon, label }) {
   );
 }
 
+// ── HourlyChart SVG component ────────────────────────────────────────────
+function HourlyChart({ hours, acPower }) {
+  const dayHours = hours.filter(h => h.hour >= 5 && h.hour <= 22);
+  if (!dayHours.length) return null;
+
+  const W = 340, H = 110, PAD_L = 32, PAD_R = 10, PAD_T = 18, PAD_B = 24;
+  const plotW = W - PAD_L - PAD_R;
+  const plotH = H - PAD_T - PAD_B;
+  const maxKw = Math.max(...dayHours.map(h => h.acKw), acPower * 0.1);
+  const clipY  = acPower > 0 ? PAD_T + plotH * (1 - acPower / maxKw) : -1;
+
+  // Map hour -> x, kw -> y
+  const hMin = dayHours[0].hour;
+  const hMax = dayHours[dayHours.length - 1].hour;
+  const hSpan = Math.max(hMax - hMin, 1);
+  const xOf = h => PAD_L + ((h - hMin) / hSpan) * plotW;
+  const yOf = kw => PAD_T + plotH * (1 - Math.min(kw, maxKw) / maxKw);
+
+  // Build area path
+  const pts = dayHours.map(h => `${xOf(h.hour).toFixed(1)},${yOf(h.acKw).toFixed(1)}`);
+  const linePath = "M " + pts.join(" L ");
+  const firstX = xOf(dayHours[0].hour).toFixed(1);
+  const lastX  = xOf(dayHours[dayHours.length-1].hour).toFixed(1);
+  const areaPath = `${linePath} L ${lastX},${(PAD_T+plotH).toFixed(1)} L ${firstX},${(PAD_T+plotH).toFixed(1)} Z`;
+
+  // Peak point
+  const peakH = dayHours.reduce((a, b) => a.acKw > b.acKw ? a : b);
+  const px = xOf(peakH.hour), py = yOf(peakH.acKw);
+
+  // X-axis ticks: show every 2h
+  const tickHours = dayHours.filter(h => h.hour % 2 === 0).map(h => h.hour);
+
+  // Y-axis ticks
+  const yTicks = [0, Math.round(maxKw * 0.5 * 10) / 10, Math.round(maxKw * 10) / 10];
+
+  return (
+    <div className="hourly-chart-wrap">
+      <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#FFC83A" stopOpacity="0.55" />
+            <stop offset="100%" stopColor="#FFC83A" stopOpacity="0.04" />
+          </linearGradient>
+          <clipPath id="chartClip">
+            <rect x={PAD_L} y={PAD_T} width={plotW} height={plotH} />
+          </clipPath>
+        </defs>
+
+        {/* Y gridlines */}
+        {yTicks.slice(1).map((v, i) => {
+          const y = yOf(v).toFixed(1);
+          return <line key={i} x1={PAD_L} y1={y} x2={PAD_L+plotW} y2={y} stroke="#E8E2D6" strokeWidth="1" />;
+        })}
+
+        {/* Clip line */}
+        {clipY > PAD_T && clipY < PAD_T + plotH && (
+          <line x1={PAD_L} y1={clipY.toFixed(1)} x2={PAD_L+plotW} y2={clipY.toFixed(1)}
+            stroke="#C0440A" strokeWidth="1" strokeDasharray="3 3" opacity="0.5" />
+        )}
+
+        {/* Area fill */}
+        <path d={areaPath} fill="url(#areaGrad)" clipPath="url(#chartClip)" />
+
+        {/* Line */}
+        <path d={linePath} fill="none" stroke="#E8960A" strokeWidth="2"
+          strokeLinejoin="round" strokeLinecap="round" clipPath="url(#chartClip)" />
+
+        {/* Peak dot + label */}
+        <circle cx={px.toFixed(1)} cy={py.toFixed(1)} r="3.5" fill="#E8960A" />
+        <text x={Math.min(px + 4, W - PAD_R - 28)} y={(py - 6).toFixed(1)} className="chart-peak-label">
+          {(peakH.acKw * 1000).toFixed(0)}W
+        </text>
+
+        {/* X axis */}
+        {tickHours.map(h => (
+          <text key={h} x={xOf(h).toFixed(1)} y={(PAD_T + plotH + 13).toFixed(1)}
+            textAnchor="middle" className="chart-axis-label">{h}h</text>
+        ))}
+
+        {/* Y axis labels */}
+        {yTicks.filter(v => v > 0).map((v, i) => (
+          <text key={i} x={(PAD_L - 4).toFixed(1)} y={(yOf(v) + 3).toFixed(1)}
+            textAnchor="end" className="chart-axis-label">{v < 1 ? (v*1000).toFixed(0)+"W" : v.toFixed(1)+"k"}</text>
+        ))}
+
+        {/* Baseline */}
+        <line x1={PAD_L} y1={PAD_T+plotH} x2={PAD_L+plotW} y2={PAD_T+plotH} stroke="#E8E2D6" strokeWidth="1" />
+      </svg>
+    </div>
+  );
+}
+
 // ── Main App ──────────────────────────────────────────────────────────────
 function App() {
   const [config,       setConfig]       = useState(loadConfig);
@@ -483,9 +579,40 @@ function App() {
   const [loading,      setLoading]      = useState(true);
   const [error,        setError]        = useState(null);
   const [showSettings, setShowSettings] = useState(false);
-  const [locMode,      setLocMode]      = useState("gps");   // "gps" | "address"
+  const [locMode,      setLocMode]      = useState("gps");
   const [locating,     setLocating]     = useState(false);
   const [openTooltip,  setOpenTooltip]  = useState(null);
+
+  // Swipe-down to close panel
+  const panelRef       = useRef(null);
+  const touchStartY    = useRef(null);
+  const touchStartSY   = useRef(null); // scrollTop at touch start
+
+  const handlePanelTouchStart = useCallback((e) => {
+    touchStartY.current  = e.touches[0].clientY;
+    touchStartSY.current = panelRef.current ? panelRef.current.scrollTop : 0;
+  }, []);
+
+  const handlePanelTouchMove = useCallback((e) => {
+    if (touchStartY.current === null) return;
+    const dy = e.touches[0].clientY - touchStartY.current;
+    // Only allow drag-down when panel is scrolled to top
+    if (dy > 0 && touchStartSY.current <= 0 && panelRef.current) {
+      panelRef.current.style.transform = `translateY(${Math.min(dy, 220)}px)`;
+      panelRef.current.style.transition = "none";
+    }
+  }, []);
+
+  const handlePanelTouchEnd = useCallback((e) => {
+    if (!panelRef.current) return;
+    const dy = e.changedTouches[0].clientY - (touchStartY.current || 0);
+    panelRef.current.style.transform = "";
+    panelRef.current.style.transition = "";
+    if (dy > 80 && touchStartSY.current <= 0) {
+      setShowSettings(false);
+    }
+    touchStartY.current = null;
+  }, []);
 
   // Close tooltip when clicking elsewhere
   useEffect(() => {
@@ -570,12 +697,14 @@ function App() {
               {days.map((d, i) => {
                 const pct = d.totalKwh / maxKwh;
                 const active = i === selectedDay;
+                const isBest = d.totalKwh === maxKwh;
                 const dName = i === 0 ? "Auj." : DAYS_FR[new Date(d.date+"T12:00:00").getDay()];
+                const classes = ["day-bar", active && "active", isBest && "best"].filter(Boolean).join(" ");
                 return (
-                  <div key={d.date} className={`day-bar${active ? " active" : ""}`} onClick={() => setSelectedDay(i)}>
-                    <div className="day-name">{dName}</div>
+                  <div key={d.date} className={classes} onClick={() => setSelectedDay(i)}>
+                    <div className="day-name">{isBest ? "⭐" : dName}</div>
                     <div className="bar-wrap">
-                      <div className="bar-fill" style={{ height: `${Math.max(pct*100,4)}%`, background: active ? `linear-gradient(to top,${barColor(pct)},${barColor(pct)}BB)` : barColor(pct)+"99" }} />
+                      <div className="bar-fill" style={{ height: `${Math.max(pct*100,4)}%`, background: isBest ? `linear-gradient(to top,#E8960A,#FFC83A)` : active ? `linear-gradient(to top,${barColor(pct)},${barColor(pct)}BB)` : barColor(pct)+"99" }} />
                     </div>
                     <div className="day-kwh">{d.totalKwh.toFixed(1)}</div>
                   </div>
@@ -587,19 +716,7 @@ function App() {
           {sel && (
             <div className="section">
               <div className="section-title">Courbe horaire · {DAYS_FR[new Date(sel.date+"T12:00:00").getDay()]} {fmtDate(sel.date)}</div>
-              <div className="hourly-scroll">
-                <div className="hourly-track">
-                  {sel.hours.filter(h => h.hour >= 5 && h.hour <= 22).map(h => (
-                    <div key={h.hour} className="hour-col">
-                      <div className="hour-label">{String(h.hour).padStart(2,"0")}h</div>
-                      <div className="hour-bar-wrap">
-                        <div className={`hour-bar-fill${h.clipped?" clipped":""}`} style={{ height:`${Math.max((h.acKw/maxHourKw)*100,h.acKw>0.01?3:0)}%`, background:h.clipped?undefined:`linear-gradient(to top,#E8960A,#FFC83A88)` }} />
-                      </div>
-                      <div className="hour-wh">{h.acKw>0.01?(h.acKw*1000).toFixed(0)+"W":"—"}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              <HourlyChart hours={sel.hours} acPower={config.acPower} />
             </div>
           )}
 
@@ -635,8 +752,17 @@ function App() {
       {/* ── Settings Panel ── */}
       {showSettings && (
         <div className="panel-overlay" onClick={e => e.target===e.currentTarget && setShowSettings(false)}>
-          <div className="panel" onClick={() => setOpenTooltip(null)}>
-            <div className="panel-handle" />
+          <div
+            className="panel"
+            onClick={() => setOpenTooltip(null)}
+            ref={panelRef}
+            onTouchStart={handlePanelTouchStart}
+            onTouchMove={handlePanelTouchMove}
+            onTouchEnd={handlePanelTouchEnd}
+          >
+            <div className="panel-handle-area" onTouchStart={handlePanelTouchStart}>
+              <div className="panel-handle" />
+            </div>
             <div className="panel-title">Configuration installation</div>
 
             {/* Location */}
