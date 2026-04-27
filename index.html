@@ -5,15 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Suncast ☀️</title>
   <meta name="description" content="Prévision de production solaire sur 7 jours" />
-  <meta name="theme-color" content="#0F1923" />
+  <meta name="theme-color" content="#FAFAF7" />
   <link rel="apple-touch-icon" href="https://fav.farm/☀️" />
 
-  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
 
-  <!-- React + Babel -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
@@ -22,475 +20,142 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --sun: #FFB830;
-      --sun-pale: #FFE08A;
-      --sky: #0F1923;
-      --sky-mid: #1A2E42;
-      --sky-light: #243B55;
-      --accent: #00E5A0;
-      --accent-dim: #00E5A033;
-      --warn: #FF6B35;
-      --text: #E8F4F8;
-      --text-dim: #7FA3B8;
-      --card: #162433;
-      --card-border: #1E3448;
-      --radius: 16px;
+      --bg:          #FAFAF7;
+      --bg-warm:     #F5F2EC;
+      --card:        #FFFFFF;
+      --border:      #E8E2D6;
+      --border-dark: #D4CBB8;
+      --sun:         #E8960A;
+      --sun-light:   #FFC83A;
+      --sun-pale:    #FFF3CC;
+      --sun-glow:    #FFEDD0;
+      --accent:      #2E7D4F;
+      --accent-pale: #EAF5EE;
+      --warn:        #C0440A;
+      --warn-pale:   #FFF0E8;
+      --text:        #1C1A16;
+      --text-mid:    #5C5649;
+      --text-dim:    #9C9285;
+      --shadow-sm:   0 1px 3px #00000010, 0 1px 8px #00000008;
+      --shadow-md:   0 4px 16px #00000010, 0 2px 6px #0000000A;
+      --radius-sm:   10px;
+      --radius:      16px;
+      --radius-lg:   22px;
     }
 
     html, body { height: 100%; }
-    body {
-      background: var(--sky);
-      color: var(--text);
-      font-family: 'DM Sans', sans-serif;
-      -webkit-font-smoothing: antialiased;
-    }
-
+    body { background: var(--bg); color: var(--text); font-family: 'Outfit', sans-serif; -webkit-font-smoothing: antialiased; }
     #root { min-height: 100vh; }
 
     .app {
       min-height: 100vh;
-      background:
-        radial-gradient(ellipse at 20% 0%, #1a3a5c55 0%, transparent 60%),
-        radial-gradient(ellipse at 80% 100%, #0d2a1a44 0%, transparent 60%),
-        var(--sky);
-      padding: 0 0 80px;
+      background: radial-gradient(ellipse 80% 40% at 50% -10%, #FFE8A855 0%, transparent 70%), var(--bg);
+      padding-bottom: 60px;
     }
 
     /* Header */
-    .header {
-      padding: 28px 20px 16px;
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-    }
-    .header-title {
-      font-family: 'Space Mono', monospace;
-      font-size: 11px;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      color: var(--sun);
-      margin-bottom: 4px;
-    }
-    .header-location {
-      font-size: 22px;
-      font-weight: 600;
-      color: var(--text);
-      line-height: 1.2;
-    }
-    .header-sub {
-      font-size: 12px;
-      color: var(--text-dim);
-      margin-top: 3px;
-    }
-    .settings-btn {
-      background: var(--card);
-      border: 1px solid var(--card-border);
-      border-radius: 12px;
-      width: 42px; height: 42px;
-      display: flex; align-items: center; justify-content: center;
-      cursor: pointer;
-      color: var(--text-dim);
-      font-size: 18px;
-      transition: all 0.2s;
-      flex-shrink: 0;
-    }
-    .settings-btn:hover { border-color: var(--sun); color: var(--sun); }
+    .header { padding: 52px 22px 20px; display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+    .header-eyebrow { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--sun); font-weight: 600; margin-bottom: 5px; }
+    .header-location { font-family: 'Playfair Display', serif; font-size: 26px; font-weight: 600; color: var(--text); line-height: 1.15; letter-spacing: -0.3px; }
+    .header-sub { font-size: 12px; color: var(--text-dim); margin-top: 5px; }
+    .settings-btn { flex-shrink: 0; background: var(--card); border: 1px solid var(--border); border-radius: 12px; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-dim); font-size: 17px; box-shadow: var(--shadow-sm); transition: all 0.2s; margin-top: 4px; }
+    .settings-btn:hover { border-color: var(--sun); color: var(--sun); box-shadow: 0 0 0 3px var(--sun-pale); }
 
     /* Hero */
-    .hero {
-      margin: 0 16px 20px;
-      background: linear-gradient(135deg, #1c3a5a, #0e2235);
-      border: 1px solid var(--card-border);
-      border-radius: 24px;
-      padding: 24px;
-      position: relative;
-      overflow: hidden;
-    }
-    .hero::before {
-      content: '';
-      position: absolute;
-      top: -40px; right: -40px;
-      width: 200px; height: 200px;
-      background: radial-gradient(circle, #FFB83022 0%, transparent 70%);
-      pointer-events: none;
-    }
-    .hero-label {
-      font-family: 'Space Mono', monospace;
-      font-size: 10px;
-      letter-spacing: 2px;
-      color: var(--text-dim);
-      text-transform: uppercase;
-      margin-bottom: 10px;
-    }
-    .hero-value {
-      font-size: 56px;
-      font-weight: 300;
-      color: var(--sun);
-      line-height: 1;
-      font-family: 'Space Mono', monospace;
-    }
-    .hero-unit { font-size: 20px; color: var(--sun-pale); }
-    .hero-sub {
-      margin-top: 8px;
-      font-size: 13px;
-      color: var(--text-dim);
-    }
-    .hero-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      margin-top: 16px;
-      padding: 8px 14px;
-      border-radius: 100px;
-      font-size: 13px;
-      font-weight: 500;
-    }
-    .badge-great { background: #00E5A022; color: var(--accent); border: 1px solid #00E5A044; }
-    .badge-ok    { background: #FFB83022; color: var(--sun);    border: 1px solid #FFB83044; }
-    .badge-poor  { background: #FF6B3522; color: var(--warn);   border: 1px solid #FF6B3544; }
-    .badge-dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+    .hero { margin: 0 16px 20px; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 26px 24px 22px; box-shadow: var(--shadow-md); position: relative; overflow: hidden; }
+    .hero-sun-bg { position: absolute; top: -30px; right: -30px; width: 160px; height: 160px; background: radial-gradient(circle, var(--sun-glow) 0%, transparent 70%); pointer-events: none; }
+    .hero-label { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--text-dim); font-weight: 500; margin-bottom: 10px; }
+    .hero-value-row { display: flex; align-items: baseline; gap: 6px; margin-bottom: 4px; }
+    .hero-value { font-family: 'Playfair Display', serif; font-size: 62px; font-weight: 400; color: var(--sun); line-height: 1; letter-spacing: -2px; }
+    .hero-unit { font-size: 18px; color: var(--sun-light); font-weight: 500; }
+    .hero-sub { font-size: 12.5px; color: var(--text-dim); margin-top: 6px; }
+    .hero-badge { display: inline-flex; align-items: center; gap: 7px; margin-top: 18px; padding: 8px 14px; border-radius: 100px; font-size: 13px; font-weight: 500; }
+    .badge-great { background: var(--accent-pale); color: var(--accent); border: 1px solid #B8DFC6; }
+    .badge-ok    { background: var(--sun-pale);    color: var(--sun);    border: 1px solid #FFD87A; }
+    .badge-poor  { background: var(--warn-pale);   color: var(--warn);   border: 1px solid #F4C4A4; }
+    .badge-dot   { width: 7px; height: 7px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
 
     /* Section */
     .section { margin: 0 16px 20px; }
-    .section-title {
-      font-family: 'Space Mono', monospace;
-      font-size: 10px;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      color: var(--text-dim);
-      margin-bottom: 12px;
-    }
+    .section-title { font-size: 10.5px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--text-dim); font-weight: 600; margin-bottom: 12px; }
 
     /* 7-day bars */
-    .days-grid {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 6px;
-    }
-    .day-bar {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 6px;
-      cursor: pointer;
-      padding: 10px 4px;
-      border-radius: 14px;
-      border: 1px solid transparent;
-      transition: all 0.2s;
-      background: var(--card);
-    }
-    .day-bar:hover { border-color: var(--card-border); }
-    .day-bar.active { border-color: var(--sun); background: #1c3a5a; }
-    .day-name {
-      font-size: 10px;
-      font-weight: 600;
-      color: var(--text-dim);
-      font-family: 'Space Mono', monospace;
-      text-transform: uppercase;
-    }
+    .days-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+    .day-bar { display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; padding: 10px 4px 8px; border-radius: var(--radius-sm); border: 1.5px solid transparent; background: var(--card); box-shadow: var(--shadow-sm); transition: all 0.18s; }
+    .day-bar:hover { border-color: var(--border-dark); }
+    .day-bar.active { border-color: var(--sun-light); background: var(--sun-pale); box-shadow: 0 0 0 3px var(--sun-pale), var(--shadow-sm); }
+    .day-name { font-size: 9.5px; font-weight: 600; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; }
     .day-bar.active .day-name { color: var(--sun); }
-    .bar-wrap {
-      width: 28px;
-      height: 60px;
-      background: #0d1e2e;
-      border-radius: 6px;
-      display: flex;
-      align-items: flex-end;
-      overflow: hidden;
-    }
-    .bar-fill {
-      width: 100%;
-      border-radius: 6px 6px 0 0;
-      transition: height 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-    .day-kwh {
-      font-size: 10px;
-      font-family: 'Space Mono', monospace;
-      color: var(--text-dim);
-    }
-    .day-bar.active .day-kwh { color: var(--text); }
+    .bar-wrap { width: 26px; height: 56px; background: var(--bg-warm); border-radius: 5px; display: flex; align-items: flex-end; overflow: hidden; }
+    .bar-fill { width: 100%; border-radius: 5px 5px 0 0; transition: height 0.55s cubic-bezier(0.34, 1.4, 0.64, 1); }
+    .day-kwh { font-size: 9px; color: var(--text-dim); font-weight: 500; }
+    .day-bar.active .day-kwh { color: var(--sun); font-weight: 600; }
 
     /* Hourly */
-    .hourly-scroll {
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-      padding-bottom: 8px;
-      scrollbar-width: none;
-    }
+    .hourly-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 4px; scrollbar-width: none; }
     .hourly-scroll::-webkit-scrollbar { display: none; }
-    .hourly-track {
-      display: flex;
-      gap: 8px;
-      min-width: max-content;
-      padding: 4px 0;
-    }
-    .hour-col {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 6px;
-      width: 44px;
-    }
-    .hour-label {
-      font-size: 10px;
-      font-family: 'Space Mono', monospace;
-      color: var(--text-dim);
-    }
-    .hour-bar-wrap {
-      height: 80px;
-      width: 28px;
-      background: #0d1e2e;
-      border-radius: 6px;
-      display: flex;
-      align-items: flex-end;
-      overflow: hidden;
-    }
-    .hour-bar-fill {
-      width: 100%;
-      border-radius: 6px 6px 0 0;
-      background: linear-gradient(to top, #FFB830, #FFD58055);
-    }
-    .hour-wh {
-      font-size: 9px;
-      font-family: 'Space Mono', monospace;
-      color: var(--text-dim);
-      text-align: center;
-      line-height: 1.3;
-    }
+    .hourly-track { display: flex; gap: 7px; min-width: max-content; padding: 2px 0 6px; }
+    .hour-col { display: flex; flex-direction: column; align-items: center; gap: 5px; width: 42px; }
+    .hour-label { font-size: 9.5px; color: var(--text-dim); font-weight: 500; }
+    .hour-bar-wrap { height: 72px; width: 26px; background: var(--bg-warm); border-radius: 5px; display: flex; align-items: flex-end; overflow: hidden; }
+    .hour-bar-fill { width: 100%; border-radius: 5px 5px 0 0; background: linear-gradient(to top, #E8960A, #FFC83A88); }
+    .hour-wh { font-size: 8.5px; color: var(--text-dim); text-align: center; line-height: 1.3; }
 
     /* Rec card */
-    .rec-card {
-      background: var(--card);
-      border: 1px solid var(--card-border);
-      border-radius: var(--radius);
-      padding: 18px;
-    }
-    .rec-card.great { border-color: #00E5A044; }
-    .rec-card.ok    { border-color: #FFB83044; }
-    .rec-card.poor  { border-color: #FF6B3544; }
-    .rec-title { font-weight: 600; font-size: 15px; margin-bottom: 6px; }
-    .rec-body  { font-size: 13px; color: var(--text-dim); line-height: 1.6; }
-    .rec-action {
-      margin-top: 14px;
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-    .action-chip {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      padding: 7px 12px;
-      border-radius: 100px;
-      font-size: 12px;
-      font-weight: 500;
-      background: #0d1e2e;
-      color: var(--text-dim);
-      border: 1px solid var(--card-border);
-    }
+    .rec-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow-sm); }
+    .rec-card.great { border-color: #B8DFC6; background: var(--accent-pale); }
+    .rec-card.ok    { border-color: #FFD87A; background: var(--sun-pale); }
+    .rec-card.poor  { border-color: #F4C4A4; background: var(--warn-pale); }
+    .rec-title { font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 600; color: var(--text); margin-bottom: 7px; }
+    .rec-body  { font-size: 13.5px; color: var(--text-mid); line-height: 1.65; }
+    .rec-action { margin-top: 14px; display: flex; gap: 8px; flex-wrap: wrap; }
+    .action-chip { padding: 6px 13px; border-radius: 100px; font-size: 12px; font-weight: 500; background: var(--card); color: var(--text-mid); border: 1px solid var(--border-dark); }
 
     /* Stats */
-    .stats-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 10px;
-    }
-    .stat-card {
-      background: var(--card);
-      border: 1px solid var(--card-border);
-      border-radius: var(--radius);
-      padding: 16px 12px;
-      text-align: center;
-    }
-    .stat-val {
-      font-family: 'Space Mono', monospace;
-      font-size: 18px;
-      color: var(--sun);
-      font-weight: 700;
-    }
-    .stat-lbl {
-      font-size: 11px;
-      color: var(--text-dim);
-      margin-top: 4px;
-      line-height: 1.3;
-    }
+    .stats-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+    .stat-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 10px; text-align: center; box-shadow: var(--shadow-sm); }
+    .stat-val { font-family: 'Playfair Display', serif; font-size: 22px; color: var(--sun); font-weight: 600; letter-spacing: -0.5px; }
+    .stat-lbl { font-size: 10.5px; color: var(--text-dim); margin-top: 4px; line-height: 1.35; }
 
-    /* Settings panel */
-    .panel-overlay {
-      position: fixed; inset: 0;
-      background: #00000088;
-      z-index: 50;
-      display: flex;
-      align-items: flex-end;
-      animation: fadeIn 0.2s;
-    }
+    /* Panel */
+    .panel-overlay { position: fixed; inset: 0; background: #00000030; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); z-index: 50; display: flex; align-items: flex-end; animation: fadeIn 0.2s; }
     @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
-    .panel {
-      background: #121e2a;
-      border: 1px solid var(--card-border);
-      border-radius: 24px 24px 0 0;
-      padding: 24px 20px 48px;
-      width: 100%;
-      max-height: 92vh;
-      overflow-y: auto;
-      animation: slideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
+    .panel { background: var(--card); border: 1px solid var(--border); border-top: 3px solid var(--sun-light); border-radius: 24px 24px 0 0; padding: 20px 20px 52px; width: 100%; max-height: 92vh; overflow-y: auto; box-shadow: 0 -8px 40px #00000018; animation: slideUp 0.3s cubic-bezier(0.34, 1.3, 0.64, 1); }
     @keyframes slideUp { from { transform: translateY(100%) } to { transform: translateY(0) } }
-    .panel-handle {
-      width: 40px; height: 4px;
-      background: #2a3f54;
-      border-radius: 2px;
-      margin: 0 auto 20px;
-    }
-    .panel-title {
-      font-family: 'Space Mono', monospace;
-      font-size: 13px;
-      letter-spacing: 1px;
-      color: var(--sun);
-      margin-bottom: 20px;
-    }
-    .field { margin-bottom: 16px; }
-    .field label {
-      display: block;
-      font-size: 11px;
-      font-family: 'Space Mono', monospace;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      color: var(--text-dim);
-      margin-bottom: 8px;
-    }
-    .field input, .field select {
-      width: 100%;
-      background: var(--card);
-      border: 1px solid var(--card-border);
-      border-radius: 10px;
-      padding: 12px 14px;
-      color: var(--text);
-      font-family: 'DM Sans', sans-serif;
-      font-size: 15px;
-      outline: none;
-      transition: border-color 0.2s;
-      -webkit-appearance: none;
-    }
-    .field select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237FA3B8' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; }
-    .field input:focus, .field select:focus { border-color: var(--sun); }
-    .field input[type=range] {
-      padding: 8px 0;
-      background: transparent;
-      border: none;
-      cursor: pointer;
-    }
-    .field input[type=range]::-webkit-slider-runnable-track {
-      height: 4px; background: var(--card-border); border-radius: 2px;
-    }
-    .field input[type=range]::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      width: 22px; height: 22px;
-      background: var(--sun);
-      border-radius: 50%;
-      margin-top: -9px;
-      cursor: pointer;
-      box-shadow: 0 0 10px #FFB83066;
-    }
-    .range-val {
-      font-family: 'Space Mono', monospace;
-      font-size: 13px;
-      color: var(--sun);
-      text-align: right;
-      margin-top: 4px;
-    }
+    .panel-handle { width: 36px; height: 4px; background: var(--border-dark); border-radius: 2px; margin: 0 auto 18px; }
+    .panel-title { font-family: 'Playfair Display', serif; font-size: 18px; color: var(--text); margin-bottom: 20px; }
+
+    .field { margin-bottom: 15px; }
+    .field label { display: block; font-size: 10.5px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-dim); font-weight: 600; margin-bottom: 7px; }
+    .field input, .field select { width: 100%; background: var(--bg-warm); border: 1.5px solid var(--border); border-radius: var(--radius-sm); padding: 11px 14px; color: var(--text); font-family: 'Outfit', sans-serif; font-size: 15px; outline: none; transition: border-color 0.2s, box-shadow 0.2s; -webkit-appearance: none; }
+    .field select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%239C9285' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; background-color: var(--bg-warm); padding-right: 36px; }
+    .field input:focus, .field select:focus { border-color: var(--sun-light); box-shadow: 0 0 0 3px var(--sun-pale); }
+    .field input[type=range] { padding: 6px 0; background: transparent; border: none; box-shadow: none; cursor: pointer; }
+    .field input[type=range]::-webkit-slider-runnable-track { height: 4px; background: var(--border-dark); border-radius: 2px; }
+    .field input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; background: var(--sun); border-radius: 50%; margin-top: -9px; cursor: pointer; box-shadow: 0 2px 8px #E8960A44; }
+    .range-val { font-size: 13px; color: var(--sun); font-weight: 600; text-align: right; margin-top: 4px; }
     .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .btn-row { display: flex; gap: 10px; margin-top: 20px; }
-    .btn-primary {
-      flex: 1;
-      padding: 14px;
-      background: var(--sun);
-      color: var(--sky);
-      border: none;
-      border-radius: 12px;
-      font-weight: 700;
-      font-size: 15px;
-      cursor: pointer;
-      font-family: 'DM Sans', sans-serif;
-      transition: opacity 0.2s;
-    }
-    .btn-primary:active { opacity: 0.85; }
-    .btn-secondary {
-      padding: 14px 20px;
-      background: var(--card);
-      color: var(--text-dim);
-      border: 1px solid var(--card-border);
-      border-radius: 12px;
-      font-size: 14px;
-      cursor: pointer;
-      font-family: 'DM Sans', sans-serif;
-    }
-    .gps-btn {
-      width: 100%;
-      padding: 12px;
-      margin-bottom: 14px;
-      background: var(--accent-dim);
-      color: var(--accent);
-      border: 1px solid #00E5A044;
-      border-radius: 10px;
-      font-size: 14px;
-      cursor: pointer;
-      font-family: 'DM Sans', sans-serif;
-      display: flex; align-items: center; justify-content: center; gap: 8px;
-      transition: background 0.2s;
-      font-weight: 500;
-    }
+
+    .gps-btn { width: 100%; padding: 12px; margin-bottom: 14px; background: var(--accent-pale); color: var(--accent); border: 1.5px solid #B8DFC6; border-radius: var(--radius-sm); font-size: 14px; cursor: pointer; font-family: 'Outfit', sans-serif; font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 8px; transition: background 0.2s; }
     .gps-btn:disabled { opacity: 0.5; cursor: default; }
+    .gps-btn:not(:disabled):hover { background: #D4EFD9; }
+
+    .btn-row { display: flex; gap: 10px; margin-top: 20px; }
+    .btn-primary { flex: 1; padding: 14px; background: var(--sun); color: #fff; border: none; border-radius: var(--radius-sm); font-weight: 600; font-size: 15px; cursor: pointer; font-family: 'Outfit', sans-serif; box-shadow: 0 4px 12px #E8960A33; transition: opacity 0.2s, transform 0.1s; }
+    .btn-primary:active { opacity: 0.88; transform: scale(0.98); }
+    .btn-secondary { padding: 14px 20px; background: var(--bg-warm); color: var(--text-mid); border: 1.5px solid var(--border-dark); border-radius: var(--radius-sm); font-size: 14px; cursor: pointer; font-family: 'Outfit', sans-serif; font-weight: 500; }
 
     /* Loading */
-    .loading-wrap {
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      min-height: 60vh; gap: 16px;
-    }
-    .sun-spin {
-      width: 64px; height: 64px;
-      border-radius: 50%;
-      background: radial-gradient(circle, var(--sun) 30%, #FFB83033 70%, transparent 100%);
-      box-shadow: 0 0 40px #FFB83066;
-      animation: pulse 1.6s ease-in-out infinite;
-    }
-    @keyframes pulse {
-      0%, 100% { transform: scale(1); box-shadow: 0 0 40px #FFB83066; }
-      50% { transform: scale(1.15); box-shadow: 0 0 60px #FFB830AA; }
-    }
-    .loading-text { color: var(--text-dim); font-size: 13px; font-family: 'Space Mono', monospace; letter-spacing: 1px; }
+    .loading-wrap { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 60vh; gap: 18px; }
+    .sun-spin { width: 56px; height: 56px; border-radius: 50%; background: radial-gradient(circle, var(--sun-light) 30%, var(--sun-glow) 60%, transparent 100%); box-shadow: 0 0 30px var(--sun-light), 0 0 60px var(--sun-pale); animation: pulse 1.6s ease-in-out infinite; }
+    @keyframes pulse { 0%, 100% { transform: scale(1); box-shadow: 0 0 30px var(--sun-light), 0 0 60px var(--sun-pale); } 50% { transform: scale(1.12); box-shadow: 0 0 50px var(--sun-light), 0 0 90px var(--sun-pale); } }
+    .loading-text { color: var(--text-dim); font-size: 13px; font-weight: 500; letter-spacing: 0.5px; }
 
     /* Error */
-    .error-card {
-      margin: 20px 16px;
-      background: #2a1515;
-      border: 1px solid #5a2a2a;
-      border-radius: var(--radius);
-      padding: 24px;
-      text-align: center;
-    }
-    .error-icon { font-size: 32px; margin-bottom: 10px; }
+    .error-card { margin: 20px 16px; background: var(--warn-pale); border: 1px solid #F4C4A4; border-radius: var(--radius); padding: 24px; text-align: center; }
+    .error-icon { font-size: 30px; margin-bottom: 10px; }
     .error-msg { color: var(--warn); font-size: 14px; line-height: 1.5; }
-    .error-retry {
-      margin-top: 16px;
-      padding: 11px 24px;
-      background: var(--warn);
-      color: white;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-      font-size: 14px;
-      font-family: 'DM Sans', sans-serif;
-      font-weight: 600;
-    }
-
-    /* Divider */
-    .divider {
-      height: 1px;
-      background: var(--card-border);
-      margin: 20px 0;
-    }
+    .error-retry { margin-top: 16px; padding: 10px 24px; background: var(--warn); color: white; border: none; border-radius: var(--radius-sm); cursor: pointer; font-size: 14px; font-family: 'Outfit', sans-serif; font-weight: 600; }
   </style>
 </head>
 <body>
@@ -499,9 +164,7 @@
   <script type="text/babel">
     const { useState, useEffect, useCallback } = React;
 
-    // ── Constants ────────────────────────────────────────────────────────
     const DAYS_FR = ["Dim","Lun","Mar","Mer","Jeu","Ven","Sam"];
-
     const ORIENTATIONS = [
       { value: 0,   label: "Nord (0°)" },
       { value: 45,  label: "Nord-Est (45°)" },
@@ -512,91 +175,59 @@
       { value: 270, label: "Ouest (270°)" },
       { value: 315, label: "Nord-Ouest (315°)" },
     ];
-
     const STORAGE_KEY = "suncast_config";
-
     const DEFAULT_CONFIG = {
-      lat: 50.637,
-      lon: 4.611,
+      lat: 50.637, lon: 4.611,
       locationName: "Genval, Belgique",
-      peakPower: 5,
-      azimuth: 180,
-      tilt: 35,
-      efficiency: 0.80,
+      peakPower: 5, azimuth: 180, tilt: 35, efficiency: 0.80,
     };
 
-    // ── Persistence ──────────────────────────────────────────────────────
     function loadConfig() {
-      try {
-        const saved = localStorage.getItem(STORAGE_KEY);
-        return saved ? { ...DEFAULT_CONFIG, ...JSON.parse(saved) } : DEFAULT_CONFIG;
-      } catch { return DEFAULT_CONFIG; }
+      try { const s = localStorage.getItem(STORAGE_KEY); return s ? { ...DEFAULT_CONFIG, ...JSON.parse(s) } : DEFAULT_CONFIG; }
+      catch { return DEFAULT_CONFIG; }
+    }
+    function saveConfig(cfg) { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(cfg)); } catch {} }
+
+    function estimateKwh(ghi, peakPower, efficiency) {
+      return (ghi * peakPower * efficiency) / 1000;
     }
 
-    function saveConfig(cfg) {
-      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(cfg)); } catch {}
-    }
-
-    // ── Solar model ──────────────────────────────────────────────────────
-    function estimateKwh(radiationW, peakPower, efficiency) {
-      // shortwave_radiation is W/m² instantaneous → treated as Wh/m² for that hour
-      return (radiationW * peakPower * efficiency) / 1000;
-    }
-
-    // ── Recommendation ───────────────────────────────────────────────────
     function getRecommendation(days) {
       if (!days.length) return null;
-      const today = days[0];
+      const today  = days[0];
       const sorted = [...days].sort((a, b) => b.totalKwh - a.totalKwh);
-      const best = sorted[0];
-      const bestDayStr = DAYS_FR[new Date(best.date + "T12:00:00").getDay()];
-      const todayIsToday = best.date === today.date;
+      const best   = sorted[0];
+      const bestDayStr  = DAYS_FR[new Date(best.date + "T12:00:00").getDay()];
+      const todayIsBest = best.date === today.date;
 
       if (today.totalKwh >= best.totalKwh * 0.85) {
-        return {
-          quality: "great",
-          icon: "⚡",
-          title: "Aujourd'hui est optimal",
-          body: `Excellente production prévue aujourd'hui (${today.totalKwh.toFixed(1)} kWh). C'est le bon moment pour charger votre véhicule ou lancer vos gros appareils électroménagers.`,
-          actions: ["🚗 Charger VE", "🧺 Lave-linge", "🍽️ Lave-vaisselle"],
-        };
-      } else if (best.totalKwh > today.totalKwh * 1.25 && !todayIsToday) {
-        return {
-          quality: "poor",
-          icon: "⏳",
-          title: `Attendre ${bestDayStr} sera plus rentable`,
-          body: `La production de ${bestDayStr} sera ~${best.totalKwh.toFixed(1)} kWh contre ${today.totalKwh.toFixed(1)} kWh aujourd'hui. Décaler votre recharge ou vos appareils gourmands vers ce jour maximisera l'autoconsommation.`,
-          actions: ["📅 Reporter au " + bestDayStr],
-        };
+        return { quality: "great", icon: "⚡", title: "Aujourd'hui est optimal",
+          body: `Excellente production prévue aujourd'hui (${today.totalKwh.toFixed(1)} kWh). C'est le bon moment pour charger votre véhicule ou lancer vos gros appareils.`,
+          actions: ["🚗 Charger VE", "🧺 Lave-linge", "🍽️ Lave-vaisselle"] };
+      } else if (best.totalKwh > today.totalKwh * 1.25 && !todayIsBest) {
+        return { quality: "poor", icon: "⏳", title: `Attendre ${bestDayStr} sera plus rentable`,
+          body: `La production de ${bestDayStr} sera ~${best.totalKwh.toFixed(1)} kWh contre ${today.totalKwh.toFixed(1)} kWh aujourd'hui. Décaler votre recharge maximisera l'autoconsommation.`,
+          actions: ["📅 Reporter au " + bestDayStr] };
       } else {
-        return {
-          quality: "ok",
-          icon: "🌤️",
-          title: "Production correcte toute la semaine",
-          body: `La production sera stable entre ${Math.min(...days.map(d=>d.totalKwh)).toFixed(1)} et ${best.totalKwh.toFixed(1)} kWh/jour. ${todayIsToday ? "Aujourd'hui" : bestDayStr} reste légèrement meilleur pour maximiser l'autoconsommation.`,
-          actions: ["🚗 Charger VE", "🔌 Autoconsommation"],
-        };
+        return { quality: "ok", icon: "🌤️", title: "Production correcte toute la semaine",
+          body: `La production oscillera entre ${Math.min(...days.map(d=>d.totalKwh)).toFixed(1)} et ${best.totalKwh.toFixed(1)} kWh/jour. ${todayIsBest ? "Aujourd'hui" : bestDayStr} reste légèrement meilleur.`,
+          actions: ["🚗 Charger VE", "🔌 Autoconsommation"] };
       }
     }
 
-    // ── API ──────────────────────────────────────────────────────────────
     async function fetchSolarForecast(lat, lon, peakPower, efficiency) {
       const params = new URLSearchParams({
-        latitude: lat,
-        longitude: lon,
+        latitude: lat, longitude: lon,
         hourly: "shortwave_radiation",
-        daily: "sunrise,sunset,shortwave_radiation_sum",
+        daily: "sunrise,sunset",
         forecast_days: 7,
         timezone: "Europe/Brussels",
       });
-
       const res = await fetch(`https://api.open-meteo.com/v1/forecast?${params}`);
       if (!res.ok) throw new Error(`Erreur API Open-Meteo (${res.status})`);
       const data = await res.json();
-
       const times = data.hourly.time;
       const ghi   = data.hourly.shortwave_radiation;
-
       const dailyMap = {};
       for (let i = 0; i < times.length; i++) {
         const dateStr = times[i].substring(0, 10);
@@ -606,53 +237,37 @@
         dailyMap[dateStr].totalKwh += kwh;
         dailyMap[dateStr].hours.push({ hour, ghi: ghi[i] ?? 0, kwh });
       }
-
       for (let i = 0; i < data.daily.time.length; i++) {
         const d = data.daily.time[i];
-        if (dailyMap[d]) {
-          dailyMap[d].sunrise = data.daily.sunrise[i];
-          dailyMap[d].sunset  = data.daily.sunset[i];
-        }
+        if (dailyMap[d]) { dailyMap[d].sunrise = data.daily.sunrise[i]; dailyMap[d].sunset = data.daily.sunset[i]; }
       }
-
       return Object.entries(dailyMap).map(([date, v]) => ({ date, ...v }));
     }
 
-    // ── Helpers ──────────────────────────────────────────────────────────
     function barColor(pct) {
-      if (pct > 0.70) return "#FFB830";
-      if (pct > 0.40) return "#FFCC60";
-      return "#3a5a7a";
+      if (pct > 0.70) return "#E8960A";
+      if (pct > 0.40) return "#FFC83A";
+      return "#D4CBB8";
     }
-
     function fmtDate(dateStr) {
-      const d = new Date(dateStr + "T12:00:00");
-      return d.toLocaleDateString("fr-BE", { day: "numeric", month: "short" });
+      return new Date(dateStr + "T12:00:00").toLocaleDateString("fr-BE", { day: "numeric", month: "short" });
     }
 
-    // ── App ──────────────────────────────────────────────────────────────
     function App() {
-      const [config,      setConfig]      = useState(loadConfig);
-      const [draftConfig, setDraftConfig] = useState(loadConfig);
-      const [days,        setDays]        = useState([]);
-      const [selectedDay, setSelectedDay] = useState(0);
-      const [loading,     setLoading]     = useState(true);
-      const [error,       setError]       = useState(null);
-      const [showSettings,setShowSettings]= useState(false);
-      const [locating,    setLocating]    = useState(false);
+      const [config,       setConfig]       = useState(loadConfig);
+      const [draftConfig,  setDraftConfig]  = useState(loadConfig);
+      const [days,         setDays]         = useState([]);
+      const [selectedDay,  setSelectedDay]  = useState(0);
+      const [loading,      setLoading]      = useState(true);
+      const [error,        setError]        = useState(null);
+      const [showSettings, setShowSettings] = useState(false);
+      const [locating,     setLocating]     = useState(false);
 
       const load = useCallback(async (cfg) => {
-        setLoading(true);
-        setError(null);
-        try {
-          const result = await fetchSolarForecast(cfg.lat, cfg.lon, cfg.peakPower, cfg.efficiency);
-          setDays(result);
-          setSelectedDay(0);
-        } catch (e) {
-          setError(e.message);
-        } finally {
-          setLoading(false);
-        }
+        setLoading(true); setError(null);
+        try { const result = await fetchSolarForecast(cfg.lat, cfg.lon, cfg.peakPower, cfg.efficiency); setDays(result); setSelectedDay(0); }
+        catch (e) { setError(e.message); }
+        finally { setLoading(false); }
       }, []);
 
       useEffect(() => { load(config); }, [config]);
@@ -661,48 +276,29 @@
         if (!navigator.geolocation) return;
         setLocating(true);
         navigator.geolocation.getCurrentPosition(
-          (pos) => {
-            setDraftConfig(d => ({
-              ...d,
-              lat: parseFloat(pos.coords.latitude.toFixed(4)),
-              lon: parseFloat(pos.coords.longitude.toFixed(4)),
-              locationName: "Ma position GPS",
-            }));
-            setLocating(false);
-          },
+          pos => { setDraftConfig(d => ({ ...d, lat: parseFloat(pos.coords.latitude.toFixed(4)), lon: parseFloat(pos.coords.longitude.toFixed(4)), locationName: "Ma position GPS" })); setLocating(false); },
           () => setLocating(false),
           { timeout: 8000 }
         );
       };
 
-      const handleSave = () => {
-        saveConfig(draftConfig);
-        setConfig(draftConfig);
-        setShowSettings(false);
-      };
+      const handleSave = () => { saveConfig(draftConfig); setConfig(draftConfig); setShowSettings(false); };
 
-      const maxKwh    = Math.max(...days.map(d => d.totalKwh), 0.1);
-      const sel       = days[selectedDay];
-      const rec       = days.length ? getRecommendation([...days]) : null;
+      const maxKwh     = Math.max(...days.map(d => d.totalKwh), 0.1);
+      const sel        = days[selectedDay];
+      const rec        = days.length ? getRecommendation([...days]) : null;
       const maxHourKwh = sel ? Math.max(...sel.hours.map(h => h.kwh), 0.001) : 1;
       const orientLabel = ORIENTATIONS.find(o => o.value === config.azimuth)?.label.split(" ")[0] ?? "";
 
       return (
         <div className="app">
-          {/* Header */}
           <div className="header">
             <div>
-              <div className="header-title">☀ Suncast</div>
+              <div className="header-eyebrow">☀ Suncast</div>
               <div className="header-location">{config.locationName}</div>
-              <div className="header-sub">
-                {config.peakPower} kWc · {config.tilt}° · {orientLabel}
-              </div>
+              <div className="header-sub">{config.peakPower} kWc · {config.tilt}° · {orientLabel}</div>
             </div>
-            <button
-              className="settings-btn"
-              onClick={() => { setDraftConfig(config); setShowSettings(true); }}
-              aria-label="Paramètres"
-            >⚙</button>
+            <button className="settings-btn" onClick={() => { setDraftConfig(config); setShowSettings(true); }} aria-label="Paramètres">⚙</button>
           </div>
 
           {loading ? (
@@ -718,12 +314,13 @@
             </div>
           ) : (
             <>
-              {/* Hero */}
               {sel && (
                 <div className="hero">
+                  <div className="hero-sun-bg" />
                   <div className="hero-label">Production estimée · {fmtDate(sel.date)}</div>
-                  <div className="hero-value">
-                    {sel.totalKwh.toFixed(1)}<span className="hero-unit"> kWh</span>
+                  <div className="hero-value-row">
+                    <span className="hero-value">{sel.totalKwh.toFixed(1)}</span>
+                    <span className="hero-unit">kWh</span>
                   </div>
                   <div className="hero-sub">
                     {sel.sunrise ? `🌅 ${sel.sunrise.substring(11,16)}` : ""}
@@ -738,32 +335,18 @@
                 </div>
               )}
 
-              {/* 7-day bars */}
               <div className="section">
                 <div className="section-title">Prévision 7 jours</div>
                 <div className="days-grid">
                   {days.map((d, i) => {
-                    const date    = new Date(d.date + "T12:00:00");
-                    const dayName = i === 0 ? "Auj." : DAYS_FR[date.getDay()];
-                    const pct     = d.totalKwh / maxKwh;
-                    const isActive = i === selectedDay;
+                    const pct = d.totalKwh / maxKwh;
+                    const active = i === selectedDay;
+                    const dayName = i === 0 ? "Auj." : DAYS_FR[new Date(d.date + "T12:00:00").getDay()];
                     return (
-                      <div
-                        key={d.date}
-                        className={`day-bar${isActive ? " active" : ""}`}
-                        onClick={() => setSelectedDay(i)}
-                      >
+                      <div key={d.date} className={`day-bar${active ? " active" : ""}`} onClick={() => setSelectedDay(i)}>
                         <div className="day-name">{dayName}</div>
                         <div className="bar-wrap">
-                          <div
-                            className="bar-fill"
-                            style={{
-                              height: `${Math.max(pct * 100, 4)}%`,
-                              background: isActive
-                                ? `linear-gradient(to top, ${barColor(pct)}, ${barColor(pct)}AA)`
-                                : barColor(pct) + "66",
-                            }}
-                          />
+                          <div className="bar-fill" style={{ height: `${Math.max(pct * 100, 4)}%`, background: active ? `linear-gradient(to top, ${barColor(pct)}, ${barColor(pct)}BB)` : barColor(pct) + "99" }} />
                         </div>
                         <div className="day-kwh">{d.totalKwh.toFixed(1)}</div>
                       </div>
@@ -772,38 +355,25 @@
                 </div>
               </div>
 
-              {/* Hourly */}
               {sel && (
                 <div className="section">
-                  <div className="section-title">
-                    Courbe horaire · {DAYS_FR[new Date(sel.date + "T12:00:00").getDay()]} {fmtDate(sel.date)}
-                  </div>
+                  <div className="section-title">Courbe horaire · {DAYS_FR[new Date(sel.date+"T12:00:00").getDay()]} {fmtDate(sel.date)}</div>
                   <div className="hourly-scroll">
                     <div className="hourly-track">
-                      {sel.hours
-                        .filter(h => h.hour >= 5 && h.hour <= 22)
-                        .map(h => (
-                          <div key={h.hour} className="hour-col">
-                            <div className="hour-label">{String(h.hour).padStart(2,"0")}h</div>
-                            <div className="hour-bar-wrap">
-                              <div
-                                className="hour-bar-fill"
-                                style={{
-                                  height: `${Math.max((h.kwh / maxHourKwh) * 100, h.kwh > 0.01 ? 3 : 0)}%`,
-                                }}
-                              />
-                            </div>
-                            <div className="hour-wh">
-                              {h.kwh > 0.01 ? Math.round(h.kwh * 1000) + "W" : "—"}
-                            </div>
+                      {sel.hours.filter(h => h.hour >= 5 && h.hour <= 22).map(h => (
+                        <div key={h.hour} className="hour-col">
+                          <div className="hour-label">{String(h.hour).padStart(2,"0")}h</div>
+                          <div className="hour-bar-wrap">
+                            <div className="hour-bar-fill" style={{ height: `${Math.max((h.kwh / maxHourKwh) * 100, h.kwh > 0.01 ? 3 : 0)}%` }} />
                           </div>
-                        ))}
+                          <div className="hour-wh">{h.kwh > 0.01 ? Math.round(h.kwh * 1000) + "W" : "—"}</div>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 </div>
               )}
 
-              {/* Stats */}
               <div className="section">
                 <div className="section-title">Résumé semaine</div>
                 <div className="stats-row">
@@ -822,7 +392,6 @@
                 </div>
               </div>
 
-              {/* Recommendation */}
               {rec && (
                 <div className="section">
                   <div className="section-title">Recommandation</div>
@@ -830,9 +399,7 @@
                     <div className="rec-title">{rec.icon} {rec.title}</div>
                     <div className="rec-body">{rec.body}</div>
                     <div className="rec-action">
-                      {rec.actions.map(a => (
-                        <div key={a} className="action-chip">{a}</div>
-                      ))}
+                      {rec.actions.map(a => <div key={a} className="action-chip">{a}</div>)}
                     </div>
                   </div>
                 </div>
@@ -840,90 +407,49 @@
             </>
           )}
 
-          {/* Settings panel */}
           {showSettings && (
-            <div
-              className="panel-overlay"
-              onClick={e => e.target === e.currentTarget && setShowSettings(false)}
-            >
+            <div className="panel-overlay" onClick={e => e.target===e.currentTarget && setShowSettings(false)}>
               <div className="panel">
                 <div className="panel-handle" />
-                <div className="panel-title">⚙ Configuration installation</div>
-
+                <div className="panel-title">Configuration installation</div>
                 <button className="gps-btn" onClick={handleGPS} disabled={locating}>
                   📍 {locating ? "Localisation en cours…" : "Utiliser ma position GPS"}
                 </button>
-
                 <div className="field">
                   <label>Nom du lieu</label>
-                  <input
-                    value={draftConfig.locationName}
-                    onChange={e => setDraftConfig(d=>({...d, locationName: e.target.value}))}
-                    placeholder="ex: Genval, Belgique"
-                  />
+                  <input value={draftConfig.locationName} onChange={e => setDraftConfig(d=>({...d, locationName: e.target.value}))} placeholder="ex: Genval, Belgique" />
                 </div>
-
                 <div className="two-col">
                   <div className="field">
                     <label>Latitude</label>
-                    <input
-                      type="number" step="0.0001"
-                      value={draftConfig.lat}
-                      onChange={e => setDraftConfig(d=>({...d, lat: parseFloat(e.target.value)}))}
-                    />
+                    <input type="number" step="0.0001" value={draftConfig.lat} onChange={e => setDraftConfig(d=>({...d, lat: parseFloat(e.target.value)}))} />
                   </div>
                   <div className="field">
                     <label>Longitude</label>
-                    <input
-                      type="number" step="0.0001"
-                      value={draftConfig.lon}
-                      onChange={e => setDraftConfig(d=>({...d, lon: parseFloat(e.target.value)}))}
-                    />
+                    <input type="number" step="0.0001" value={draftConfig.lon} onChange={e => setDraftConfig(d=>({...d, lon: parseFloat(e.target.value)}))} />
                   </div>
                 </div>
-
                 <div className="field">
                   <label>Puissance crête</label>
-                  <input
-                    type="range" min="0.5" max="30" step="0.5"
-                    value={draftConfig.peakPower}
-                    onChange={e => setDraftConfig(d=>({...d, peakPower: parseFloat(e.target.value)}))}
-                  />
+                  <input type="range" min="0.5" max="30" step="0.5" value={draftConfig.peakPower} onChange={e => setDraftConfig(d=>({...d, peakPower: parseFloat(e.target.value)}))} />
                   <div className="range-val">{draftConfig.peakPower} kWc</div>
                 </div>
-
                 <div className="field">
                   <label>Inclinaison des panneaux</label>
-                  <input
-                    type="range" min="0" max="90" step="5"
-                    value={draftConfig.tilt}
-                    onChange={e => setDraftConfig(d=>({...d, tilt: parseInt(e.target.value)}))}
-                  />
+                  <input type="range" min="0" max="90" step="5" value={draftConfig.tilt} onChange={e => setDraftConfig(d=>({...d, tilt: parseInt(e.target.value)}))} />
                   <div className="range-val">{draftConfig.tilt}°</div>
                 </div>
-
                 <div className="field">
                   <label>Orientation (azimut)</label>
-                  <select
-                    value={draftConfig.azimuth}
-                    onChange={e => setDraftConfig(d=>({...d, azimuth: parseInt(e.target.value)}))}
-                  >
-                    {ORIENTATIONS.map(o => (
-                      <option key={o.value} value={o.value}>{o.label}</option>
-                    ))}
+                  <select value={draftConfig.azimuth} onChange={e => setDraftConfig(d=>({...d, azimuth: parseInt(e.target.value)}))}>
+                    {ORIENTATIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
                   </select>
                 </div>
-
                 <div className="field">
-                  <label>Performance ratio (pertes onduleur, câbles…)</label>
-                  <input
-                    type="range" min="0.50" max="1.00" step="0.01"
-                    value={draftConfig.efficiency}
-                    onChange={e => setDraftConfig(d=>({...d, efficiency: parseFloat(e.target.value)}))}
-                  />
+                  <label>Performance ratio</label>
+                  <input type="range" min="0.50" max="1.00" step="0.01" value={draftConfig.efficiency} onChange={e => setDraftConfig(d=>({...d, efficiency: parseFloat(e.target.value)}))} />
                   <div className="range-val">{Math.round(draftConfig.efficiency * 100)}%</div>
                 </div>
-
                 <div className="btn-row">
                   <button className="btn-secondary" onClick={() => setShowSettings(false)}>Annuler</button>
                   <button className="btn-primary" onClick={handleSave}>Appliquer</button>
