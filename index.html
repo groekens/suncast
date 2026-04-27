@@ -6,19 +6,13 @@
   <title>Suncast ☀️</title>
   <meta name="description" content="Prévision de production solaire sur 7 jours" />
   <meta name="theme-color" content="#FAFAF7" />
-
-  <!-- PWA manifest -->
   <link rel="manifest" href="manifest.json" />
-
-  <!-- Icons -->
   <link rel="apple-touch-icon" href="images/apple-touch-icon.png" />
   <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png" />
   <link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16x16.png" />
-
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
-
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
@@ -41,7 +35,7 @@
     #root { min-height: 100vh; }
     .app { min-height: 100vh; background: radial-gradient(ellipse 80% 40% at 50% -10%, #FFE8A855 0%, transparent 70%), var(--bg); padding-bottom: 60px; }
 
-    /* Header */
+    /* ── Header ── */
     .header { padding: 52px 22px 20px; display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
     .header-eyebrow { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--sun); font-weight: 600; margin-bottom: 5px; }
     .header-location { font-family: 'Playfair Display', serif; font-size: 26px; font-weight: 600; color: var(--text); line-height: 1.15; letter-spacing: -0.3px; }
@@ -49,7 +43,7 @@
     .settings-btn { flex-shrink: 0; background: var(--card); border: 1px solid var(--border); border-radius: 12px; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-dim); font-size: 17px; box-shadow: var(--shadow-sm); transition: all 0.2s; margin-top: 4px; }
     .settings-btn:hover { border-color: var(--sun); color: var(--sun); box-shadow: 0 0 0 3px var(--sun-pale); }
 
-    /* Hero */
+    /* ── Hero ── */
     .hero { margin: 0 16px 20px; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 26px 24px 22px; box-shadow: var(--shadow-md); position: relative; overflow: hidden; }
     .hero-sun-bg { position: absolute; top: -30px; right: -30px; width: 160px; height: 160px; background: radial-gradient(circle, var(--sun-glow) 0%, transparent 70%); pointer-events: none; }
     .hero-label { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--text-dim); font-weight: 500; margin-bottom: 10px; }
@@ -63,17 +57,11 @@
     .badge-poor  { background: var(--warn-pale);   color: var(--warn);   border: 1px solid #F4C4A4; }
     .badge-dot   { width: 7px; height: 7px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
 
-    /* Accuracy pill */
-    .accuracy-row { display: flex; align-items: center; gap: 6px; margin-top: 10px; }
-    .accuracy-pill { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 100px; font-size: 11px; font-weight: 500; background: var(--bg-warm); border: 1px solid var(--border-dark); color: var(--text-dim); }
-    .accuracy-pill.good  { background: var(--accent-pale); border-color: #B8DFC6; color: var(--accent); }
-    .accuracy-pill.warn  { background: var(--warn-pale);   border-color: #F4C4A4; color: var(--warn); }
-
-    /* Section */
+    /* ── Section ── */
     .section { margin: 0 16px 20px; }
     .section-title { font-size: 10.5px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--text-dim); font-weight: 600; margin-bottom: 12px; }
 
-    /* 7-day bars */
+    /* ── 7-day bars ── */
     .days-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
     .day-bar { display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; padding: 10px 4px 8px; border-radius: var(--radius-sm); border: 1.5px solid transparent; background: var(--card); box-shadow: var(--shadow-sm); transition: all 0.18s; }
     .day-bar:hover { border-color: var(--border-dark); }
@@ -85,22 +73,18 @@
     .day-kwh { font-size: 9px; color: var(--text-dim); font-weight: 500; }
     .day-bar.active .day-kwh { color: var(--sun); font-weight: 600; }
 
-    /* Clipping indicator on bar */
-    .bar-clipped { position: relative; }
-    .bar-clipped::after { content: ''; position: absolute; top: 2px; left: 50%; transform: translateX(-50%); width: 6px; height: 2px; background: var(--warn); border-radius: 1px; }
-
-    /* Hourly */
+    /* ── Hourly ── */
     .hourly-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 4px; scrollbar-width: none; }
     .hourly-scroll::-webkit-scrollbar { display: none; }
     .hourly-track { display: flex; gap: 7px; min-width: max-content; padding: 2px 0 6px; }
     .hour-col { display: flex; flex-direction: column; align-items: center; gap: 5px; width: 42px; }
     .hour-label { font-size: 9.5px; color: var(--text-dim); font-weight: 500; }
-    .hour-bar-wrap { height: 72px; width: 26px; background: var(--bg-warm); border-radius: 5px; display: flex; align-items: flex-end; overflow: hidden; position: relative; }
+    .hour-bar-wrap { height: 72px; width: 26px; background: var(--bg-warm); border-radius: 5px; display: flex; align-items: flex-end; overflow: hidden; }
     .hour-bar-fill { width: 100%; border-radius: 5px 5px 0 0; }
     .hour-bar-fill.clipped { background: linear-gradient(to top, #E8960A, #E8960ADD) !important; }
     .hour-wh { font-size: 8.5px; color: var(--text-dim); text-align: center; line-height: 1.3; }
 
-    /* Rec card */
+    /* ── Rec card ── */
     .rec-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow-sm); }
     .rec-card.great { border-color: #B8DFC6; background: var(--accent-pale); }
     .rec-card.ok    { border-color: #FFD87A; background: var(--sun-pale); }
@@ -110,29 +94,36 @@
     .rec-action { margin-top: 14px; display: flex; gap: 8px; flex-wrap: wrap; }
     .action-chip { padding: 6px 13px; border-radius: 100px; font-size: 12px; font-weight: 500; background: var(--card); color: var(--text-mid); border: 1px solid var(--border-dark); }
 
-    /* Stats */
+    /* ── Stats ── */
     .stats-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
     .stat-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 10px; text-align: center; box-shadow: var(--shadow-sm); }
     .stat-val { font-family: 'Playfair Display', serif; font-size: 22px; color: var(--sun); font-weight: 600; letter-spacing: -0.5px; }
     .stat-lbl { font-size: 10.5px; color: var(--text-dim); margin-top: 4px; line-height: 1.35; }
 
-    /* Model note */
+    /* ── Model note ── */
     .model-note { background: var(--bg-warm); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; }
     .model-note-title { font-size: 11px; font-weight: 600; color: var(--text-mid); letter-spacing: 0.5px; margin-bottom: 4px; }
-    .model-note-body { font-size: 12px; color: var(--text-dim); line-height: 1.5; }
+    .model-note-body  { font-size: 12px; color: var(--text-dim); line-height: 1.5; }
 
-    /* Panel */
+    /* ── Settings panel ── */
     .panel-overlay { position: fixed; inset: 0; background: #00000030; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); z-index: 50; display: flex; align-items: flex-end; animation: fadeIn 0.2s; }
     @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
     .panel { background: var(--card); border: 1px solid var(--border); border-top: 3px solid var(--sun-light); border-radius: 24px 24px 0 0; padding: 20px 20px 52px; width: 100%; max-height: 92vh; overflow-y: auto; box-shadow: 0 -8px 40px #00000018; animation: slideUp 0.3s cubic-bezier(0.34, 1.3, 0.64, 1); }
     @keyframes slideUp { from { transform: translateY(100%) } to { transform: translateY(0) } }
     .panel-handle { width: 36px; height: 4px; background: var(--border-dark); border-radius: 2px; margin: 0 auto 18px; }
     .panel-title { font-family: 'Playfair Display', serif; font-size: 18px; color: var(--text); margin-bottom: 20px; }
-    .panel-section-label { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--text-dim); font-weight: 600; margin: 18px 0 10px; padding-top: 14px; border-top: 1px solid var(--border); }
+    .panel-section-label { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--text-dim); font-weight: 600; margin: 18px 0 12px; padding-top: 16px; border-top: 1px solid var(--border); }
 
+    /* ── Form fields ── */
     .field { margin-bottom: 15px; }
-    .field label { display: block; font-size: 10.5px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-dim); font-weight: 600; margin-bottom: 7px; }
-    .field input, .field select { width: 100%; background: var(--bg-warm); border: 1.5px solid var(--border); border-radius: var(--radius-sm); padding: 11px 14px; color: var(--text); font-family: 'Outfit', sans-serif; font-size: 15px; outline: none; transition: border-color 0.2s, box-shadow 0.2s; -webkit-appearance: none; }
+    .field-header { display: flex; align-items: center; gap: 6px; margin-bottom: 7px; }
+    .field-header label { font-size: 10.5px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-dim); font-weight: 600; }
+    .field input, .field select {
+      width: 100%; background: var(--bg-warm); border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm); padding: 11px 14px; color: var(--text);
+      font-family: 'Outfit', sans-serif; font-size: 15px; outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s; -webkit-appearance: none;
+    }
     .field select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%239C9285' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; background-color: var(--bg-warm); padding-right: 36px; }
     .field input:focus, .field select:focus { border-color: var(--sun-light); box-shadow: 0 0 0 3px var(--sun-pale); }
     .field input[type=range] { padding: 6px 0; background: transparent; border: none; box-shadow: none; cursor: pointer; }
@@ -140,24 +131,94 @@
     .field input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; background: var(--sun); border-radius: 50%; margin-top: -9px; cursor: pointer; box-shadow: 0 2px 8px #E8960A44; }
     .range-val { font-size: 13px; color: var(--sun); font-weight: 600; text-align: right; margin-top: 4px; }
     .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .field-hint { font-size: 11px; color: var(--text-dim); margin-top: 5px; line-height: 1.4; }
 
-    .gps-btn { width: 100%; padding: 12px; margin-bottom: 14px; background: var(--accent-pale); color: var(--accent); border: 1.5px solid #B8DFC6; border-radius: var(--radius-sm); font-size: 14px; cursor: pointer; font-family: 'Outfit', sans-serif; font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 8px; transition: background 0.2s; }
+    /* ── Tooltip "i" button ── */
+    .info-btn {
+      width: 16px; height: 16px; border-radius: 50%;
+      background: var(--border-dark); color: var(--text-dim);
+      border: none; cursor: pointer; font-size: 10px; font-weight: 700;
+      display: inline-flex; align-items: center; justify-content: center;
+      flex-shrink: 0; transition: background 0.15s;
+      font-family: serif; line-height: 1;
+    }
+    .info-btn:hover { background: var(--sun-light); color: var(--text); }
+    .tooltip-box {
+      margin-top: 8px;
+      padding: 12px 14px;
+      background: #FFFFF8;
+      border: 1px solid #FFD87A;
+      border-radius: var(--radius-sm);
+      font-size: 12px;
+      color: var(--text-mid);
+      line-height: 1.6;
+      animation: fadeIn 0.15s;
+    }
+    .tooltip-box strong { color: var(--text); font-weight: 600; }
+    .tooltip-box ul { margin: 6px 0 0 14px; }
+    .tooltip-box li { margin-bottom: 3px; }
+
+    /* ── Address search ── */
+    .address-search-wrap { position: relative; }
+    .address-suggestions {
+      position: absolute; top: calc(100% + 4px); left: 0; right: 0;
+      background: var(--card); border: 1.5px solid var(--border-dark);
+      border-radius: var(--radius-sm); box-shadow: var(--shadow-md);
+      z-index: 100; overflow: hidden;
+    }
+    .address-suggestion {
+      padding: 11px 14px; font-size: 13.5px; cursor: pointer;
+      border-bottom: 1px solid var(--border); transition: background 0.1s;
+      line-height: 1.4;
+    }
+    .address-suggestion:last-child { border-bottom: none; }
+    .address-suggestion:hover { background: var(--sun-pale); }
+    .address-suggestion-main { color: var(--text); font-weight: 500; }
+    .address-suggestion-sub  { font-size: 11.5px; color: var(--text-dim); margin-top: 1px; }
+    .address-loading { padding: 11px 14px; font-size: 13px; color: var(--text-dim); }
+
+    /* ── Mini map ── */
+    .mini-map-wrap {
+      margin-top: 10px;
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      border: 1.5px solid var(--border);
+      animation: fadeIn 0.3s;
+    }
+    .mini-map-wrap iframe { display: block; width: 100%; height: 160px; border: none; }
+    .mini-map-label {
+      padding: 8px 12px;
+      background: var(--bg-warm);
+      font-size: 12px;
+      color: var(--text-mid);
+      border-top: 1px solid var(--border);
+      display: flex; align-items: center; gap: 6px;
+    }
+    .mini-map-label-addr { flex: 1; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    /* ── Location mode tabs ── */
+    .loc-tabs { display: flex; gap: 6px; margin-bottom: 14px; }
+    .loc-tab { flex: 1; padding: 10px; background: var(--bg-warm); border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-size: 13px; font-weight: 500; color: var(--text-dim); cursor: pointer; text-align: center; transition: all 0.15s; font-family: 'Outfit', sans-serif; }
+    .loc-tab.active { background: var(--sun-pale); border-color: var(--sun-light); color: var(--sun); }
+
+    /* ── GPS button ── */
+    .gps-btn { width: 100%; padding: 12px; background: var(--accent-pale); color: var(--accent); border: 1.5px solid #B8DFC6; border-radius: var(--radius-sm); font-size: 14px; cursor: pointer; font-family: 'Outfit', sans-serif; font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 8px; transition: background 0.2s; }
     .gps-btn:disabled { opacity: 0.5; cursor: default; }
     .gps-btn:not(:disabled):hover { background: #D4EFD9; }
 
+    /* ── Tilt ── */
+    .tilt-hints { display: flex; justify-content: space-between; margin-top: 4px; font-size: 10px; color: var(--text-dim); }
+
+    /* ── Buttons ── */
     .btn-row { display: flex; gap: 10px; margin-top: 20px; }
     .btn-primary { flex: 1; padding: 14px; background: var(--sun); color: #fff; border: none; border-radius: var(--radius-sm); font-weight: 600; font-size: 15px; cursor: pointer; font-family: 'Outfit', sans-serif; box-shadow: 0 4px 12px #E8960A33; transition: opacity 0.2s; }
     .btn-primary:active { opacity: 0.88; }
     .btn-secondary { padding: 14px 20px; background: var(--bg-warm); color: var(--text-mid); border: 1.5px solid var(--border-dark); border-radius: var(--radius-sm); font-size: 14px; cursor: pointer; font-family: 'Outfit', sans-serif; font-weight: 500; }
 
-    /* Loading */
+    /* ── Loading / Error ── */
     .loading-wrap { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 60vh; gap: 18px; }
     .sun-spin { width: 56px; height: 56px; border-radius: 50%; background: radial-gradient(circle, var(--sun-light) 30%, var(--sun-glow) 60%, transparent 100%); box-shadow: 0 0 30px var(--sun-light), 0 0 60px var(--sun-pale); animation: pulse 1.6s ease-in-out infinite; }
     @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.12); } }
     .loading-text { color: var(--text-dim); font-size: 13px; font-weight: 500; letter-spacing: 0.5px; }
-
-    /* Error */
     .error-card { margin: 20px 16px; background: var(--warn-pale); border: 1px solid #F4C4A4; border-radius: var(--radius); padding: 24px; text-align: center; }
     .error-icon { font-size: 30px; margin-bottom: 10px; }
     .error-msg { color: var(--warn); font-size: 14px; line-height: 1.5; }
@@ -168,9 +229,9 @@
 <div id="root"></div>
 
 <script type="text/babel">
-const { useState, useEffect, useCallback } = React;
+const { useState, useEffect, useCallback, useRef } = React;
 
-// ── Constants ────────────────────────────────────────────────────────────
+// ── Constants ─────────────────────────────────────────────────────────────
 const DAYS_FR = ["Dim","Lun","Mar","Mer","Jeu","Ven","Sam"];
 const ORIENTATIONS = [
   { value: 0,   label: "Nord (0°)" },
@@ -182,137 +243,94 @@ const ORIENTATIONS = [
   { value: 270, label: "Ouest (270°)" },
   { value: 315, label: "Nord-Ouest (315°)" },
 ];
-const STORAGE_KEY = "suncast_config_v2";
+const STORAGE_KEY = "suncast_config_v3";
 const DEFAULT_CONFIG = {
   lat: 50.637, lon: 4.611,
-  locationName: "Genval, Belgique",
-  dcPower: 3.3,      // kWc DC réel (ou estimé)
-  acPower: 3.3,      // kW onduleur (puissance AC max)
-  azimuth: 135,      // Sud-Est
+  displayName: "Genval, Belgique",
+  dcPower: 3.3,
+  acPower: 3.3,
+  azimuth: 135,
   tilt: 40,
-  systemLoss: 0.10,  // 10% pertes système (câbles, température, salissures)
+  systemLoss: 0.10,
 };
 
+// ── Tooltip content ───────────────────────────────────────────────────────
+const TOOLTIPS = {
+  dcPower: (
+    <div>
+      <strong>Puissance DC (kWc)</strong> = somme de tous vos panneaux solaires.
+      <ul>
+        <li>Visible sur la <strong>fiche technique de l'installation</strong> remise par l'installateur</li>
+        <li>Ou dans l'app de votre onduleur (FusionSolar, SolarEdge, SMA…)</li>
+        <li>Exemple : 10 panneaux × 330 Wc = <strong>3,3 kWc</strong></li>
+      </ul>
+      <div style={{marginTop:6}}>💡 La puissance DC est souvent <em>supérieure</em> à la puissance AC de l'onduleur — c'est normal.</div>
+    </div>
+  ),
+  acPower: (
+    <div>
+      <strong>Puissance onduleur (kW)</strong> = puissance AC maximale que l'onduleur peut injecter.
+      <ul>
+        <li>Sur la <strong>plaque signalétique</strong> de l'onduleur (étiquette sur le boîtier)</li>
+        <li>Dans la documentation ou l'app constructeur</li>
+        <li>Souvent noté « Pnom » ou « Pout max »</li>
+      </ul>
+      <div style={{marginTop:6}}>💡 Si votre onduleur sature souvent à midi (plateau plat sur la courbe), c'est que la puissance DC dépasse cette limite — les prévisions en tiennent compte.</div>
+    </div>
+  ),
+  systemLoss: (
+    <div>
+      <strong>Pertes système</strong> = tout ce qui réduit la production réelle vs théorique.
+      <ul>
+        <li><strong>Câblage</strong> : ~1–2%</li>
+        <li><strong>Température panneaux</strong> : ~3–5% (panneaux chauds = moins efficaces)</li>
+        <li><strong>Salissures / ombrage partiel</strong> : 2–5%</li>
+        <li><strong>Vieillissement</strong> : +0,5%/an</li>
+      </ul>
+      <div style={{marginTop:6}}>💡 <strong>10–12%</strong> est une bonne valeur par défaut. Si votre toit est souvent ombragé ou rarement nettoyé, montez à 15–20%.</div>
+    </div>
+  ),
+};
+
+// ── Persistence ───────────────────────────────────────────────────────────
 function loadConfig() {
   try { const s = localStorage.getItem(STORAGE_KEY); return s ? { ...DEFAULT_CONFIG, ...JSON.parse(s) } : DEFAULT_CONFIG; }
   catch { return DEFAULT_CONFIG; }
 }
 function saveConfig(cfg) { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(cfg)); } catch {} }
 
-// ── POA (Plane of Array) irradiance model ────────────────────────────────
-// Converts DNI + DHI + GHI to irradiance on a tilted/oriented surface
-// Uses the Perez transposition model (simplified isotropic sky)
-function calcPOA(dni, dhi, ghi, solarZenithDeg, solarAzimuthDeg, panelTiltDeg, panelAzimuthDeg) {
-  const toRad = d => d * Math.PI / 180;
-  const tilt   = toRad(panelTiltDeg);
-  const panAz  = toRad(panelAzimuthDeg);
-  const solZen = toRad(Math.max(0, Math.min(90, solarZenithDeg)));
-  const solAz  = toRad(solarAzimuthDeg);
-
-  // Angle of incidence between sun and panel normal
-  const cosAOI = Math.cos(solZen) * Math.cos(tilt) +
-                 Math.sin(solZen) * Math.sin(tilt) * Math.cos(solAz - panAz);
-
-  // Direct beam on tilted surface
-  const beamPOA = Math.max(0, dni * cosAOI);
-
-  // Diffuse sky (isotropic model)
-  const diffusePOA = dhi * (1 + Math.cos(tilt)) / 2;
-
-  // Ground reflected
-  const albedo = 0.2;
-  const reflectedPOA = ghi * albedo * (1 - Math.cos(tilt)) / 2;
-
-  return Math.max(0, beamPOA + diffusePOA + reflectedPOA);
-}
-
-// Estimate hourly AC output (kWh) from POA irradiance
+// ── Solar model ───────────────────────────────────────────────────────────
 function estimateACkWh(poaW, dcPower, acPower, systemLoss) {
   if (poaW <= 0) return 0;
-  // DC power at this irradiance level (linear model, STC = 1000 W/m²)
   const dcKw = (poaW / 1000) * dcPower * (1 - systemLoss);
-  // Clip to inverter AC capacity
   return Math.min(dcKw, acPower);
 }
 
-// ── Sun position (simplified NOAA algorithm) ────────────────────────────
-function sunPosition(dateUTC, lat, lon) {
-  const toRad = d => d * Math.PI / 180;
-  const toDeg = r => r * 180 / Math.PI;
-
-  const JD = dateUTC.getTime() / 86400000 + 2440587.5;
-  const n  = JD - 2451545.0;
-  const L  = (280.460 + 0.9856474 * n) % 360;
-  const g  = toRad((357.528 + 0.9856003 * n) % 360);
-  const lambda = toRad(L + 1.915 * Math.sin(g) + 0.020 * Math.sin(2 * g));
-  const eps = toRad(23.439 - 0.0000004 * n);
-
-  const sinDec = Math.sin(eps) * Math.sin(lambda);
-  const dec    = Math.asin(sinDec);
-
-  // Equation of time (minutes)
-  const E = 4 * toDeg(
-    Math.atan2(Math.cos(eps) * Math.sin(lambda), Math.cos(lambda)) - toRad(L)
-  );
-
-  const utcH = dateUTC.getUTCHours() + dateUTC.getUTCMinutes() / 60;
-  const solarNoon = 12 - lon / 15 - E / 60;
-  const HRA = toRad(15 * (utcH - solarNoon));
-
-  const latR   = toRad(lat);
-  const cosZen = Math.sin(latR) * sinDec + Math.cos(latR) * Math.cos(dec) * Math.cos(HRA);
-  const zenith  = toDeg(Math.acos(Math.max(-1, Math.min(1, cosZen))));
-
-  // Azimuth (0=N, 90=E, 180=S, 270=W)
-  const sinAz = -Math.cos(dec) * Math.sin(HRA) / Math.sin(toRad(zenith));
-  const cosAz = (Math.sin(latR) * Math.cos(toRad(zenith)) - sinDec) /
-                (Math.cos(latR) * Math.sin(toRad(zenith)));
-  let az = toDeg(Math.atan2(sinAz, cosAz));
-  if (az < 0) az += 360;
-
-  return { zenith, azimuth: az };
-}
-
-// ── API ──────────────────────────────────────────────────────────────────
+// ── API ───────────────────────────────────────────────────────────────────
 async function fetchSolarForecast(cfg) {
   const params = new URLSearchParams({
-    latitude:  cfg.lat,
-    longitude: cfg.lon,
-    hourly:    "direct_normal_irradiance,diffuse_radiation,global_tilted_irradiance,shortwave_radiation",
-    daily:     "sunrise,sunset",
+    latitude: cfg.lat, longitude: cfg.lon,
+    hourly: "direct_normal_irradiance,diffuse_radiation,global_tilted_irradiance,shortwave_radiation",
+    daily: "sunrise,sunset",
     forecast_days: 7,
-    timezone:  "Europe/Brussels",
-    tilt:      cfg.tilt,
-    azimuth:   cfg.azimuth - 180, // Open-Meteo uses -180..180, 0=south
+    timezone: "Europe/Brussels",
+    tilt: cfg.tilt,
+    azimuth: cfg.azimuth - 180,
   });
-
   const res = await fetch(`https://api.open-meteo.com/v1/forecast?${params}`);
   if (!res.ok) throw new Error(`Erreur API Open-Meteo (${res.status})`);
   const data = await res.json();
 
   const times = data.hourly.time;
-  const dni   = data.hourly.direct_normal_irradiance;
-  const dhi   = data.hourly.diffuse_radiation;
-  const ghi   = data.hourly.shortwave_radiation;
-  // global_tilted_irradiance is computed by Open-Meteo directly for our tilt/azimuth
   const gti   = data.hourly.global_tilted_irradiance;
-
+  const ghi   = data.hourly.shortwave_radiation;
   const dailyMap = {};
 
   for (let i = 0; i < times.length; i++) {
     const dateStr = times[i].substring(0, 10);
     const hour    = parseInt(times[i].substring(11, 13));
-
-    // Use GTI from API (most accurate - already accounts for tilt+azimuth)
-    // Fallback to POA calculation if GTI is null
-    let poaW = gti[i] ?? 0;
-    if (poaW === null || poaW === undefined) {
-      const dt = new Date(times[i] + "Z");
-      const { zenith, azimuth: solAz } = sunPosition(dt, cfg.lat, cfg.lon);
-      poaW = calcPOA(dni[i]??0, dhi[i]??0, ghi[i]??0, zenith, solAz, cfg.tilt, cfg.azimuth);
-    }
-
-    const acKw  = estimateACkWh(poaW, cfg.dcPower, cfg.acPower, cfg.systemLoss);
+    const poaW    = (gti[i] !== null && gti[i] !== undefined) ? gti[i] : (ghi[i] ?? 0);
+    const acKw    = estimateACkWh(poaW, cfg.dcPower, cfg.acPower, cfg.systemLoss);
     const clipped = acKw >= cfg.acPower * 0.98 && poaW > 100;
 
     if (!dailyMap[dateStr]) dailyMap[dateStr] = { totalKwh: 0, hours: [], clippedHours: 0 };
@@ -323,16 +341,12 @@ async function fetchSolarForecast(cfg) {
 
   for (let i = 0; i < data.daily.time.length; i++) {
     const d = data.daily.time[i];
-    if (dailyMap[d]) {
-      dailyMap[d].sunrise = data.daily.sunrise[i];
-      dailyMap[d].sunset  = data.daily.sunset[i];
-    }
+    if (dailyMap[d]) { dailyMap[d].sunrise = data.daily.sunrise[i]; dailyMap[d].sunset = data.daily.sunset[i]; }
   }
-
   return Object.entries(dailyMap).map(([date, v]) => ({ date, ...v }));
 }
 
-// ── Recommendation ───────────────────────────────────────────────────────
+// ── Recommendation ────────────────────────────────────────────────────────
 function getRecommendation(days) {
   if (!days.length) return null;
   const today  = days[0];
@@ -361,11 +375,106 @@ function barColor(pct) {
   if (pct > 0.40) return "#FFC83A";
   return "#D4CBB8";
 }
-function fmtDate(dateStr) {
-  return new Date(dateStr + "T12:00:00").toLocaleDateString("fr-BE", { day: "numeric", month: "short" });
+function fmtDate(d) { return new Date(d + "T12:00:00").toLocaleDateString("fr-BE", { day: "numeric", month: "short" }); }
+
+// ── InfoButton component ──────────────────────────────────────────────────
+function InfoButton({ tooltipKey, openTooltip, setOpenTooltip }) {
+  const isOpen = openTooltip === tooltipKey;
+  return (
+    <span style={{position:"relative", display:"inline-flex", alignItems:"center"}}>
+      <button
+        className="info-btn"
+        onClick={e => { e.stopPropagation(); setOpenTooltip(isOpen ? null : tooltipKey); }}
+        aria-label="Plus d'informations"
+      >i</button>
+      {isOpen && (
+        <div className="tooltip-box" style={{position:"absolute", top:"calc(100% + 6px)", left:0, right:"-200px", zIndex:200}}>
+          {TOOLTIPS[tooltipKey]}
+        </div>
+      )}
+    </span>
+  );
 }
 
-// ── App ──────────────────────────────────────────────────────────────────
+// ── Address search component ──────────────────────────────────────────────
+function AddressSearch({ onSelect }) {
+  const [query,       setQuery]       = useState("");
+  const [suggestions, setSuggestions] = useState([]);
+  const [searching,   setSearching]   = useState(false);
+  const debounceRef = useRef(null);
+
+  const search = useCallback(async (q) => {
+    if (q.length < 3) { setSuggestions([]); return; }
+    setSearching(true);
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&limit=5&addressdetails=1&accept-language=fr`);
+      const data = await res.json();
+      setSuggestions(data.map(r => ({
+        displayName: r.display_name,
+        short: [r.address.road, r.address.city || r.address.town || r.address.village, r.address.country].filter(Boolean).join(", "),
+        lat: parseFloat(r.lat),
+        lon: parseFloat(r.lon),
+      })));
+    } catch { setSuggestions([]); }
+    finally { setSearching(false); }
+  }, []);
+
+  const handleChange = (e) => {
+    const v = e.target.value;
+    setQuery(v);
+    clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => search(v), 400);
+  };
+
+  const handleSelect = (s) => {
+    setQuery(s.short || s.displayName);
+    setSuggestions([]);
+    onSelect({ lat: s.lat, lon: s.lon, displayName: s.short || s.displayName.split(",").slice(0,2).join(",") });
+  };
+
+  return (
+    <div className="field">
+      <div className="field-header"><label>Rechercher une adresse</label></div>
+      <div className="address-search-wrap">
+        <input
+          type="text"
+          value={query}
+          onChange={handleChange}
+          placeholder="ex: Rue de la Loi 16, Bruxelles"
+          autoComplete="off"
+        />
+        {(suggestions.length > 0 || searching) && (
+          <div className="address-suggestions">
+            {searching && <div className="address-loading">Recherche…</div>}
+            {suggestions.map((s, i) => (
+              <div key={i} className="address-suggestion" onClick={() => handleSelect(s)}>
+                <div className="address-suggestion-main">{s.short || s.displayName.split(",")[0]}</div>
+                <div className="address-suggestion-sub">{s.displayName.split(",").slice(1,3).join(",").trim()}</div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ── Mini map component ────────────────────────────────────────────────────
+function MiniMap({ lat, lon, label }) {
+  if (!lat || !lon) return null;
+  const z    = 14;
+  const src  = `https://www.openstreetmap.org/export/embed.html?bbox=${lon-0.01},${lat-0.008},${lon+0.01},${lat+0.008}&layer=mapnik&marker=${lat},${lon}`;
+  return (
+    <div className="mini-map-wrap">
+      <iframe src={src} title="Position sur la carte" scrolling="no" />
+      <div className="mini-map-label">
+        📍 <span className="mini-map-label-addr">{label}</span>
+      </div>
+    </div>
+  );
+}
+
+// ── Main App ──────────────────────────────────────────────────────────────
 function App() {
   const [config,       setConfig]       = useState(loadConfig);
   const [draftConfig,  setDraftConfig]  = useState(loadConfig);
@@ -374,7 +483,16 @@ function App() {
   const [loading,      setLoading]      = useState(true);
   const [error,        setError]        = useState(null);
   const [showSettings, setShowSettings] = useState(false);
+  const [locMode,      setLocMode]      = useState("gps");   // "gps" | "address"
   const [locating,     setLocating]     = useState(false);
+  const [openTooltip,  setOpenTooltip]  = useState(null);
+
+  // Close tooltip when clicking elsewhere
+  useEffect(() => {
+    const close = () => setOpenTooltip(null);
+    document.addEventListener("click", close);
+    return () => document.removeEventListener("click", close);
+  }, []);
 
   const load = useCallback(async (cfg) => {
     setLoading(true); setError(null);
@@ -389,9 +507,19 @@ function App() {
     if (!navigator.geolocation) return;
     setLocating(true);
     navigator.geolocation.getCurrentPosition(
-      pos => { setDraftConfig(d => ({ ...d, lat: parseFloat(pos.coords.latitude.toFixed(4)), lon: parseFloat(pos.coords.longitude.toFixed(4)), locationName: "Ma position GPS" })); setLocating(false); },
-      () => setLocating(false), { timeout: 8000 }
+      pos => {
+        const lat = parseFloat(pos.coords.latitude.toFixed(5));
+        const lon = parseFloat(pos.coords.longitude.toFixed(5));
+        setDraftConfig(d => ({ ...d, lat, lon, displayName: `${lat}, ${lon}` }));
+        setLocating(false);
+      },
+      () => setLocating(false),
+      { timeout: 10000 }
     );
+  };
+
+  const handleAddressSelect = ({ lat, lon, displayName }) => {
+    setDraftConfig(d => ({ ...d, lat, lon, displayName }));
   };
 
   const handleSave = () => { saveConfig(draftConfig); setConfig(draftConfig); setShowSettings(false); };
@@ -400,7 +528,6 @@ function App() {
   const sel        = days[selectedDay];
   const rec        = days.length ? getRecommendation([...days]) : null;
   const maxHourKw  = sel ? Math.max(...sel.hours.map(h => h.acKw), 0.001) : 1;
-  const totalClippedHours = sel ? sel.clippedHours : 0;
   const orientLabel = ORIENTATIONS.find(o => o.value === config.azimuth)?.label.split(" ")[0] ?? "";
 
   return (
@@ -408,23 +535,16 @@ function App() {
       <div className="header">
         <div>
           <div className="header-eyebrow">☀ Suncast</div>
-          <div className="header-location">{config.locationName}</div>
+          <div className="header-location">{config.displayName}</div>
           <div className="header-sub">{config.dcPower} kWc · {config.tilt}° · {orientLabel} · onduleur {config.acPower} kW</div>
         </div>
-        <button className="settings-btn" onClick={() => { setDraftConfig(config); setShowSettings(true); }} aria-label="Paramètres">⚙</button>
+        <button className="settings-btn" onClick={() => { setDraftConfig(config); setShowSettings(true); setOpenTooltip(null); }} aria-label="Paramètres">⚙</button>
       </div>
 
       {loading ? (
-        <div className="loading-wrap">
-          <div className="sun-spin" />
-          <div className="loading-text">Chargement des prévisions…</div>
-        </div>
+        <div className="loading-wrap"><div className="sun-spin" /><div className="loading-text">Chargement des prévisions…</div></div>
       ) : error ? (
-        <div className="error-card">
-          <div className="error-icon">⚠️</div>
-          <div className="error-msg">{error}</div>
-          <button className="error-retry" onClick={() => load(config)}>Réessayer</button>
-        </div>
+        <div className="error-card"><div className="error-icon">⚠️</div><div className="error-msg">{error}</div><button className="error-retry" onClick={() => load(config)}>Réessayer</button></div>
       ) : (
         <>
           {sel && (
@@ -438,14 +558,9 @@ function App() {
               <div className="hero-sub">
                 {sel.sunrise ? `🌅 ${sel.sunrise.substring(11,16)}` : ""}
                 {sel.sunset  ? ` · 🌇 ${sel.sunset.substring(11,16)}` : ""}
-                {totalClippedHours > 0 ? ` · ⚡ onduleur saturé ~${totalClippedHours}h` : ""}
+                {sel.clippedHours > 0 ? ` · ⚡ onduleur saturé ~${sel.clippedHours}h` : ""}
               </div>
-              {rec && (
-                <div className={`hero-badge badge-${rec.quality}`}>
-                  <div className="badge-dot" />
-                  {rec.icon} {rec.title}
-                </div>
-              )}
+              {rec && <div className={`hero-badge badge-${rec.quality}`}><div className="badge-dot" />{rec.icon} {rec.title}</div>}
             </div>
           )}
 
@@ -453,14 +568,14 @@ function App() {
             <div className="section-title">Prévision 7 jours</div>
             <div className="days-grid">
               {days.map((d, i) => {
-                const pct    = d.totalKwh / maxKwh;
+                const pct = d.totalKwh / maxKwh;
                 const active = i === selectedDay;
-                const dName  = i === 0 ? "Auj." : DAYS_FR[new Date(d.date+"T12:00:00").getDay()];
+                const dName = i === 0 ? "Auj." : DAYS_FR[new Date(d.date+"T12:00:00").getDay()];
                 return (
                   <div key={d.date} className={`day-bar${active ? " active" : ""}`} onClick={() => setSelectedDay(i)}>
                     <div className="day-name">{dName}</div>
-                    <div className={`bar-wrap${d.clippedHours > 2 ? " bar-clipped" : ""}`}>
-                      <div className="bar-fill" style={{ height: `${Math.max(pct*100, 4)}%`, background: active ? `linear-gradient(to top, ${barColor(pct)}, ${barColor(pct)}BB)` : barColor(pct)+"99" }} />
+                    <div className="bar-wrap">
+                      <div className="bar-fill" style={{ height: `${Math.max(pct*100,4)}%`, background: active ? `linear-gradient(to top,${barColor(pct)},${barColor(pct)}BB)` : barColor(pct)+"99" }} />
                     </div>
                     <div className="day-kwh">{d.totalKwh.toFixed(1)}</div>
                   </div>
@@ -474,19 +589,15 @@ function App() {
               <div className="section-title">Courbe horaire · {DAYS_FR[new Date(sel.date+"T12:00:00").getDay()]} {fmtDate(sel.date)}</div>
               <div className="hourly-scroll">
                 <div className="hourly-track">
-                  {sel.hours.filter(h => h.hour >= 5 && h.hour <= 22).map(h => {
-                    const pct = h.acKw / maxHourKw;
-                    return (
-                      <div key={h.hour} className="hour-col">
-                        <div className="hour-label">{String(h.hour).padStart(2,"0")}h</div>
-                        <div className="hour-bar-wrap">
-                          <div className={`hour-bar-fill${h.clipped ? " clipped" : ""}`}
-                            style={{ height: `${Math.max(pct*100, h.acKw>0.01?3:0)}%`, background: h.clipped ? undefined : `linear-gradient(to top, #E8960A, #FFC83A88)` }} />
-                        </div>
-                        <div className="hour-wh">{h.acKw > 0.01 ? (h.acKw*1000).toFixed(0)+"W" : "—"}</div>
+                  {sel.hours.filter(h => h.hour >= 5 && h.hour <= 22).map(h => (
+                    <div key={h.hour} className="hour-col">
+                      <div className="hour-label">{String(h.hour).padStart(2,"0")}h</div>
+                      <div className="hour-bar-wrap">
+                        <div className={`hour-bar-fill${h.clipped?" clipped":""}`} style={{ height:`${Math.max((h.acKw/maxHourKw)*100,h.acKw>0.01?3:0)}%`, background:h.clipped?undefined:`linear-gradient(to top,#E8960A,#FFC83A88)` }} />
                       </div>
-                    );
-                  })}
+                      <div className="hour-wh">{h.acKw>0.01?(h.acKw*1000).toFixed(0)+"W":"—"}</div>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
@@ -495,18 +606,9 @@ function App() {
           <div className="section">
             <div className="section-title">Résumé semaine</div>
             <div className="stats-row">
-              <div className="stat-card">
-                <div className="stat-val">{days.reduce((s,d)=>s+d.totalKwh,0).toFixed(0)}</div>
-                <div className="stat-lbl">kWh total 7 jours</div>
-              </div>
-              <div className="stat-card">
-                <div className="stat-val">{maxKwh.toFixed(1)}</div>
-                <div className="stat-lbl">kWh meilleur jour</div>
-              </div>
-              <div className="stat-card">
-                <div className="stat-val">{(days.reduce((s,d)=>s+d.totalKwh,0)/Math.max(days.length,1)).toFixed(1)}</div>
-                <div className="stat-lbl">kWh/j moyenne</div>
-              </div>
+              <div className="stat-card"><div className="stat-val">{days.reduce((s,d)=>s+d.totalKwh,0).toFixed(0)}</div><div className="stat-lbl">kWh total 7 jours</div></div>
+              <div className="stat-card"><div className="stat-val">{maxKwh.toFixed(1)}</div><div className="stat-lbl">kWh meilleur jour</div></div>
+              <div className="stat-card"><div className="stat-val">{(days.reduce((s,d)=>s+d.totalKwh,0)/Math.max(days.length,1)).toFixed(1)}</div><div className="stat-lbl">kWh/j moyenne</div></div>
             </div>
           </div>
 
@@ -516,9 +618,7 @@ function App() {
               <div className={`rec-card ${rec.quality}`}>
                 <div className="rec-title">{rec.icon} {rec.title}</div>
                 <div className="rec-body">{rec.body}</div>
-                <div className="rec-action">
-                  {rec.actions.map(a => <div key={a} className="action-chip">{a}</div>)}
-                </div>
+                <div className="rec-action">{rec.actions.map(a => <div key={a} className="action-chip">{a}</div>)}</div>
               </div>
             </div>
           )}
@@ -526,67 +626,91 @@ function App() {
           <div className="section">
             <div className="model-note">
               <div className="model-note-title">🔬 Modèle de calcul</div>
-              <div className="model-note-body">Rayonnement sur plan incliné (GTI) via Open-Meteo · Clipping onduleur appliqué à {config.acPower} kW · Pertes système {Math.round(config.systemLoss*100)}%</div>
+              <div className="model-note-body">Rayonnement GTI via Open-Meteo · Clipping onduleur à {config.acPower} kW · Pertes système {Math.round(config.systemLoss*100)}%</div>
             </div>
           </div>
         </>
       )}
 
+      {/* ── Settings Panel ── */}
       {showSettings && (
         <div className="panel-overlay" onClick={e => e.target===e.currentTarget && setShowSettings(false)}>
-          <div className="panel">
+          <div className="panel" onClick={() => setOpenTooltip(null)}>
             <div className="panel-handle" />
             <div className="panel-title">Configuration installation</div>
 
-            <button className="gps-btn" onClick={handleGPS} disabled={locating}>
-              📍 {locating ? "Localisation en cours…" : "Utiliser ma position GPS"}
-            </button>
-            <div className="field">
-              <label>Nom du lieu</label>
-              <input value={draftConfig.locationName} onChange={e => setDraftConfig(d=>({...d, locationName: e.target.value}))} placeholder="ex: Genval, Belgique" />
-            </div>
-            <div className="two-col">
-              <div className="field">
-                <label>Latitude</label>
-                <input type="number" step="0.0001" value={draftConfig.lat} onChange={e => setDraftConfig(d=>({...d, lat: parseFloat(e.target.value)}))} />
-              </div>
-              <div className="field">
-                <label>Longitude</label>
-                <input type="number" step="0.0001" value={draftConfig.lon} onChange={e => setDraftConfig(d=>({...d, lon: parseFloat(e.target.value)}))} />
-              </div>
+            {/* Location */}
+            <div className="loc-tabs">
+              <button className={`loc-tab${locMode==="gps"?" active":""}`} onClick={() => setLocMode("gps")}>📍 Position GPS</button>
+              <button className={`loc-tab${locMode==="address"?" active":""}`} onClick={() => setLocMode("address")}>🔍 Adresse</button>
             </div>
 
+            {locMode === "gps" ? (
+              <>
+                <button className="gps-btn" onClick={handleGPS} disabled={locating}>
+                  {locating ? "⏳ Localisation en cours…" : "📍 Détecter ma position GPS"}
+                </button>
+                <MiniMap lat={draftConfig.lat} lon={draftConfig.lon} label={draftConfig.displayName} />
+              </>
+            ) : (
+              <>
+                <AddressSearch onSelect={handleAddressSelect} />
+                <MiniMap lat={draftConfig.lat} lon={draftConfig.lon} label={draftConfig.displayName} />
+              </>
+            )}
+
+            {/* PV System */}
             <div className="panel-section-label">⚡ Installation photovoltaïque</div>
 
             <div className="two-col">
               <div className="field">
-                <label>Puissance DC (kWc)</label>
-                <input type="number" step="0.1" min="0.5" max="50" value={draftConfig.dcPower} onChange={e => setDraftConfig(d=>({...d, dcPower: parseFloat(e.target.value)}))} />
-                <div className="field-hint">Somme des panneaux</div>
+                <div className="field-header">
+                  <label>Puissance DC (kWc)</label>
+                  <InfoButton tooltipKey="dcPower" openTooltip={openTooltip} setOpenTooltip={setOpenTooltip} />
+                </div>
+                {openTooltip === "dcPower" && <div className="tooltip-box">{TOOLTIPS.dcPower}</div>}
+                <input type="number" step="0.1" min="0.5" max="50" value={draftConfig.dcPower}
+                  onChange={e => setDraftConfig(d=>({...d, dcPower:parseFloat(e.target.value)||0}))} />
               </div>
               <div className="field">
-                <label>Onduleur AC (kW)</label>
-                <input type="number" step="0.1" min="0.5" max="50" value={draftConfig.acPower} onChange={e => setDraftConfig(d=>({...d, acPower: parseFloat(e.target.value)}))} />
-                <div className="field-hint">Puissance max injectée</div>
+                <div className="field-header">
+                  <label>Onduleur AC (kW)</label>
+                  <InfoButton tooltipKey="acPower" openTooltip={openTooltip} setOpenTooltip={setOpenTooltip} />
+                </div>
+                {openTooltip === "acPower" && <div className="tooltip-box">{TOOLTIPS.acPower}</div>}
+                <input type="number" step="0.1" min="0.5" max="50" value={draftConfig.acPower}
+                  onChange={e => setDraftConfig(d=>({...d, acPower:parseFloat(e.target.value)||0}))} />
               </div>
             </div>
 
             <div className="field">
-              <label>Inclinaison des panneaux</label>
-              <input type="range" min="0" max="90" step="5" value={draftConfig.tilt} onChange={e => setDraftConfig(d=>({...d, tilt: parseInt(e.target.value)}))} />
+              <div className="field-header"><label>Inclinaison des panneaux</label></div>
+              <input type="range" min="0" max="60" step="5" value={draftConfig.tilt}
+                onChange={e => setDraftConfig(d=>({...d, tilt:parseInt(e.target.value)}))} />
               <div className="range-val">{draftConfig.tilt}°</div>
+              <div className="tilt-hints">
+                <span>0° — plat</span>
+                <span>30–35° — optimal BE</span>
+                <span>60° — quasi-vertical</span>
+              </div>
             </div>
+
             <div className="field">
-              <label>Orientation (azimut)</label>
-              <select value={draftConfig.azimuth} onChange={e => setDraftConfig(d=>({...d, azimuth: parseInt(e.target.value)}))}>
+              <div className="field-header"><label>Orientation (azimut)</label></div>
+              <select value={draftConfig.azimuth} onChange={e => setDraftConfig(d=>({...d, azimuth:parseInt(e.target.value)}))}>
                 {ORIENTATIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
               </select>
             </div>
+
             <div className="field">
-              <label>Pertes système (câbles, temp., salissures)</label>
-              <input type="range" min="0.03" max="0.25" step="0.01" value={draftConfig.systemLoss} onChange={e => setDraftConfig(d=>({...d, systemLoss: parseFloat(e.target.value)}))} />
+              <div className="field-header">
+                <label>Pertes système</label>
+                <InfoButton tooltipKey="systemLoss" openTooltip={openTooltip} setOpenTooltip={setOpenTooltip} />
+              </div>
+              {openTooltip === "systemLoss" && <div className="tooltip-box">{TOOLTIPS.systemLoss}</div>}
+              <input type="range" min="0.03" max="0.25" step="0.01" value={draftConfig.systemLoss}
+                onChange={e => setDraftConfig(d=>({...d, systemLoss:parseFloat(e.target.value)}))} />
               <div className="range-val">{Math.round(draftConfig.systemLoss*100)}%</div>
-              <div className="field-hint">Typiquement 8–15%. Inclut câblage, température panneaux, salissures.</div>
             </div>
 
             <div className="btn-row">
@@ -604,11 +728,9 @@ ReactDOM.createRoot(document.getElementById("root")).render(<App />);
 </script>
 
 <script>
-// ── Service Worker registration ──────────────────────────────────────────
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js')
-      .catch(err => console.log('SW registration failed:', err));
+    navigator.serviceWorker.register('sw.js').catch(() => {});
   });
 }
 </script>
