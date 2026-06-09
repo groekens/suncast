@@ -228,10 +228,185 @@
     .error-icon { font-size: 30px; margin-bottom: 10px; }
     .error-msg { color: var(--warn); font-size: 14px; line-height: 1.5; }
     .error-retry { margin-top: 16px; padding: 10px 24px; background: var(--warn); color: white; border: none; border-radius: var(--radius-sm); cursor: pointer; font-size: 14px; font-family: 'Outfit', sans-serif; font-weight: 600; }
+
+    /* ── Hero quality ── */
+    .hero-quality { display: flex; align-items: center; gap: 8px; margin: 6px 0 5px; }
+    .hero-quality-icon { font-size: 28px; line-height: 1; }
+    .hero-quality-label { font-family: 'Playfair Display', serif; font-size: 42px; font-weight: 600; line-height: 1; letter-spacing: -1px; }
+    .quality-great .hero-quality-label { color: var(--sun); }
+    .quality-ok    .hero-quality-label { color: #C07A08; }
+    .quality-mid   .hero-quality-label { color: var(--text-mid); }
+    .quality-poor  .hero-quality-label { color: var(--warn); }
+    .hero-pct { font-size: 13px; color: var(--text-mid); font-weight: 500; margin-bottom: 3px; }
+    .hero-kwh-secondary { font-size: 11px; color: var(--text-dim); margin-bottom: 10px; }
+
+    /* ── PWA Install Banner ── */
+    #install-banner {
+      display: none; position: fixed; top: 14px; left: 50%; transform: translateX(-50%);
+      width: calc(100% - 24px); max-width: 460px;
+      background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+      box-shadow: 0 6px 24px rgba(0,0,0,0.15); padding: 12px 14px 12px 12px;
+      z-index: 90; align-items: center; gap: 12px;
+      animation: ibSlide 0.35s cubic-bezier(.2,.8,.2,1);
+    }
+    body.show-install-banner #install-banner { display: flex; }
+    @keyframes ibSlide { from { opacity: 0; transform: translate(-50%,-16px); } to { opacity: 1; transform: translate(-50%,0); } }
+    .ib-close { background: none; border: none; cursor: pointer; font-size: 1.3rem; color: var(--text-dim); width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; line-height: 1; padding: 0; }
+    .ib-close:hover { background: var(--bg-warm); color: var(--text); }
+    .ib-logo { width: 44px; height: 44px; flex-shrink: 0; border-radius: 11px; box-shadow: 0 2px 6px rgba(232,150,10,0.30); object-fit: cover; display: block; }
+    .ib-body { flex: 1; min-width: 0; }
+    .ib-title { font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 0.98rem; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .ib-sub { font-size: 0.82rem; color: var(--text-dim); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .ib-cta { background: none; border: none; cursor: pointer; color: var(--sun); font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 1.05rem; padding: 6px 4px; flex-shrink: 0; }
+    .ib-cta:hover { color: var(--sun-light); }
+
+    /* ── PWA Install Modal ── */
+    #install-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 500; align-items: flex-start; justify-content: center; padding: 16px; overflow-y: auto; }
+    #install-overlay.active { display: flex; }
+    .install-modal { background: var(--card); border-radius: var(--radius-lg); padding: 24px 22px; width: 100%; max-width: 480px; margin: 24px 0; display: flex; flex-direction: column; gap: 18px; box-shadow: 0 12px 40px rgba(0,0,0,0.25); animation: modalIn 0.25s ease; position: relative; }
+    @keyframes modalIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+    .install-close { position: absolute; top: 12px; right: 12px; background: none; border: none; cursor: pointer; font-size: 1.6rem; color: var(--text-dim); width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; line-height: 1; padding: 0; }
+    .install-close:hover { background: var(--bg-warm); color: var(--text); }
+    .install-hdr { text-align: center; padding: 8px 30px 0; }
+    .install-icon-img { width: 84px; height: 84px; border-radius: 20px; margin: 0 auto 10px; display: block; box-shadow: 0 4px 14px rgba(232,150,10,0.25); object-fit: cover; }
+    .install-title { font-family: 'Playfair Display', serif; font-weight: 600; font-size: 1.5rem; color: var(--text); margin-bottom: 6px; }
+    .install-sub { font-size: 0.95rem; color: var(--text-mid); line-height: 1.5; }
+    .install-steps { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 16px; }
+    .install-steps li { display: flex; gap: 14px; align-items: flex-start; }
+    .step-num { width: 30px; height: 30px; flex-shrink: 0; background: var(--sun); color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 1.05rem; }
+    .step-body { flex: 1; min-width: 0; }
+    .step-title { font-family: 'Outfit', sans-serif; font-weight: 600; font-size: 1rem; color: var(--text); margin-bottom: 3px; }
+    .step-text { font-size: 0.92rem; color: var(--text-mid); line-height: 1.55; }
+    .step-illustration { margin-top: 10px; padding: 10px 12px; background: var(--bg-warm); border-radius: 8px; display: flex; justify-content: center; }
+    .install-why { background: var(--sun-pale); border: 1.5px solid #FFD87A; border-radius: var(--radius-sm); padding: 14px 16px; }
+    .iw-title { font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 0.88rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--sun); margin-bottom: 8px; }
+    .iw-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 6px; }
+    .iw-list li { display: flex; gap: 10px; align-items: center; font-size: 0.92rem; color: var(--text-mid); line-height: 1.4; }
+    .iw-bullet { flex-shrink: 0; font-size: 1.05rem; }
+    .btn-native-install { width: 100%; padding: 14px; background: var(--sun); color: #fff; border: none; border-radius: var(--radius-sm); font-weight: 600; font-size: 15px; cursor: pointer; font-family: 'Outfit', sans-serif; box-shadow: 0 4px 12px rgba(232,150,10,0.33); transition: opacity 0.2s; }
+    .btn-native-install:active { opacity: 0.88; }
+
+    /* ── Footer ── */
+    .footer { padding: 16px 16px 36px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+    .footer-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 28px; display: flex; flex-direction: column; align-items: center; gap: 7px; box-shadow: var(--shadow-sm); }
+    .footer-powered { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--text-dim); font-weight: 600; }
+    .footer-logo { height: 26px; width: auto; opacity: 0.82; transition: opacity 0.2s; }
+    .footer-logo:hover { opacity: 1; }
   </style>
 </head>
 <body>
+<!-- PWA install banner -->
+<div id="install-banner" role="dialog" aria-labelledby="install-banner-title">
+  <button class="ib-close" onclick="dismissInstallBanner()" aria-label="Fermer">×</button>
+  <img class="ib-logo" src="images/android-chrome-192x192.png" alt="" aria-hidden="true" />
+  <div class="ib-body">
+    <div class="ib-title">Installer Suncast</div>
+    <div class="ib-sub">suncast.nuxo.be</div>
+  </div>
+  <button class="ib-cta" onclick="openInstallGuide()">Installer</button>
+</div>
+
 <div id="root"></div>
+
+<!-- PWA install modal -->
+<div id="install-overlay" role="dialog" aria-labelledby="install-title" aria-modal="true">
+  <div class="install-modal" onclick="event.stopPropagation()">
+    <button class="install-close" onclick="closeInstallGuide()" aria-label="Fermer">×</button>
+    <div class="install-hdr">
+      <img class="install-icon-img" src="images/android-chrome-192x192.png" alt="" aria-hidden="true" />
+      <h2 class="install-title">Installer Suncast</h2>
+      <p class="install-sub">Ajoutez Suncast à votre écran d'accueil pour consulter vos prévisions solaires en un tap.</p>
+    </div>
+
+    <!-- iOS -->
+    <div id="install-ios" class="install-content">
+      <ol class="install-steps">
+        <li>
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <div class="step-title">Appuyez sur le bouton de partage</div>
+            <div class="step-text">En bas de l'écran (ou en haut sur iPad), repérez l'icône carré avec une flèche vers le haut.</div>
+            <div class="step-illustration">
+              <svg viewBox="0 0 200 60" width="100%" height="60" aria-hidden="true">
+                <rect x="2" y="6" width="196" height="48" rx="22" fill="#F5F2EC"/>
+                <text x="100" y="36" text-anchor="middle" font-family="system-ui" font-size="13" fill="#5C5649">suncast.nuxo.be</text>
+                <g transform="translate(170, 17)">
+                  <circle cx="13" cy="13" r="18" fill="none" stroke="#E8960A" stroke-width="2.5"/>
+                  <path d="M13 4 L13 18 M7 10 L13 4 L19 10 M5 14 L5 22 L21 22 L21 14" stroke="#1C1A16" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                </g>
+              </svg>
+            </div>
+          </div>
+        </li>
+        <li>
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <div class="step-title">Choisissez "Sur l'écran d'accueil"</div>
+            <div class="step-text">Faites défiler le menu vers le bas et appuyez sur cette option.</div>
+            <div class="step-illustration">
+              <svg viewBox="0 0 200 50" width="100%" height="50" aria-hidden="true">
+                <rect x="2" y="4" width="196" height="42" rx="10" fill="#fff" stroke="#E8E2D6"/>
+                <text x="14" y="30" font-family="system-ui" font-size="13" fill="#1C1A16">Sur l'écran d'accueil</text>
+                <g transform="translate(168, 13)">
+                  <rect x="0" y="0" width="22" height="22" rx="5" fill="none" stroke="#1C1A16" stroke-width="2"/>
+                  <line x1="11" y1="5" x2="11" y2="17" stroke="#1C1A16" stroke-width="2" stroke-linecap="round"/>
+                  <line x1="5" y1="11" x2="17" y2="11" stroke="#1C1A16" stroke-width="2" stroke-linecap="round"/>
+                </g>
+              </svg>
+            </div>
+          </div>
+        </li>
+        <li>
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <div class="step-title">Appuyez sur "Ajouter"</div>
+            <div class="step-text">L'icône Suncast apparaîtra sur votre écran d'accueil, prête à utiliser.</div>
+          </div>
+        </li>
+      </ol>
+    </div>
+
+    <!-- Android -->
+    <div id="install-android" class="install-content" style="display:none">
+      <ol class="install-steps">
+        <li>
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <div class="step-title">Ouvrez le menu du navigateur</div>
+            <div class="step-text">Appuyez sur les trois points (⋮) en haut à droite.</div>
+          </div>
+        </li>
+        <li>
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <div class="step-title">Sélectionnez "Installer l'application"</div>
+            <div class="step-text">Ou "Ajouter à l'écran d'accueil" selon votre navigateur.</div>
+          </div>
+        </li>
+        <li>
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <div class="step-title">Confirmez l'installation</div>
+            <div class="step-text">L'icône Suncast sera ajoutée à votre écran d'accueil.</div>
+          </div>
+        </li>
+      </ol>
+    </div>
+
+    <div class="install-why">
+      <div class="iw-title">Pourquoi installer ?</div>
+      <ul class="iw-list">
+        <li><span class="iw-bullet">⚡</span> <span>Accès instantané depuis l'écran d'accueil</span></li>
+        <li><span class="iw-bullet">📶</span> <span>Fonctionne hors-ligne (dernières prévisions en cache)</span></li>
+        <li><span class="iw-bullet">🔄</span> <span>Mises à jour automatiques, sans passer par un store</span></li>
+      </ul>
+    </div>
+
+    <button class="btn-native-install" id="native-install-btn" style="display:none" onclick="triggerNativeInstall()">
+      Installer maintenant
+    </button>
+  </div>
+</div>
 
 <script type="text/babel">
 const { useState, useEffect, useCallback, useRef } = React;
@@ -381,6 +556,13 @@ function barColor(pct) {
   return "#D4CBB8";
 }
 function fmtDate(d) { return new Date(d + "T12:00:00").toLocaleDateString("fr-BE", { day: "numeric", month: "short" }); }
+
+function getDayQuality(pct) {
+  if (pct >= 0.85) return { label: "Excellent", icon: "☀", cls: "quality-great" };
+  if (pct >= 0.60) return { label: "Bon",       icon: "🌤", cls: "quality-ok" };
+  if (pct >= 0.35) return { label: "Moyen",     icon: "⛅", cls: "quality-mid" };
+  return             { label: "Faible",          icon: "🌧", cls: "quality-poor" };
+}
 
 // ── InfoButton — just the toggle button ──────────────────────────────────
 function InfoButton({ tooltipKey, openTooltip, setOpenTooltip }) {
@@ -651,11 +833,12 @@ function App() {
 
   const handleSave = () => { saveConfig(draftConfig); setConfig(draftConfig); setShowSettings(false); };
 
-  const maxKwh     = Math.max(...days.map(d => d.totalKwh), 0.1);
-  const sel        = days[selectedDay];
-  const rec        = days.length ? getRecommendation([...days]) : null;
-  const maxHourKw  = sel ? Math.max(...sel.hours.map(h => h.acKw), 0.001) : 1;
+  const maxKwh      = Math.max(...days.map(d => d.totalKwh), 0.1);
+  const sel         = days[selectedDay];
+  const rec         = days.length ? getRecommendation([...days]) : null;
   const orientLabel = ORIENTATIONS.find(o => o.value === config.azimuth)?.label.split(" ")[0] ?? "";
+  const selPct      = sel && maxKwh > 0 ? sel.totalKwh / maxKwh : 0;
+  const selQuality  = getDayQuality(selPct);
 
   return (
     <div className="app">
@@ -677,11 +860,15 @@ function App() {
           {sel && (
             <div className="hero">
               <div className="hero-sun-bg" />
-              <div className="hero-label">Production estimée · {fmtDate(sel.date)}</div>
-              <div className="hero-value-row">
-                <span className="hero-value">{sel.totalKwh.toFixed(1)}</span>
-                <span className="hero-unit">kWh</span>
+              <div className="hero-label">{fmtDate(sel.date)}</div>
+              <div className={`hero-quality ${selQuality.cls}`}>
+                <span className="hero-quality-icon">{selQuality.icon}</span>
+                <span className="hero-quality-label">{selQuality.label}</span>
               </div>
+              <div className="hero-pct">
+                {selPct >= 0.99 ? "Meilleur jour de la semaine" : `${Math.round(selPct * 100)}% du meilleur jour`}
+              </div>
+              <div className="hero-kwh-secondary">~{sel.totalKwh.toFixed(1)} kWh estimé</div>
               <div className="hero-sub">
                 {sel.sunrise ? `🌅 ${sel.sunrise.substring(11,16)}` : ""}
                 {sel.sunset  ? ` · 🌇 ${sel.sunset.substring(11,16)}` : ""}
@@ -745,6 +932,15 @@ function App() {
               <div className="model-note-title">🔬 Modèle de calcul</div>
               <div className="model-note-body">Rayonnement GTI via Open-Meteo · Clipping onduleur à {config.acPower} kW · Pertes système {Math.round(config.systemLoss*100)}%</div>
             </div>
+          </div>
+
+          <div className="footer">
+            <a href="https://nuxo.be" target="_blank" rel="noopener noreferrer" style={{textDecoration:"none"}}>
+              <div className="footer-card">
+                <div className="footer-powered">Propulsé par</div>
+                <img src="images/logo-nuxo.svg" alt="Nuxo" className="footer-logo" />
+              </div>
+            </a>
           </div>
         </>
       )}
@@ -859,6 +1055,78 @@ if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js').catch(() => {});
   });
 }
+</script>
+
+<script>
+// ── PWA Install Prompt ────────────────────────────────────────────────────
+const INSTALL_DISMISS_KEY = 'suncast.install.dismissedUntil';
+let deferredInstallPrompt = null;
+
+function isIOS() {
+  return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+}
+function isStandalone() {
+  return window.matchMedia('(display-mode: standalone)').matches
+      || window.navigator.standalone === true;
+}
+function isBannerDismissed() {
+  return Date.now() < parseInt(localStorage.getItem(INSTALL_DISMISS_KEY) || '0', 10);
+}
+
+function maybeShowInstallBanner() {
+  if (isStandalone() || isBannerDismissed()) return;
+  if (!isIOS() && !/Android/i.test(navigator.userAgent)) return;
+  setTimeout(() => document.body.classList.add('show-install-banner'), 1200);
+}
+
+window.dismissInstallBanner = () => {
+  document.body.classList.remove('show-install-banner');
+  localStorage.setItem(INSTALL_DISMISS_KEY, String(Date.now() + 30 * 24 * 60 * 60 * 1000));
+};
+
+window.openInstallGuide = () => {
+  const ios = isIOS();
+  document.getElementById('install-ios').style.display     = ios ? 'block' : 'none';
+  document.getElementById('install-android').style.display = ios ? 'none'  : 'block';
+  document.getElementById('native-install-btn').style.display = (!ios && deferredInstallPrompt) ? 'block' : 'none';
+  document.getElementById('install-overlay').classList.add('active');
+  document.body.classList.remove('show-install-banner');
+};
+
+window.closeInstallGuide = () => {
+  document.getElementById('install-overlay').classList.remove('active');
+};
+
+window.triggerNativeInstall = async () => {
+  if (!deferredInstallPrompt) return;
+  deferredInstallPrompt.prompt();
+  try {
+    const { outcome } = await deferredInstallPrompt.userChoice;
+    if (outcome === 'accepted') {
+      closeInstallGuide();
+      localStorage.setItem(INSTALL_DISMISS_KEY, String(Date.now() + 10 * 365 * 24 * 60 * 60 * 1000));
+    }
+  } catch (e) {}
+  deferredInstallPrompt = null;
+};
+
+document.getElementById('install-overlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('install-overlay')) closeInstallGuide();
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && document.getElementById('install-overlay').classList.contains('active')) closeInstallGuide();
+});
+
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredInstallPrompt = e;
+});
+window.addEventListener('appinstalled', () => {
+  document.body.classList.remove('show-install-banner');
+  deferredInstallPrompt = null;
+});
+
+maybeShowInstallBanner();
 </script>
 </body>
 </html>
