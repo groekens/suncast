@@ -1,4 +1,4 @@
-const CACHE_NAME = 'suncast-v1';
+const CACHE_NAME = 'suncast-v2';
 const ASSETS = [
   './',
   './index.html',

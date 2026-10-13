@@ -291,11 +291,10 @@
     .btn-native-install:active { opacity: 0.88; }
 
     /* ── Footer ── */
-    .footer { padding: 16px 16px 36px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
-    .footer-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 28px; display: flex; flex-direction: column; align-items: center; gap: 7px; box-shadow: var(--shadow-sm); }
-    .footer-powered { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--text-dim); font-weight: 600; }
-    .footer-logo { height: 26px; width: auto; opacity: 0.82; transition: opacity 0.2s; }
-    .footer-logo:hover { opacity: 1; }
+    .footer { padding: 16px 16px 36px; text-align: center; }
+    .powered-by { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; color: var(--text-dim); transition: opacity 0.15s; font-size: 0.72rem; font-weight: 500; }
+    .powered-by:hover { opacity: 0.7; }
+    .powered-by img { height: 22px; width: auto; display: block; }
   </style>
 </head>
 <body>
@@ -939,11 +938,8 @@ function App() {
           </div>
 
           <div className="footer">
-            <a href="https://nuxo.be" target="_blank" rel="noopener noreferrer" style={{textDecoration:"none"}}>
-              <div className="footer-card">
-                <div className="footer-powered">Propulsé par</div>
-                <img src="images/logo-nuxo.svg" alt="Nuxo" className="footer-logo" />
-              </div>
+            <a className="powered-by" href="https://nuxo.be" target="_blank" rel="noopener noreferrer">
+              Powered by <img src="images/logo-nuxo.svg" alt="Nuxo" />
             </a>
           </div>
         </>
