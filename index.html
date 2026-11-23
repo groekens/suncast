@@ -1594,7 +1594,9 @@ function App() {
         </p>
         <p className="hero-pct">${Math.round(sel.ratio * 100)} % de ce qu'un ciel dégagé donnerait ce jour-là${sel.date === bestDate ? html` · <span className="hero-best">★ meilleur jour</span>` : ""}</p>
         <p className="hero-kwh-secondary">
-          Environ ${fmtKwh(sel.totalKwh)} kWh sur ${fmtKwh(sel.csKwh)} possibles${sel.offset === 0 && sel.remainingKwh < sel.totalKwh - 0.05 ? `, dont ${fmtKwh(sel.remainingKwh)} kWh encore à venir` : ""}
+          Environ ${fmtKwh(sel.totalKwh)} kWh sur ${fmtKwh(sel.csKwh)} possibles${sel.offset === 0 && sel.remainingKwh < sel.totalKwh - 0.05
+            ? (sel.remainingKwh >= 0.05 ? `, dont ${fmtKwh(sel.remainingKwh)} kWh encore à venir` : ", plus rien à venir aujourd'hui")
+            : ""}
         </p>
         <p className="hero-sub">
           ${sel.sunrise ? `🌅 ${fmtClock(sel.sunrise, tz)}` : ""}${sel.sunset ? ` · 🌇 ${fmtClock(sel.sunset, tz)}` : ""}${sel.clippedHours > 0 ? ` · ⚡ onduleur saturé environ ${sel.clippedHours} h` : ""}
