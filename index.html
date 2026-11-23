@@ -332,6 +332,61 @@
     .address-suggestion-main, .address-suggestion-sub { display: block; }
     .range-val { display: block; }
     .model-note-body a { color: inherit; text-decoration: underline; }
+    /* ── Hiver : note de saison, créneaux par appareil ── */
+    .q-great .hero-quality-label { color: var(--sun); }
+    .q-good  .hero-quality-label { color: #C07A08; }
+    .q-mid   .hero-quality-label { color: var(--text-mid); }
+    .q-poor  .hero-quality-label { color: var(--warn); }
+    .hero-best { color: var(--sun); font-weight: 600; white-space: nowrap; }
+    .hero-doubt { margin-top: 12px; font-size: 12px; color: var(--text-mid); background: var(--bg-warm); border-radius: var(--radius-sm); padding: 8px 10px; line-height: 1.45; }
+    .day-bar.q-great .bar-fill { background: linear-gradient(to top, #E8960A, #FFC83A); }
+    .day-bar.q-good  .bar-fill { background: #FFC83A; }
+    .day-bar.q-mid   .bar-fill { background: #F2DDA4; }
+    .day-bar.q-poor  .bar-fill { background: #D4CBB8; }
+    .bar-wrap { position: relative; }
+    .bar-fill { position: relative; }
+    .day-bar.uncertain .bar-fill::after { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(135deg, #FFFFFF80 0 3px, transparent 3px 7px); }
+    .days-legend { margin-top: 10px; font-size: 11px; color: var(--text-dim); line-height: 1.45; }
+    .chart-cs { fill: none; stroke: var(--text-dim); stroke-width: 1.2; stroke-dasharray: 4 3; opacity: 0.7; }
+    .chart-band { fill: #2E7D4F1F; stroke: #2E7D4F66; stroke-width: 1; }
+    .chart-legend { display: flex; flex-wrap: wrap; gap: 4px 14px; padding: 6px 10px 0; font-size: 11px; color: var(--text-dim); }
+    .chart-legend span { display: inline-flex; align-items: center; gap: 6px; }
+    .chart-legend i { display: inline-block; width: 16px; height: 0; border-top: 2px solid var(--sun); }
+    .chart-legend i.lg-cs { border-top: 1.5px dashed var(--text-dim); }
+    .chart-legend i.lg-band { height: 10px; border: 1px solid #2E7D4F66; background: #2E7D4F1F; border-radius: 3px; }
+    .slots { list-style: none; display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+    .slot { display: flex; align-items: stretch; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow-sm); overflow: hidden; }
+    .slot.active { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-pale); }
+    .slot-main { flex: 1; min-width: 0; display: flex; gap: 12px; align-items: flex-start; text-align: left; background: none; border: none; padding: 12px 14px; font: inherit; color: inherit; cursor: pointer; }
+    .slot-main.slot-empty { cursor: default; }
+    .slot-icon { font-size: 24px; line-height: 1.2; }
+    .slot-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+    .slot-name { font-weight: 600; font-size: 14px; color: var(--text); }
+    .slot-need { font-weight: 400; font-size: 12px; color: var(--text-dim); }
+    .slot-when { font-family: 'Playfair Display', serif; font-size: 17px; color: var(--text); }
+    .slot-cover { font-size: 12.5px; color: var(--text-mid); }
+    .slot-cover.cover-great { color: var(--accent); }
+    .slot-cover.cover-poor { color: var(--warn); }
+    .slot-doubt { color: var(--text-dim); }
+    .slot-cal { flex-shrink: 0; width: 52px; background: var(--bg-warm); border: none; border-left: 1px solid var(--border); font-size: 20px; cursor: pointer; }
+    .slot-cal:hover { background: var(--sun-pale); }
+    .slots-note { margin-top: 8px; font-size: 11px; color: var(--text-dim); line-height: 1.45; }
+    .rec-card { padding: 16px 18px; }
+    .mini-dialog { margin: auto; border: none; padding: 0; border-radius: var(--radius-lg); background: var(--card); color: var(--text); width: min(100% - 32px, 420px); box-shadow: 0 12px 40px #00000040; }
+    .mini-dialog::backdrop { background: #00000055; }
+    .mini-dialog-body { padding: 22px 20px 16px; display: flex; flex-direction: column; gap: 12px; }
+    .mini-dialog-title { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 600; }
+    .mini-dialog-text { font-size: 14px; color: var(--text-mid); line-height: 1.55; }
+    .mini-dialog-text strong { color: var(--text); }
+    .mini-dialog-actions { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+    .mini-dialog-actions .btn-secondary { text-align: center; text-decoration: none; }
+    .btn-link { background: none; border: none; font: inherit; color: var(--text-mid); padding: 10px; cursor: pointer; text-decoration: underline; }
+    .field-hint { font-size: 12px; color: var(--text-dim); }
+    .appliance-help { margin-bottom: 10px; }
+    .appliance-row { padding: 10px 0 2px; border-top: 1px solid var(--border); }
+    .appliance-row.off .two-col { opacity: 0.5; }
+    .appliance-toggle { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 15px; margin-bottom: 8px; cursor: pointer; }
+    .appliance-toggle input { width: 20px; height: 20px; accent-color: var(--sun); }
   </style>
 </head>
 <body>
@@ -494,6 +549,14 @@ const FETCH_TIMEOUT_MS = 12000;
 // Anciennes coordonnées par défaut : elles pointaient sur Mont-Saint-Guibert
 // alors que l'étiquette disait Genval.
 const OLD_DEFAULT = { lat: 50.637, lon: 4.611, displayName: "Genval, Belgique" };
+// Appareils à caser sur le soleil. Puissance MOYENNE sur la durée (énergie du
+// cycle ÷ durée), pas la puissance de pointe. Modifiables dans les réglages.
+const DEFAULT_APPLIANCES = [
+  { id: "linge",   icon: "🧺", name: "Lave-linge",        action: "Lancer le lave-linge",   hours: 2, kw: 0.5, on: true },
+  { id: "voiture", icon: "🚗", name: "Voiture électrique", action: "Brancher la voiture",    hours: 4, kw: 2.3, on: true },
+  { id: "four",    icon: "🏺", name: "Four céramique",     action: "Lancer la cuisson",      hours: 8, kw: 2.0, on: true },
+];
+const RELIABLE_DAYS = 3; // au-delà de J+2, la nébulosité prévue devient indicative
 const DEFAULT_CONFIG = {
   lat: 50.722, lon: 4.503,
   displayName: "Genval, Belgique",
@@ -502,6 +565,7 @@ const DEFAULT_CONFIG = {
   azimuth: 135,
   tilt: 40,
   systemLoss: 0.10,
+  appliances: DEFAULT_APPLIANCES,
 };
 
 // ── Textes d'aide ─────────────────────────────────────────────────────────
@@ -523,6 +587,14 @@ const TOOLTIPS = {
       <li>Souvent notée « Pnom » ou « Pout max »</li>
     </ul>
     <p>💡 Si la courbe fait un plateau à midi, l'onduleur sature : la puissance DC dépasse sa limite. Les prévisions en tiennent compte.</p>
+  </div>`,
+  appliances: html`<div>
+    <p><strong>Puissance moyenne</strong> = énergie d'un cycle ÷ sa durée. C'est elle qui compte pour savoir quelle part le soleil couvre.</p>
+    <ul>
+      <li><strong>Lave-linge</strong> à 40 °C : environ 1 kWh en 2 h, soit 0,5 kW</li>
+      <li><strong>Voiture</strong> sur prise domestique : 2,3 kW. Sur borne : 3,7 à 7,4 kW</li>
+      <li><strong>Four céramique</strong> : la plaque donne la puissance maximale (souvent 3 kW pour un petit four). Sur une cuisson entière, comptez 60 à 70 % de cette valeur</li>
+    </ul>
   </div>`,
   systemLoss: html`<div>
     <p><strong>Pertes système</strong> : tout ce qui sépare la production réelle de la production théorique.</p>
@@ -605,6 +677,16 @@ function sanitizeConfig(c) {
   out.azimuth = ORIENTATIONS.some(o => o.value === Number(out.azimuth)) ? Number(out.azimuth) : DEFAULT_CONFIG.azimuth;
   out.systemLoss = clampNum(out.systemLoss, 0, 0.5, DEFAULT_CONFIG.systemLoss);
   if (typeof out.displayName !== "string" || !out.displayName.trim()) out.displayName = `${out.lat.toFixed(3)}, ${out.lon.toFixed(3)}`;
+  const saved = Array.isArray(c.appliances) ? c.appliances : [];
+  out.appliances = DEFAULT_APPLIANCES.map(def => {
+    const a = saved.find(x => x && x.id === def.id) || {};
+    return {
+      ...def,
+      on: typeof a.on === "boolean" ? a.on : def.on,
+      hours: Math.round(clampNum(a.hours ?? def.hours, 1, 12, def.hours)),
+      kw: clampNum(a.kw ?? def.kw, 0.1, 22, def.kw),
+    };
+  });
   return out;
 }
 function loadConfig() {
@@ -676,6 +758,51 @@ function acPowerKw(poaW, cfg) {
   return Math.min((poaW / 1000) * cfg.dcPower * (1 - cfg.systemLoss), cfg.acPower);
 }
 
+// ── Référence « ciel dégagé » ─────────────────────────────────────────────
+// Pour juger un jour par rapport à la saison : 3 kWh, c'est médiocre en juin
+// mais très bon en décembre. On calcule ce que les panneaux produiraient sans
+// un nuage (position du soleil NOAA, modèle de ciel clair Ineichen-Perez,
+// transposition isotrope sur le plan des panneaux), et on compare.
+const RAD = Math.PI / 180;
+const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+function sunPosition(epochSec, lat, lon) {
+  const d = new Date(epochSec * 1000);
+  const doy = Math.floor((d - Date.UTC(d.getUTCFullYear(), 0, 1)) / 86400000) + 1;
+  const hr = d.getUTCHours() + d.getUTCMinutes() / 60 + d.getUTCSeconds() / 3600;
+  const g = 2 * Math.PI / 365 * (doy - 1 + (hr - 12) / 24);
+  const eqt = 229.18 * (0.000075 + 0.001868 * Math.cos(g) - 0.032077 * Math.sin(g) - 0.014615 * Math.cos(2 * g) - 0.040849 * Math.sin(2 * g));
+  const decl = 0.006918 - 0.399912 * Math.cos(g) + 0.070257 * Math.sin(g) - 0.006758 * Math.cos(2 * g) + 0.000907 * Math.sin(2 * g) - 0.002697 * Math.cos(3 * g) + 0.00148 * Math.sin(3 * g);
+  const ha = ((hr * 60 + eqt + 4 * lon) / 4 - 180) * RAD;
+  const phi = lat * RAD;
+  const cosZ = clamp(Math.sin(phi) * Math.sin(decl) + Math.cos(phi) * Math.cos(decl) * Math.cos(ha), -1, 1);
+  const sinZ = Math.sqrt(1 - cosZ * cosZ);
+  let az = 0; // depuis le nord, sens horaire
+  if (sinZ > 1e-6) {
+    az = Math.acos(clamp((Math.sin(decl) - Math.sin(phi) * cosZ) / (Math.cos(phi) * sinZ), -1, 1));
+    if (ha > 0) az = 2 * Math.PI - az;
+  }
+  return { cosZ, sinZ, az, doy };
+}
+function clearSkyPoa(epochSec, cfg, elev) {
+  const sp = sunPosition(epochSec, cfg.lat, cfg.lon);
+  if (sp.cosZ <= 0.01) return 0;
+  const zDeg = Math.acos(sp.cosZ) / RAD;
+  const am = 1 / (sp.cosZ + 0.50572 * Math.pow(96.07995 - zDeg, -1.6364)); // masse d'air (Kasten-Young)
+  const i0 = 1361 * (1 + 0.033 * Math.cos(2 * Math.PI * sp.doy / 365));
+  const tl = 3.0 + 0.6 * Math.cos(2 * Math.PI * (sp.doy - 172) / 365);  // trouble de Linke : air plus pur en hiver
+  const fh1 = Math.exp(-elev / 8000), fh2 = Math.exp(-elev / 1250);
+  const cg1 = 5.09e-5 * elev + 0.868, cg2 = 3.92e-5 * elev + 0.0387;
+  const ghi = Math.max(0, cg1 * i0 * sp.cosZ * Math.exp(-cg2 * am * (fh1 + fh2 * (tl - 1))) * Math.exp(0.01 * Math.pow(am, 1.8)));
+  const dni = Math.max(0, Math.min((0.664 + 0.163 / fh1) * i0 * Math.exp(-0.09 * am * (tl - 1)), ghi / sp.cosZ));
+  const dhi = Math.max(0, ghi - dni * sp.cosZ);
+  const b = cfg.tilt * RAD;
+  const cosAoi = sp.cosZ * Math.cos(b) + sp.sinZ * Math.sin(b) * Math.cos(sp.az - cfg.azimuth * RAD);
+  return dni * Math.max(0, cosAoi) + dhi * (1 + Math.cos(b)) / 2 + ghi * 0.2 * (1 - Math.cos(b)) / 2;
+}
+// Moyenne sur l'heure [start, start + 1 h], comme les valeurs d'Open-Meteo.
+const clearSkyHourMean = (start, cfg, elev) =>
+  [7.5, 22.5, 37.5, 52.5].reduce((sum, m) => sum + clearSkyPoa(start + m * 60, cfg, elev), 0) / 4;
+
 function buildDays(fc, cfg, nowSec) {
   const tz = fc.timezone;
   const today = zoned(nowSec, tz).date;
@@ -687,10 +814,12 @@ function buildDays(fc, cfg, nowSec) {
     const poa = gti[i] ?? ghi[i] ?? 0;
     const kw = acPowerKw(poa, cfg);
     const clipped = kw >= cfg.acPower * 0.98 && poa > 100;
+    const cs = acPowerKw(clearSkyHourMean(start, cfg, fc.elevation), cfg);
     let d = byDate.get(z.date);
-    if (!d) { d = { date: z.date, hours: [], totalKwh: 0, clippedHours: 0 }; byDate.set(z.date, d); }
-    d.hours.push({ start, end, h: z.h, kw, clipped });
+    if (!d) { d = { date: z.date, hours: [], totalKwh: 0, csKwh: 0, clippedHours: 0 }; byDate.set(z.date, d); }
+    d.hours.push({ start, end, h: z.h, kw, cs, clipped });
     d.totalKwh += kw; // moyenne sur 1 h en kW = énergie en kWh
+    d.csKwh += cs;
     if (clipped) d.clippedHours++;
   }
   fc.daily.time.forEach((t, j) => {
@@ -702,6 +831,9 @@ function buildDays(fc, cfg, nowSec) {
     .sort((a, b) => (a.date < b.date ? -1 : 1));
   for (const d of days) {
     d.offset = daysBetween(today, d.date);
+    d.ratio = d.csKwh > 0.05 ? Math.min(1, d.totalKwh / d.csKwh) : 0;
+    d.quality = dayQuality(d.ratio);
+    d.uncertain = d.offset >= RELIABLE_DAYS;
     // Ce qui reste à produire à partir de maintenant (l'heure entamée au prorata).
     d.remainingKwh = d.hours.reduce((s, h) =>
       s + (h.start >= nowSec ? h.kw : h.end > nowSec ? h.kw * (h.end - nowSec) / 3600 : 0), 0);
@@ -712,27 +844,32 @@ function buildDays(fc, cfg, nowSec) {
 // Meilleure fenêtre de `hours` heures consécutives qui commence maintenant ou
 // plus tard. Score : énergie solaire qu'un appareil de `kw` kW peut réellement
 // absorber (au-delà de sa puissance, le surplus part sur le réseau).
-// On retient la fenêtre la plus PROCHE qui fait au moins 90 % de la meilleure :
-// une prévision à J+1 est plus sûre qu'une à J+5.
+// 1. Pour chaque jour, la meilleure fenêtre ; à score égal, celle qui a le plus
+//    de marge (le plus de soleil au total), donc centrée sur le milieu de journée.
+// 2. On retient le jour le plus PROCHE qui fait au moins 90 % du meilleur :
+//    une prévision à J+1 est plus sûre qu'une à J+5.
 function findSlot(days, nowSec, hours, kw) {
   const all = days.flatMap(d => d.hours.map(h => ({ ...h, date: d.date, offset: d.offset })));
-  const windows = [];
+  const perDay = new Map();
   for (let i = 0; i + hours <= all.length; i++) {
     const first = all[i], last = all[i + hours - 1];
-    if (first.start < nowSec - 600) continue;              // déjà passée (10 min de tolérance)
-    if (last.start - first.start !== (hours - 1) * 3600) continue; // trou dans les données
-    let solar = 0;
-    for (let k = 0; k < hours; k++) solar += Math.min(all[i + k].kw, kw);
-    windows.push({ start: first.start, end: first.start + hours * 3600, solar, date: first.date, offset: first.offset });
+    if (first.start < nowSec - 600) continue;                        // déjà passée (10 min de tolérance)
+    if (last.start - first.start !== (hours - 1) * 3600) continue;   // trou dans les données
+    let solar = 0, raw = 0;
+    for (let k = 0; k < hours; k++) { solar += Math.min(all[i + k].kw, kw); raw += all[i + k].kw; }
+    const w = { start: first.start, end: first.start + hours * 3600, solar, raw, date: first.date, offset: first.offset };
+    const cur = perDay.get(w.date);
+    if (!cur || w.solar > cur.solar + 0.01 || (Math.abs(w.solar - cur.solar) <= 0.01 && w.raw > cur.raw)) perDay.set(w.date, w);
   }
-  if (!windows.length) return null;
-  const best = windows.reduce((a, b) => (b.solar > a.solar ? b : a));
+  const dayBests = [...perDay.values()];
+  if (!dayBests.length) return null;
+  const best = dayBests.reduce((a, b) => (b.solar > a.solar ? b : a));
   if (best.solar < 0.05) return { pick: null, best: null };
-  const pick = windows.find(w => w.solar >= best.solar * 0.9);
-  return { pick, best, need: hours * kw };
+  const pick = dayBests.find(w => w.solar >= best.solar * 0.9);
+  return { pick, best };
 }
 
-// ── Recommandation ────────────────────────────────────────────────────────
+// ── Recommandation de la semaine ──────────────────────────────────────────
 function getRecommendation(model, nowSec) {
   const { days, today, tz } = model;
   if (!days.length) return null;
@@ -740,33 +877,35 @@ function getRecommendation(model, nowSec) {
   const left = todayDay ? todayDay.remainingKwh : 0;
   const upcoming = days.filter(d => d.offset >= 1);
   const best = upcoming.length ? upcoming.reduce((a, b) => (b.totalKwh > a.totalKwh ? b : a)) : null;
-  const slot = findSlot(todayDay ? [todayDay] : [], nowSec, 2, Infinity);
+  const slot = todayDay ? findSlot([todayDay], nowSec, 2, Infinity) : null;
   const peak = slot && slot.pick ? `, surtout entre ${fmtHour(slot.pick.start, tz)} et ${fmtHour(slot.pick.end, tz)}` : "";
 
-  if (todayDay && left >= 0.1 && (!best || left >= best.totalKwh * 0.85)) {
+  if (todayDay && left >= 0.1 && todayDay.ratio >= 0.25 && (!best || left >= best.totalKwh * 0.85)) {
     return { quality: "great", icon: "⚡", title: "Profitez d'aujourd'hui",
-      body: `Il reste environ ${fmtKwh(left)} kWh de soleil aujourd'hui${peak}. Les jours suivants ne feront pas mieux : c'est le moment pour les gros appareils.` };
+      body: `Il reste environ ${fmtKwh(left)} kWh de soleil${peak}. Les jours suivants ne feront pas mieux.` };
   }
-  if (best && best.totalKwh >= 0.1) {
+  if (!best) return null;
+  if (best.ratio < 0.25) {
     const name = dayName(best.date, today, false);
-    const todayPart = todayDay && left >= 0.05 ? ` contre ${fmtKwh(left)} kWh encore possibles aujourd'hui` : "";
-    return { quality: "poor", icon: "⏳", title: `Mieux vaut attendre ${name}`,
-      body: `${capitalize(name)}, environ ${fmtKwh(best.totalKwh)} kWh sont prévus${todayPart}. Décaler les gros appareils augmentera votre autoconsommation.` };
+    return { quality: "poor", icon: "☁️", title: "Semaine grise",
+      body: `Aucun jour vraiment ensoleillé en vue. Le moins mauvais : ${name}, environ ${fmtKwh(best.totalKwh)} kWh (${Math.round(best.ratio * 100)} % d'un ciel dégagé).` };
   }
-  return { quality: "ok", icon: "☁️", title: "Très peu de soleil cette semaine",
-    body: "Aucun jour ne se détache. Lancez vos appareils quand ça vous arrange." };
+  // Le jour le plus proche à 90 % du meilleur : plus sûr qu'un pic lointain.
+  const pick = upcoming.find(d => d.totalKwh >= best.totalKwh * 0.9) || best;
+  const name = dayName(pick.date, today, false);
+  const todayPart = todayDay && left >= 0.05 ? ` Aujourd'hui, il ne reste qu'environ ${fmtKwh(left)} kWh.` : "";
+  const other = pick !== best ? ` ${capitalize(dayName(best.date, today, false))} pourrait faire un peu mieux (${fmtKwh(best.totalKwh)} kWh), mais c'est moins sûr.` : "";
+  const doubt = pick.uncertain ? " Prévision encore incertaine : revérifiez la veille." : "";
+  return { quality: pick.ratio >= 0.5 ? "ok" : "poor", icon: "🎯", title: `À ne pas rater : ${name}`,
+    body: `${capitalize(name)} s'annonce ${pick.quality.label.toLowerCase()}, environ ${fmtKwh(pick.totalKwh)} kWh (${Math.round(pick.ratio * 100)} % d'un ciel dégagé).${todayPart}${other}${doubt}` };
 }
 
-function barColor(pct) {
-  if (pct > 0.70) return "#E8960A";
-  if (pct > 0.40) return "#FFC83A";
-  return "#D4CBB8";
-}
-function getDayQuality(pct) {
-  if (pct >= 0.85) return { label: "Excellent", icon: "☀️", cls: "quality-great" };
-  if (pct >= 0.60) return { label: "Bon",       icon: "🌤️", cls: "quality-ok" };
-  if (pct >= 0.35) return { label: "Moyen",     icon: "⛅", cls: "quality-mid" };
-  return             { label: "Faible",    icon: "🌧️", cls: "quality-poor" };
+// Note du jour = production prévue ÷ production par ciel dégagé ce jour-là.
+function dayQuality(ratio) {
+  if (ratio >= 0.75) return { label: "Plein soleil", icon: "☀️", cls: "great" };
+  if (ratio >= 0.5)  return { label: "Ensoleillé",   icon: "🌤️", cls: "good" };
+  if (ratio >= 0.25) return { label: "Mitigé",       icon: "⛅", cls: "mid" };
+  return               { label: "Couvert",      icon: "☁️", cls: "poor" };
 }
 
 // ── Bouton « i » et son texte d'aide ──────────────────────────────────────
@@ -855,7 +994,7 @@ function MiniMap({ lat, lon, label }) {
 }
 
 // ── Courbe horaire (SVG) ──────────────────────────────────────────────────
-function HourlyChart({ day, cfg, tz, nowSec }) {
+function HourlyChart({ day, cfg, tz, nowSec, slot }) {
   const W = 340, H = 120, PAD_L = 34, PAD_R = 10, PAD_T = 18, PAD_B = 22;
   const plotW = W - PAD_L - PAD_R, plotH = H - PAD_T - PAD_B;
   const sunH = day.sunrise ? zoned(day.sunrise, tz).h : 6;
@@ -863,14 +1002,23 @@ function HourlyChart({ day, cfg, tz, nowSec }) {
   const x0 = Math.max(0, Math.floor(sunH) - 1), x1 = Math.min(24, Math.ceil(setH) + 1);
   const xOf = h => PAD_L + ((h - x0) / (x1 - x0)) * plotW;
   // Chaque valeur est la moyenne d'une heure : on la place au milieu de l'heure.
-  const pts = day.hours.filter(h => h.h + 1 >= x0 && h.h <= x1).map(h => ({ x: h.h + 0.5, kw: h.kw, h }));
+  const pts = day.hours.filter(h => h.h + 0.5 >= x0 && h.h + 0.5 <= x1).map(h => ({ x: h.h + 0.5, kw: h.kw, cs: h.cs, h }));
   if (!pts.length) return null;
-  const maxKw = Math.max(...pts.map(p => p.kw), cfg.acPower * 0.15, 0.05);
+  const maxKw = Math.max(...pts.map(p => Math.max(p.kw, p.cs)), cfg.acPower * 0.15, 0.05);
   const yOf = kw => PAD_T + plotH * (1 - Math.min(kw, maxKw) / maxKw);
   const base = PAD_T + plotH;
   const line = "M " + pts.map(p => `${xOf(p.x).toFixed(1)},${yOf(p.kw).toFixed(1)}`).join(" L ");
   const area = `${line} L ${xOf(pts[pts.length - 1].x).toFixed(1)},${base} L ${xOf(pts[0].x).toFixed(1)},${base} Z`;
+  const csLine = "M " + pts.map(p => `${xOf(p.x).toFixed(1)},${yOf(p.cs).toFixed(1)}`).join(" L ");
   const peak = pts.reduce((a, b) => (b.kw > a.kw ? b : a));
+  // Créneau choisi dans « Quand brancher ? », s'il tombe ce jour-là.
+  let band = null;
+  if (slot && zoned(slot.start, tz).date === day.date) {
+    const sx = xOf(Math.max(x0, zoned(slot.start, tz).h));
+    const endZ = zoned(slot.end, tz);
+    const ex = xOf(endZ.date === day.date ? Math.min(x1, endZ.h) : x1);
+    if (ex > sx) band = { x: sx, w: ex - sx };
+  }
   const px = xOf(peak.x), py = yOf(peak.kw);
   const ticks = [];
   for (let t = Math.ceil(x0 / 2) * 2; t <= x1; t += 2) ticks.push(t);
@@ -894,7 +1042,9 @@ function HourlyChart({ day, cfg, tz, nowSec }) {
       </defs>
       ${yTicks.map((v, i) => html`<line key=${i} className="chart-grid" x1=${PAD_L} y1=${yOf(v).toFixed(1)} x2=${PAD_L + plotW} y2=${yOf(v).toFixed(1)} />`)}
       ${clipY !== null && html`<line className="chart-clip" x1=${PAD_L} y1=${clipY.toFixed(1)} x2=${PAD_L + plotW} y2=${clipY.toFixed(1)} />`}
+      ${band && html`<rect className="chart-band" x=${band.x.toFixed(1)} y=${PAD_T - 4} width=${band.w.toFixed(1)} height=${plotH + 4} rx="4" />`}
       <path d=${area} fill="url(#areaGrad)" />
+      <path d=${csLine} className="chart-cs" />
       <path d=${line} className="chart-line" />
       ${showNow && html`<g className="chart-now">
         <line x1=${xOf(nowH).toFixed(1)} y1=${PAD_T} x2=${xOf(nowH).toFixed(1)} y2=${base} />
@@ -908,7 +1058,153 @@ function HourlyChart({ day, cfg, tz, nowSec }) {
       ${yTicks.map((v, i) => html`<text key=${i} x=${PAD_L - 4} y=${(yOf(v) + 3).toFixed(1)} textAnchor="end" className="chart-axis-label">${fmtKw(v)}</text>`)}
       <line className="chart-grid" x1=${PAD_L} y1=${base} x2=${PAD_L + plotW} y2=${base} />
     </svg>
+    <figcaption className="chart-legend">
+      <span><i className="lg-line" aria-hidden="true"></i>Prévision</span>
+      <span><i className="lg-cs" aria-hidden="true"></i>Ciel dégagé</span>
+      ${band && html`<span><i className="lg-band" aria-hidden="true"></i>${slot.label}, ${fmtHour(slot.start, tz)} à ${fmtHour(slot.end, tz)}</span>`}
+    </figcaption>
   </figure>`;
+}
+
+// ── Rappel agenda (.ics ou Google Agenda) ─────────────────────────────────
+const icsDate = sec => new Date(sec * 1000).toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+const icsEscape = v => String(v).replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\r?\n/g, "\\n");
+function icsFold(line) { // lignes de 75 octets max (RFC 5545)
+  const enc = new TextEncoder();
+  let out = "", cur = "", bytes = 0;
+  for (const ch of line) {
+    const b = enc.encode(ch).length;
+    if (bytes + b > 74) { out += cur + "\r\n "; cur = ""; bytes = 1; }
+    cur += ch; bytes += b;
+  }
+  return out + cur;
+}
+function reminderText(r, tz, fetchedAt) {
+  const title = `☀️ ${r.appliance.action}`;
+  const description = `Créneau solaire prévu par Suncast : environ ${fmtKwh(r.slot.solar)} kWh de soleil, ${Math.round(r.coverage * 100)} % de ce que consomme l'appareil. `
+    + `Prévision reçue ${describeFetchedAt(fetchedAt, tz)} : revérifiez le jour même sur https://suncast.nuxo.be`;
+  return { title, description };
+}
+function buildIcs(r, tz, fetchedAt) {
+  const { title, description } = reminderText(r, tz, fetchedAt);
+  const lines = [
+    "BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Nuxo//Suncast//FR", "CALSCALE:GREGORIAN", "METHOD:PUBLISH",
+    "BEGIN:VEVENT",
+    `UID:${r.slot.start}-${r.appliance.id}@suncast.nuxo.be`,
+    `DTSTAMP:${icsDate(Date.now() / 1000)}`,
+    `DTSTART:${icsDate(r.slot.start)}`,
+    `DTEND:${icsDate(r.slot.end)}`,
+    `SUMMARY:${icsEscape(title)}`,
+    `DESCRIPTION:${icsEscape(description)}`,
+    "BEGIN:VALARM", "ACTION:DISPLAY", `DESCRIPTION:${icsEscape(title)}`, "TRIGGER:-PT15M", "END:VALARM",
+    "END:VEVENT", "END:VCALENDAR",
+  ];
+  return lines.map(icsFold).join("\r\n") + "\r\n";
+}
+function googleCalendarUrl(r, tz, fetchedAt) {
+  const { title, description } = reminderText(r, tz, fetchedAt);
+  const q = new URLSearchParams({ action: "TEMPLATE", text: title, dates: `${icsDate(r.slot.start)}/${icsDate(r.slot.end)}`, details: description });
+  return `https://calendar.google.com/calendar/render?${q}`;
+}
+function downloadIcs(text, filename) {
+  const url = URL.createObjectURL(new Blob([text], { type: "text/calendar;charset=utf-8" }));
+  const a = document.createElement("a");
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 10000);
+}
+
+function ReminderDialog({ reminder, tz, today, fetchedAt, onClose }) {
+  const ref = useRef(null);
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
+  useEffect(() => {
+    const dlg = ref.current;
+    if (reminder && !dlg.open) dlg.showModal();
+    else if (!reminder && dlg.open) dlg.close();
+  }, [reminder]);
+  useEffect(() => {
+    const dlg = ref.current;
+    const handle = () => onCloseRef.current();
+    dlg.addEventListener("close", handle);
+    return () => dlg.removeEventListener("close", handle);
+  }, []);
+  const r = reminder;
+  return html`<dialog ref=${ref} className="mini-dialog" aria-labelledby="reminder-title"
+      onClick=${e => { if (e.target === ref.current) ref.current.close(); }}>
+    ${r && html`<div className="mini-dialog-body">
+      <h2 id="reminder-title" className="mini-dialog-title">Ajouter un rappel</h2>
+      <p className="mini-dialog-text">
+        <strong>${r.appliance.icon} ${r.appliance.action}</strong><br />
+        ${heroDate(r.slot.date, today)}, de ${fmtHour(r.slot.start, tz)} à ${fmtHour(r.slot.end, tz)}.
+        Rappel 15 minutes avant.
+      </p>
+      <div className="mini-dialog-actions">
+        <button type="button" className="btn-primary" onClick=${() => { downloadIcs(buildIcs(r, tz, fetchedAt), `suncast-${r.appliance.id}-${r.slot.date}.ics`); ref.current.close(); }}>
+          Agenda du téléphone (.ics)
+        </button>
+        <a className="btn-secondary" href=${googleCalendarUrl(r, tz, fetchedAt)} target="_blank" rel="noopener" onClick=${() => ref.current.close()}>
+          Google Agenda
+        </a>
+        <button type="button" className="btn-link" onClick=${() => ref.current.close()}>Fermer</button>
+      </div>
+    </div>`}
+  </dialog>`;
+}
+
+// ── Quand brancher ? ──────────────────────────────────────────────────────
+function ApplianceSlots({ model, appliances, nowSec, rec, activeId, onShow, onRemind }) {
+  const { days, today, tz } = model;
+  const list = appliances.filter(a => a.on);
+  return html`<section className="section" aria-labelledby="slots-title">
+    <h2 id="slots-title" className="section-title">Quand brancher ?</h2>
+    ${rec && html`<div className=${`rec-card ${rec.quality}`}>
+      <p className="rec-title"><span aria-hidden="true">${rec.icon} </span>${rec.title}</p>
+      <p className="rec-body">${rec.body}</p>
+    </div>`}
+    ${list.length > 0 && html`<ul className="slots" role="list">
+      ${list.map(a => {
+        const res = findSlot(days, nowSec, a.hours, a.kw);
+        const pick = res && res.pick;
+        if (!pick) {
+          return html`<li key=${a.id} className="slot">
+            <div className="slot-main slot-empty">
+              <span className="slot-icon" aria-hidden="true">${a.icon}</span>
+              <span className="slot-text">
+                <span className="slot-name">${a.name}</span>
+                <span className="slot-when">Pas de soleil utile prévu d'ici ${dayName(days[days.length - 1].date, today, false)}.</span>
+              </span>
+            </div>
+          </li>`;
+        }
+        const coverage = Math.min(1, pick.solar / (a.hours * a.kw));
+        const pct = Math.round(coverage * 100);
+        const day = dayName(pick.date, today, false);
+        const when = `${capitalize(day)} de ${fmtHour(pick.start, tz)} à ${fmtHour(pick.end, tz)}`;
+        const active = activeId === a.id;
+        const level = coverage >= 0.75 ? "great" : coverage >= 0.4 ? "good" : coverage >= 0.15 ? "mid" : "poor";
+        return html`<li key=${a.id} className=${`slot${active ? " active" : ""}`}>
+          <button type="button" className="slot-main" aria-pressed=${active}
+            onClick=${() => onShow(a, pick)}>
+            <span className="slot-icon" aria-hidden="true">${a.icon}</span>
+            <span className="slot-text">
+              <span className="slot-name">${a.name} <span className="slot-need">${a.hours} h · ${nf1.format(a.kw)} kW</span></span>
+              <span className="slot-when">${when}</span>
+              <span className=${`slot-cover cover-${level}`}>
+                ${pct >= 100 ? "Tout au soleil" : `${pct} % au soleil`} · environ ${fmtKwh(pick.solar)} kWh${pct < 100 ? ` sur ${fmtKwh(a.hours * a.kw)}` : ""}
+                ${pick.offset >= RELIABLE_DAYS ? html`<span className="slot-doubt"> · prévision incertaine</span>` : ""}
+              </span>
+            </span>
+          </button>
+          <button type="button" className="slot-cal" aria-label=${`Rappel dans l'agenda : ${a.name}, ${when}`}
+            onClick=${() => onRemind({ appliance: a, slot: pick, coverage })}>
+            <span aria-hidden="true">📅</span>
+          </button>
+        </li>`;
+      })}
+    </ul>`}
+    <p className="slots-note">Créneau le plus proche qui capte au moins 90 % du meilleur soleil de la semaine. Touchez un appareil pour le voir sur la courbe.</p>
+  </section>`;
 }
 
 // ── Ligne d'état (fraîcheur des données) ──────────────────────────────────
@@ -926,7 +1222,7 @@ function StatusLine({ status, fc, error, onRefresh }) {
 }
 
 // ── Réglages (feuille du bas, élément <dialog> natif) ─────────────────────
-const toDraft = c => ({ ...c, dcPower: String(c.dcPower), acPower: String(c.acPower) });
+const toDraft = c => ({ ...c, dcPower: String(c.dcPower), acPower: String(c.acPower), appliances: c.appliances.map(a => ({ ...a, kw: String(a.kw) })) });
 
 function SettingsDialog({ open, config, onClose, onSave }) {
   const ref = useRef(null);
@@ -1003,6 +1299,7 @@ function SettingsDialog({ open, config, onClose, onSave }) {
   };
 
   const set = patch => setDraft(d => ({ ...d, ...patch }));
+  const setAppliance = (id, patch) => setDraft(d => ({ ...d, appliances: d.appliances.map(a => (a.id === id ? { ...a, ...patch } : a)) }));
   const submit = e => {
     e.preventDefault();
     onSave(sanitizeConfig({ ...draft, dcPower: draft.dcPower, acPower: draft.acPower }));
@@ -1083,6 +1380,34 @@ function SettingsDialog({ open, config, onClose, onSave }) {
           </div>
         </fieldset>
 
+        <fieldset className="fieldset">
+          <legend className="panel-section-label">🔌 Appareils à caser au soleil</legend>
+          <div className="field-header appliance-help">
+            <span className="field-hint">Durée d'un cycle et puissance moyenne</span>
+            <${InfoButton} id="appliances" label="puissance moyenne des appareils" openTooltip=${openTooltip} setOpenTooltip=${setOpenTooltip} />
+          </div>
+          <${TooltipBox} id="appliances" openTooltip=${openTooltip} />
+          ${draft.appliances.map(a => html`<div key=${a.id} className=${`appliance-row${a.on ? "" : " off"}`}>
+            <label className="appliance-toggle">
+              <input type="checkbox" checked=${a.on} onChange=${e => setAppliance(a.id, { on: e.target.checked })} />
+              <span aria-hidden="true">${a.icon}</span> ${a.name}
+            </label>
+            <div className="two-col">
+              <div className="field">
+                <div className="field-header"><label htmlFor=${`ap-h-${a.id}`}>Durée</label></div>
+                <select id=${`ap-h-${a.id}`} value=${a.hours} disabled=${!a.on} onChange=${e => setAppliance(a.id, { hours: parseInt(e.target.value, 10) })}>
+                  ${Array.from({ length: 12 }, (_, i) => i + 1).map(h => html`<option key=${h} value=${h}>${h} h</option>`)}
+                </select>
+              </div>
+              <div className="field">
+                <div className="field-header"><label htmlFor=${`ap-kw-${a.id}`}>Puissance (kW)</label></div>
+                <input id=${`ap-kw-${a.id}`} type="number" inputMode="decimal" step="0.1" min="0.1" max="22" required disabled=${!a.on}
+                  value=${a.kw} onChange=${e => setAppliance(a.id, { kw: e.target.value })} />
+              </div>
+            </div>
+          </div>`)}
+        </fieldset>
+
         <div className="btn-row">
           <button type="button" className="btn-secondary" onClick=${() => ref.current.close()}>Annuler</button>
           <button type="submit" className="btn-primary">Appliquer</button>
@@ -1102,6 +1427,9 @@ function App() {
   const [nowSec, setNowSec] = useState(() => Date.now() / 1000);
   const [selected, setSelected] = useState(null);
   const [showSettings, setShowSettings] = useState(false);
+  const [highlight, setHighlight] = useState(null); // créneau affiché sur la courbe
+  const [reminder, setReminder] = useState(null);   // créneau à ajouter à l'agenda
+  const curveRef = useRef(null);
 
   const fcRef = useRef(fc); fcRef.current = fc;
   const configRef = useRef(config); configRef.current = config;
@@ -1159,11 +1487,18 @@ function App() {
   const tz = model ? model.tz : "Europe/Brussels";
   const sel = days.find(d => d.date === selected) || days[0];
   const maxKwh = Math.max(...days.map(d => d.totalKwh), 0.1);
+  // Échelle des barres : le meilleur ciel dégagé de la semaine. Une semaine
+  // grise donne des barres basses, au lieu de grandir le moins mauvais jour.
+  const scaleKwh = Math.max(...days.map(d => d.csKwh), maxKwh, 0.1);
+  const bestDate = days.length ? days.reduce((a, b) => (b.totalKwh > a.totalKwh ? b : a)).date : null;
   const rec = model ? getRecommendation(model, nowSec) : null;
   const orient = ORIENTATIONS.find(o => o.value === config.azimuth);
-  const selPct = sel ? sel.totalKwh / maxKwh : 0;
-  const selQuality = getDayQuality(selPct);
   const weekTotal = days.reduce((s, d) => s + d.totalKwh, 0);
+  const showSlot = (a, pick) => {
+    setSelected(pick.date);
+    setHighlight({ id: a.id, start: pick.start, end: pick.end, label: a.name });
+    requestAnimationFrame(() => curveRef.current && curveRef.current.scrollIntoView({ block: "nearest", behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" }));
+  };
 
   const handleSave = cfg => { saveConfig(cfg); setConfig(cfg); };
 
@@ -1183,55 +1518,51 @@ function App() {
     content = html`<${React.Fragment}>
       <${StatusLine} status=${status} fc=${fc} error=${error} onRefresh=${() => refresh(config)} />
 
-      ${sel && html`<section className="hero" aria-labelledby="hero-title">
+      ${sel && html`<section className=${`hero q-${sel.quality.cls}`} aria-labelledby="hero-title">
         <div className="hero-sun-bg" aria-hidden="true"></div>
         <h2 id="hero-title" className="hero-label">${heroDate(sel.date, model.today)}</h2>
-        <p className=${`hero-quality ${selQuality.cls}`}>
-          <span className="hero-quality-icon" aria-hidden="true">${selQuality.icon}</span>
-          <span className="hero-quality-label">${selQuality.label}</span>
+        <p className="hero-quality">
+          <span className="hero-quality-icon" aria-hidden="true">${sel.quality.icon}</span>
+          <span className="hero-quality-label">${sel.quality.label}</span>
         </p>
-        <p className="hero-pct">${selPct >= 0.99 ? "Meilleur jour de la semaine" : `${Math.round(selPct * 100)} % du meilleur jour`}</p>
+        <p className="hero-pct">${Math.round(sel.ratio * 100)} % de ce qu'un ciel dégagé donnerait ce jour-là${sel.date === bestDate ? html` · <span className="hero-best">★ meilleur jour</span>` : ""}</p>
         <p className="hero-kwh-secondary">
-          Environ ${fmtKwh(sel.totalKwh)} kWh sur la journée${sel.offset === 0 && sel.remainingKwh < sel.totalKwh - 0.05 ? `, dont ${fmtKwh(sel.remainingKwh)} kWh encore à venir` : ""}
+          Environ ${fmtKwh(sel.totalKwh)} kWh sur ${fmtKwh(sel.csKwh)} possibles${sel.offset === 0 && sel.remainingKwh < sel.totalKwh - 0.05 ? `, dont ${fmtKwh(sel.remainingKwh)} kWh encore à venir` : ""}
         </p>
         <p className="hero-sub">
           ${sel.sunrise ? `🌅 ${fmtClock(sel.sunrise, tz)}` : ""}${sel.sunset ? ` · 🌇 ${fmtClock(sel.sunset, tz)}` : ""}${sel.clippedHours > 0 ? ` · ⚡ onduleur saturé environ ${sel.clippedHours} h` : ""}
         </p>
+        ${sel.uncertain && html`<p className="hero-doubt">Prévision à ${sel.offset} jours : la couverture nuageuse peut encore changer. Revérifiez la veille.</p>`}
       </section>`}
+
+      <${ApplianceSlots} model=${model} appliances=${config.appliances} nowSec=${nowSec} rec=${rec}
+        activeId=${highlight && highlight.id} onShow=${showSlot} onRemind=${setReminder} />
 
       <section className="section" aria-labelledby="week-title">
         <h2 id="week-title" className="section-title">Prévision 7 jours</h2>
         <ul className="days-grid" role="list">
           ${days.map(d => {
-            const pct = d.totalKwh / maxKwh;
+            const pct = d.totalKwh / scaleKwh;
             const active = d === sel;
-            const isBest = d.totalKwh === maxKwh;
-            const cls = ["day-bar", active && "active", isBest && "best"].filter(Boolean).join(" ");
-            const fill = isBest ? "linear-gradient(to top,#E8960A,#FFC83A)" : barColor(pct) + (active ? "" : "99");
+            const isBest = d.date === bestDate;
+            const cls = ["day-bar", `q-${d.quality.cls}`, active && "active", isBest && "best", d.uncertain && "uncertain"].filter(Boolean).join(" ");
             return html`<li key=${d.date}>
-              <button type="button" className=${cls} aria-pressed=${active} onClick=${() => setSelected(d.date)}
-                aria-label=${`${capitalize(dayName(d.date, model.today, false))} : ${fmtKwh(d.totalKwh)} kWh${isBest ? ", meilleur jour" : ""}`}>
+              <button type="button" className=${cls} aria-pressed=${active} onClick=${() => { setSelected(d.date); setHighlight(null); }}
+                aria-label=${`${capitalize(dayName(d.date, model.today, false))} : ${d.quality.label.toLowerCase()}, ${fmtKwh(d.totalKwh)} kWh${isBest ? ", meilleur jour" : ""}${d.uncertain ? ", prévision incertaine" : ""}`}>
                 <span className="day-name">${dayName(d.date, model.today, true)}</span>
-                <span className="bar-wrap"><span className="bar-fill" style=${{ transform: `scaleY(${Math.max(pct, 0.04)})`, background: fill }}></span></span>
+                <span className="bar-wrap"><span className="bar-fill" style=${{ transform: `scaleY(${Math.max(pct, 0.03)})` }}></span></span>
                 <span className="day-kwh">${fmtKwh(d.totalKwh)}</span>
                 ${isBest && html`<span className="best-star" aria-hidden="true">★</span>`}
               </button>
             </li>`;
           })}
         </ul>
+        <p className="days-legend">Hauteur des barres : par rapport au meilleur ciel dégagé de la semaine. Barres hachurées : prévision à 3 jours ou plus, indicative.</p>
       </section>
 
-      ${sel && html`<section className="section" aria-labelledby="curve-title">
+      ${sel && html`<section className="section" aria-labelledby="curve-title" ref=${curveRef}>
         <h2 id="curve-title" className="section-title">Courbe horaire · ${fmtDateLong(sel.date)}</h2>
-        <${HourlyChart} day=${sel} cfg=${config} tz=${tz} nowSec=${nowSec} />
-      </section>`}
-
-      ${rec && html`<section className="section" aria-labelledby="rec-title">
-        <h2 id="rec-title" className="section-title">Recommandation</h2>
-        <div className=${`rec-card ${rec.quality}`}>
-          <p className="rec-title"><span aria-hidden="true">${rec.icon} </span>${rec.title}</p>
-          <p className="rec-body">${rec.body}</p>
-        </div>
+        <${HourlyChart} day=${sel} cfg=${config} tz=${tz} nowSec=${nowSec} slot=${highlight} />
       </section>`}
 
       <section className="section" aria-labelledby="stats-title">
@@ -1249,6 +1580,7 @@ function App() {
           <p className="model-note-body">
             Rayonnement sur le plan des panneaux (GTI) prévu par <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a>, moyenne de chaque heure.
             Onduleur plafonné à ${nf1.format(config.acPower)} kW, pertes système ${Math.round(config.systemLoss * 100)} %.
+            Référence « ciel dégagé » calculée dans l'app (position du soleil et modèle de ciel clair Ineichen).
           </p>
         </div>
       </section>
@@ -1273,6 +1605,7 @@ function App() {
       </a>
     </footer>
 
+    <${ReminderDialog} reminder=${reminder} tz=${tz} today=${model ? model.today : ""} fetchedAt=${fc ? fc.fetchedAt : Date.now()} onClose=${() => setReminder(null)} />
     <${SettingsDialog} open=${showSettings} config=${config} onClose=${() => setShowSettings(false)} onSave=${handleSave} />
   </div>`;
 }
