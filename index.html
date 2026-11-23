@@ -283,6 +283,7 @@
     .field { margin-bottom: 15px; }
     .field-header { display: flex; align-items: center; gap: 6px; margin-bottom: 7px; }
     .field-header label { font-size: 0.75rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-mid); font-weight: 600; }
+    .field-header .unit { text-transform: none; } /* « kWc » et non « KWC » */
     .field-hint { font-size: 0.8125rem; color: var(--text-dim); }
     .field-error { margin-top: 8px; font-size: 0.8125rem; color: var(--warn); line-height: 1.4; }
     .field input, .field select {
@@ -346,6 +347,31 @@
     .btn-secondary { display: block; padding: 14px 20px; background: var(--bg-warm); color: var(--text-mid); border: 1.5px solid var(--border-dark); border-radius: var(--radius-sm); font: inherit; font-size: 0.875rem; font-weight: 500; cursor: pointer; }
     .btn-link { background: none; border: none; font: inherit; color: var(--text-mid); padding: 10px; cursor: pointer; text-decoration: underline; }
 
+    /* ── Accueil (premier lancement) ── */
+    .welcome-intro { margin: -6px 22px 20px; font-size: 0.9375rem; color: var(--text-mid); line-height: 1.55; text-wrap: pretty; }
+    .welcome { margin: 0 16px; display: flex; flex-direction: column; gap: 14px; }
+    .welcome-step { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 18px 18px 4px; box-shadow: var(--shadow-sm); }
+    .welcome-q { font-family: 'Playfair Display', serif; font-size: 1.1875rem; font-weight: 600; color: var(--text); line-height: 1.3; margin-bottom: 14px; }
+    .welcome-num { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; margin-inline-end: 10px; border-radius: 50%; background: var(--sun); color: var(--on-sun); font-family: 'Outfit', system-ui, sans-serif; font-size: 0.875rem; vertical-align: 2px; }
+    .welcome-note { font-size: 0.8125rem; color: var(--text-dim); line-height: 1.5; margin: 10px 0 14px; }
+    .field-help { margin-top: 7px; font-size: 0.8125rem; color: var(--text-dim); line-height: 1.5; }
+    .check-row { display: flex; align-items: center; gap: 10px; min-height: 44px; border-top: 1px solid var(--border); font-size: 0.9375rem; font-weight: 500; cursor: pointer; }
+    .check-row:first-of-type { border-top: none; }
+    .check-row input { width: 20px; height: 20px; flex-shrink: 0; }
+    .welcome-actions { display: flex; flex-direction: column; align-items: center; gap: 2px; margin-top: 4px; }
+    .welcome-actions .btn-primary { width: 100%; }
+    .welcome-privacy { margin: 6px 6px 0; font-size: 0.8125rem; color: var(--text-dim); line-height: 1.5; text-align: center; text-wrap: pretty; }
+    /* Erreurs visibles seulement après interaction ou tentative d'envoi. */
+    .error-msg { display: none; margin-top: 7px; font-size: 0.8125rem; color: var(--warn); line-height: 1.4; }
+    .error-msg.shown, .field :user-invalid ~ .error-msg { display: block; }
+    .field :is(input, select):user-invalid { border-color: var(--warn); }
+
+    /* ── Mode exemple ── */
+    .demo-banner { margin: -6px 16px 16px; padding: 12px 14px; background: var(--sun-pale); border: 1px solid var(--sun-line); border-radius: var(--radius); display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; }
+    .demo-banner p { flex: 1 1 14rem; font-size: 0.875rem; color: var(--text-mid); line-height: 1.45; }
+    .demo-banner strong { color: var(--text); }
+    .demo-banner .btn-primary { flex: 0 0 auto; padding: 10px 16px; box-shadow: none; }
+
     /* ── Petite boîte de dialogue (rappel agenda) ── */
     .mini-dialog { margin: auto; border: none; padding: 0; border-radius: var(--radius-lg); background: var(--card); color: var(--text); width: min(100% - 32px, 420px); box-shadow: 0 12px 40px #00000040; }
     .mini-dialog::backdrop { background: var(--backdrop); }
@@ -362,6 +388,8 @@
     /* ── Bannière d'installation ── */
     #install-banner { display: none; position: fixed; top: max(14px, env(safe-area-inset-top)); left: 12px; right: 12px; margin-inline: auto; max-width: 460px; background: var(--card); border: 1px solid var(--border); border-radius: 14px; box-shadow: 0 6px 24px rgba(0,0,0,0.15); padding: 12px 14px 12px 12px; z-index: 90; align-items: center; gap: 12px; }
     body.show-install-banner #install-banner { display: flex; }
+    /* La bannière est fixée en haut : on décale l'en-tête pour qu'elle ne cache pas le titre. */
+    body.show-install-banner .header { padding-top: max(6.5rem, calc(env(safe-area-inset-top) + 5.5rem)); }
     @media (prefers-reduced-motion: no-preference) {
       body.show-install-banner #install-banner { animation: ibSlide 0.35s cubic-bezier(.2,.8,.2,1); }
     }
@@ -985,7 +1013,7 @@ function TooltipBox({ id, openTooltip }) {
 }
 
 // ── Recherche d'adresse (Nominatim / OpenStreetMap) ───────────────────────
-function AddressSearch({ onSelect }) {
+function AddressSearch({ onSelect, inputRef, describedBy }) {
   const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState([]);
   const [state, setState] = useState("idle"); // idle | searching | empty | error
@@ -1029,7 +1057,7 @@ function AddressSearch({ onSelect }) {
   return html`<div className="field">
     <div className="field-header"><label htmlFor="address-input">Rechercher une adresse</label></div>
     <div className="address-search-wrap">
-      <input id="address-input" type="search" value=${query} onChange=${handleChange}
+      <input id="address-input" type="search" ref=${inputRef} aria-describedby=${describedBy} value=${query} onChange=${handleChange}
         placeholder="ex : Rue de la Loi 16, Bruxelles" autoComplete="street-address" enterKeyHint="search" />
       ${(suggestions.length > 0 || state !== "idle") && html`<div className="address-suggestions">
         ${state === "searching" && html`<p className="address-loading">Recherche…</p>`}
@@ -1046,6 +1074,53 @@ function AddressSearch({ onSelect }) {
       </div>`}
     </div>
   </div>`;
+}
+
+// ── Lieu : position GPS ou adresse (accueil et réglages) ──────────────────
+// La position est arrondie à 3 décimales (une centaine de mètres) : la grille
+// météo est bien plus large, inutile d'envoyer plus précis à Open-Meteo.
+function LocationPicker({ onPick, focusRef, describedBy }) {
+  const [mode, setMode] = useState("gps");
+  const [locating, setLocating] = useState(false);
+  const [gpsError, setGpsError] = useState("");
+
+  const locate = () => {
+    if (!navigator.geolocation) { setGpsError("La localisation n'est pas disponible sur cet appareil."); return; }
+    setLocating(true); setGpsError("");
+    navigator.geolocation.getCurrentPosition(
+      async pos => {
+        const lat = parseFloat(pos.coords.latitude.toFixed(3));
+        const lon = parseFloat(pos.coords.longitude.toFixed(3));
+        let name = `${lat}, ${lon}`;
+        try {
+          const r = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=14&accept-language=fr`);
+          const a = (await r.json()).address || {};
+          const place = a.village || a.town || a.city || a.municipality || a.suburb;
+          if (place) name = [place, a.country].filter(Boolean).join(", ");
+        } catch {}
+        onPick({ lat, lon, displayName: name });
+        setLocating(false);
+      },
+      err => {
+        setLocating(false);
+        setGpsError(err.code === 1 ? "Accès à la position refusé. Autorisez-le dans les réglages du navigateur, ou cherchez une adresse." : "Position introuvable pour l'instant. Réessayez ou cherchez une adresse.");
+      },
+      { timeout: 10000, maximumAge: 600000 }
+    );
+  };
+
+  return html`<${React.Fragment}>
+    <div className="loc-tabs">
+      <button type="button" className=${`loc-tab${mode === "gps" ? " active" : ""}`} aria-pressed=${mode === "gps"} onClick=${() => setMode("gps")}>Position GPS</button>
+      <button type="button" className=${`loc-tab${mode === "address" ? " active" : ""}`} aria-pressed=${mode === "address"} onClick=${() => setMode("address")}>Adresse</button>
+    </div>
+    ${mode === "gps"
+      ? html`<button type="button" className="gps-btn" ref=${focusRef} aria-describedby=${describedBy} onClick=${locate} disabled=${locating}>
+          ${locating ? "Localisation en cours…" : "📍 Détecter ma position"}
+        </button>
+        ${gpsError && html`<p className="field-error" role="alert">${gpsError}</p>`}`
+      : html`<${AddressSearch} onSelect=${onPick} inputRef=${focusRef} describedBy=${describedBy} />`}
+  <//>`;
 }
 
 // ── Mini carte ────────────────────────────────────────────────────────────
@@ -1293,9 +1368,7 @@ function SettingsDialog({ open, config, onClose, onSave }) {
   const ref = useRef(null);
   const sheetRef = useRef(null);
   const [draft, setDraft] = useState(() => toDraft(config));
-  const [locMode, setLocMode] = useState("gps");
-  const [locating, setLocating] = useState(false);
-  const [gpsError, setGpsError] = useState("");
+  const [session, setSession] = useState(0); // remet le choix du lieu à zéro à chaque ouverture
   const [openTooltip, setOpenTooltip] = useState(null);
   const onCloseRef = useRef(onClose);
   onCloseRef.current = onClose;
@@ -1304,7 +1377,7 @@ function SettingsDialog({ open, config, onClose, onSave }) {
     const dlg = ref.current;
     if (!dlg) return;
     if (open && !dlg.open) {
-      setDraft(toDraft(config)); setOpenTooltip(null); setGpsError("");
+      setDraft(toDraft(config)); setOpenTooltip(null); setSession(s => s + 1);
       dlg.showModal();
     } else if (!open && dlg.open) dlg.close();
   }, [open]);
@@ -1338,31 +1411,6 @@ function SettingsDialog({ open, config, onClose, onSave }) {
     touch.current = { y: null, scroll: 0 };
   };
 
-  const handleGPS = () => {
-    if (!navigator.geolocation) { setGpsError("La localisation n'est pas disponible sur cet appareil."); return; }
-    setLocating(true); setGpsError("");
-    navigator.geolocation.getCurrentPosition(
-      async pos => {
-        const lat = parseFloat(pos.coords.latitude.toFixed(5));
-        const lon = parseFloat(pos.coords.longitude.toFixed(5));
-        let name = `${lat}, ${lon}`;
-        try {
-          const r = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=14&accept-language=fr`);
-          const a = (await r.json()).address || {};
-          const place = a.village || a.town || a.city || a.municipality || a.suburb;
-          if (place) name = [place, a.country].filter(Boolean).join(", ");
-        } catch {}
-        setDraft(d => ({ ...d, lat, lon, displayName: name }));
-        setLocating(false);
-      },
-      err => {
-        setLocating(false);
-        setGpsError(err.code === 1 ? "Accès à la position refusé. Autorisez-le dans les réglages du navigateur, ou cherchez une adresse." : "Position introuvable pour l'instant. Réessayez ou cherchez une adresse.");
-      },
-      { timeout: 10000, maximumAge: 600000 }
-    );
-  };
-
   const set = patch => setDraft(d => ({ ...d, ...patch }));
   const setAppliance = (id, patch) => setDraft(d => ({ ...d, appliances: d.appliances.map(a => (a.id === id ? { ...a, ...patch } : a)) }));
   const submit = e => {
@@ -1380,16 +1428,7 @@ function SettingsDialog({ open, config, onClose, onSave }) {
       <form onSubmit=${submit}>
         <fieldset className="fieldset">
           <legend className="panel-section-label first">📍 Lieu</legend>
-          <div className="loc-tabs">
-            <button type="button" className=${`loc-tab${locMode === "gps" ? " active" : ""}`} aria-pressed=${locMode === "gps"} onClick=${() => setLocMode("gps")}>Position GPS</button>
-            <button type="button" className=${`loc-tab${locMode === "address" ? " active" : ""}`} aria-pressed=${locMode === "address"} onClick=${() => setLocMode("address")}>Adresse</button>
-          </div>
-          ${locMode === "gps"
-            ? html`<button type="button" className="gps-btn" onClick=${handleGPS} disabled=${locating}>
-                ${locating ? "Localisation en cours…" : "📍 Détecter ma position"}
-              </button>
-              ${gpsError && html`<p className="field-error" role="alert">${gpsError}</p>`}`
-            : html`<${AddressSearch} onSelect=${({ lat, lon, displayName }) => set({ lat, lon, displayName })} />`}
+          <${LocationPicker} key=${session} onPick=${set} />
           ${open && html`<${MiniMap} lat=${draft.lat} lon=${draft.lon} label=${draft.displayName} />`}
         </fieldset>
 
@@ -1398,7 +1437,7 @@ function SettingsDialog({ open, config, onClose, onSave }) {
           <div className="two-col">
             <div className="field">
               <div className="field-header">
-                <label htmlFor="dc-power">Puissance DC (kWc)</label>
+                <label htmlFor="dc-power">Puissance DC (<span className="unit">kWc</span>)</label>
                 <${InfoButton} id="dcPower" label="puissance DC" openTooltip=${openTooltip} setOpenTooltip=${setOpenTooltip} />
               </div>
               <${TooltipBox} id="dcPower" openTooltip=${openTooltip} />
@@ -1407,7 +1446,7 @@ function SettingsDialog({ open, config, onClose, onSave }) {
             </div>
             <div className="field">
               <div className="field-header">
-                <label htmlFor="ac-power">Onduleur AC (kW)</label>
+                <label htmlFor="ac-power">Onduleur AC (<span className="unit">kW</span>)</label>
                 <${InfoButton} id="acPower" label="puissance de l'onduleur" openTooltip=${openTooltip} setOpenTooltip=${setOpenTooltip} />
               </div>
               <${TooltipBox} id="acPower" openTooltip=${openTooltip} />
@@ -1465,7 +1504,7 @@ function SettingsDialog({ open, config, onClose, onSave }) {
                 </select>
               </div>
               <div className="field">
-                <div className="field-header"><label htmlFor=${`ap-kw-${a.id}`}>Puissance (kW)</label></div>
+                <div className="field-header"><label htmlFor=${`ap-kw-${a.id}`}>Puissance (<span className="unit">kW</span>)</label></div>
                 <input id=${`ap-kw-${a.id}`} type="number" inputMode="decimal" step="0.1" min="0.1" max="22" required disabled=${!a.on}
                   value=${a.kw} onChange=${e => setAppliance(a.id, { kw: e.target.value })} />
               </div>
@@ -1484,8 +1523,163 @@ function SettingsDialog({ open, config, onClose, onSave }) {
   </dialog>`;
 }
 
+// ── Erreurs de formulaire accessibles ─────────────────────────────────────
+// :user-invalid n'affiche l'erreur qu'après interaction. On aligne aria-invalid
+// et le lien vers le message (data-error) sur ce même état, pour qu'un lecteur
+// d'écran n'annonce pas « invalide » dès qu'on arrive sur un champ vide.
+const USER_INVALID_OK = CSS.supports("selector(:user-invalid)");
+function useUserInvalidAria(formRef) {
+  useEffect(() => {
+    const form = formRef.current;
+    if (!form || !USER_INVALID_OK) return;
+    const announcer = document.createElement("div");
+    announcer.setAttribute("aria-live", "polite");
+    announcer.className = "visually-hidden";
+    document.body.append(announcer);
+    let timer;
+    const sync = (el, announce) => {
+      if (!el.matches || !el.matches("input, select")) return;
+      const invalid = el.matches(":user-invalid");
+      const wasInvalid = el.getAttribute("aria-invalid") === "true";
+      el.setAttribute("aria-invalid", invalid ? "true" : "false");
+      const errorId = el.dataset.error;
+      if (!errorId) return;
+      const ids = (el.getAttribute("aria-describedby") || "").split(/\s+/).filter(id => id && id !== errorId);
+      if (invalid) ids.push(errorId);
+      if (ids.length) el.setAttribute("aria-describedby", ids.join(" ")); else el.removeAttribute("aria-describedby");
+      // Annoncée un peu plus tard, pour ne pas couvrir le champ suivant.
+      if (invalid && !wasInvalid && announce) {
+        const label = el.labels && el.labels[0] ? `${el.labels[0].textContent.trim()} : ` : "";
+        const msg = document.getElementById(errorId);
+        clearTimeout(timer);
+        announcer.textContent = "";
+        timer = setTimeout(() => { announcer.textContent = label + (msg ? msg.textContent.trim() : ""); }, 500);
+      }
+    };
+    form.querySelectorAll("input, select").forEach(el => sync(el, false));
+    const onLeave = e => sync(e.target, true);
+    const onInput = e => sync(e.target, false);
+    form.addEventListener("blur", onLeave, true);
+    form.addEventListener("change", onLeave, true);
+    form.addEventListener("input", onInput);
+    form.addEventListener("invalid", onInput, true); // l'envoi raté met le focus sur le champ, qui lit son erreur
+    return () => {
+      clearTimeout(timer);
+      announcer.remove();
+      form.removeEventListener("blur", onLeave, true);
+      form.removeEventListener("change", onLeave, true);
+      form.removeEventListener("input", onInput);
+      form.removeEventListener("invalid", onInput, true);
+    };
+  }, []);
+}
+
+// ── Accueil (premier lancement, rien d'enregistré sur l'appareil) ─────────
+// Sans ça, un nouveau venu verrait l'installation par défaut comme si c'était
+// la sienne. On ne demande que l'essentiel : onduleur, pertes et durées gardent
+// leurs valeurs par défaut et se règlent ensuite dans ⚙.
+function Welcome({ onDone, onDemo }) {
+  const [place, setPlace] = useState(null);
+  const [placeError, setPlaceError] = useState(false);
+  const [dc, setDc] = useState("");
+  const [azimuth, setAzimuth] = useState("");
+  const [tilt, setTilt] = useState(35);
+  const [chosen, setChosen] = useState(["linge", "voiture"]);
+  const formRef = useRef(null);
+  const locRef = useRef(null);
+  useUserInvalidAria(formRef);
+
+  const pick = p => { setPlace(p); setPlaceError(false); };
+  const toggle = (id, on) => setChosen(c => (on ? [...c, id] : c.filter(x => x !== id)));
+  // Le lieu n'est pas un champ de formulaire : on le vérifie au clic, avant la
+  // validation native des autres champs (Entrée dans un champ passe aussi par ici).
+  const checkPlace = e => {
+    if (place) return;
+    e.preventDefault();
+    setPlaceError(true);
+    if (locRef.current) locRef.current.focus();
+  };
+  const submit = e => {
+    e.preventDefault();
+    onDone(sanitizeConfig({
+      ...place,
+      dcPower: dc, acPower: dc, // onduleur inconnu : on suppose qu'il ne bride pas
+      azimuth: Number(azimuth), tilt,
+      appliances: DEFAULT_APPLIANCES.map(a => ({ id: a.id, on: chosen.includes(a.id) })),
+    }));
+  };
+
+  return html`<${React.Fragment}>
+    <p className="welcome-intro">Suncast prévoit la production de vos panneaux solaires pour les 7 prochains jours, et vous dit quand lancer le lave-linge ou brancher la voiture. Trois questions pour le régler sur votre toit.</p>
+    <form className="welcome" ref=${formRef} onSubmit=${submit}>
+      <div className="welcome-step">
+        <fieldset className="fieldset">
+          <legend className="welcome-q"><span className="welcome-num" aria-hidden="true">1</span>Où sont vos panneaux ?</legend>
+          <${LocationPicker} onPick=${pick} focusRef=${locRef} describedBy=${placeError ? "w-place-error" : undefined} />
+          ${placeError && html`<p id="w-place-error" className="error-msg shown"><span role="img" aria-label="Erreur">⚠️</span> Indiquez d'abord où sont vos panneaux.</p>`}
+          ${place && html`<${MiniMap} lat=${place.lat} lon=${place.lon} label=${place.displayName} />`}
+          <p className="welcome-note">La position sert à la prévision météo et reste enregistrée sur cet appareil.</p>
+        </fieldset>
+      </div>
+
+      <div className="welcome-step">
+        <fieldset className="fieldset">
+          <legend className="welcome-q"><span className="welcome-num" aria-hidden="true">2</span>Votre installation</legend>
+          <div className="field">
+            <div className="field-header"><label htmlFor="w-dc">Puissance totale (<span className="unit">kWc</span>)</label></div>
+            <input id="w-dc" type="number" inputMode="decimal" step="any" min="0.1" max="100" required
+              aria-describedby="w-dc-help" data-error="w-dc-error" value=${dc} onChange=${e => setDc(e.target.value)} />
+            <p id="w-dc-help" className="field-help">Sur la fiche de l'installateur. Sinon, multipliez : 12 panneaux de 400 Wc font 4,8 kWc.</p>
+            <p id="w-dc-error" className="error-msg"><span role="img" aria-label="Erreur">⚠️</span> Indiquez une puissance entre 0,1 et 100 kWc.</p>
+          </div>
+          <div className="field">
+            <div className="field-header"><label htmlFor="w-azimuth">Orientation</label></div>
+            <select id="w-azimuth" required aria-describedby="w-azimuth-help" data-error="w-azimuth-error"
+              value=${azimuth} onChange=${e => setAzimuth(e.target.value)}>
+              <option value="" disabled>Choisir</option>
+              ${ORIENTATIONS.map(o => html`<option key=${o.value} value=${o.value}>${o.label}</option>`)}
+            </select>
+            <p id="w-azimuth-help" className="field-help">Le côté du toit où sont posés les panneaux.</p>
+            <p id="w-azimuth-error" className="error-msg"><span role="img" aria-label="Erreur">⚠️</span> Choisissez l'orientation des panneaux.</p>
+          </div>
+          <div className="field">
+            <div className="field-header"><label htmlFor="w-tilt">Inclinaison</label></div>
+            <input id="w-tilt" type="range" min="0" max="90" step="5" value=${tilt}
+              aria-describedby="w-tilt-hints" onChange=${e => setTilt(parseInt(e.target.value, 10))} />
+            <output className="range-val" htmlFor="w-tilt">${tilt}°</output>
+            <p className="tilt-hints" id="w-tilt-hints">
+              <span>0° : à plat</span><span>30 à 35° : idéal en Belgique</span><span>90° : vertical</span>
+            </p>
+          </div>
+        </fieldset>
+      </div>
+
+      <div className="welcome-step">
+        <fieldset className="fieldset">
+          <legend className="welcome-q"><span className="welcome-num" aria-hidden="true">3</span>Quels appareils caser au soleil ?</legend>
+          ${DEFAULT_APPLIANCES.map(a => html`<label key=${a.id} className="check-row">
+            <input type="checkbox" checked=${chosen.includes(a.id)} onChange=${e => toggle(a.id, e.target.checked)} />
+            <span aria-hidden="true">${a.icon}</span> ${a.name}
+          </label>`)}
+          <p className="welcome-note">Durée et puissance de chaque appareil se règlent ensuite dans ⚙.</p>
+        </fieldset>
+      </div>
+
+      <div className="welcome-actions">
+        <button type="submit" className="btn-primary" onClick=${checkPlace}>Voir mes prévisions</button>
+        <button type="button" className="btn-link" onClick=${onDemo}>Voir d'abord un exemple</button>
+      </div>
+      <p className="welcome-privacy">Pas de compte à créer. Vos réglages restent sur cet appareil et se modifient à tout moment avec ⚙.</p>
+    </form>
+  <//>`;
+}
+
 // ── App ───────────────────────────────────────────────────────────────────
+const hasSavedConfig = () => { try { return localStorage.getItem(STORAGE_KEY) !== null; } catch { return false; } };
+
 function App() {
+  const [setup, setSetup] = useState(() => (hasSavedConfig() ? "done" : "welcome")); // welcome | demo | done
+  const welcome = setup === "welcome";
   const [config, setConfig] = useState(loadConfig);
   const key = locKey(config);
   const [fc, setFc] = useState(() => loadCachedForecast(key));
@@ -1497,9 +1691,11 @@ function App() {
   const [highlight, setHighlight] = useState(null); // créneau affiché sur la courbe
   const [reminder, setReminder] = useState(null);   // créneau à ajouter à l'agenda
   const curveRef = useRef(null);
+  const mainRef = useRef(null);
 
   const fcRef = useRef(fc); fcRef.current = fc;
   const configRef = useRef(config); configRef.current = config;
+  const welcomeRef = useRef(welcome); welcomeRef.current = welcome;
   const reqId = useRef(0);
 
   const refresh = useCallback(async cfg => {
@@ -1519,24 +1715,41 @@ function App() {
     }
   }, []);
 
-  // Au lancement, puis à chaque changement de lieu ou d'orientation.
+  // Au lancement, puis à chaque changement de lieu ou d'orientation. Rien tant
+  // que l'accueil est affiché : le lieu n'est pas encore connu.
   useEffect(() => {
+    if (welcome) return;
     const cached = loadCachedForecast(key);
     setFc(cached);
     fcRef.current = cached;
     refresh(configRef.current);
-  }, [key]);
+  }, [key, welcome]);
+
+  // Changement d'écran (accueil, exemple, prévisions) : on repart du haut, focus
+  // sur le contenu pour que le clavier et le lecteur d'écran suivent.
+  const firstRender = useRef(true);
+  useEffect(() => {
+    if (firstRender.current) { firstRender.current = false; return; }
+    window.scrollTo(0, 0);
+    if (mainRef.current) mainRef.current.focus({ preventScroll: true });
+  }, [setup]);
+
+  // L'invitation à installer attend que l'app soit réglée : sur iPhone, l'app
+  // installée ne voit pas les réglages faits dans Safari.
+  useEffect(() => {
+    if (setup === "done" && window.maybeShowInstallBanner) window.maybeShowInstallBanner();
+  }, [setup]);
 
   // Une app installée peut rester ouverte en arrière-plan pendant des jours :
   // au retour, on remet l'heure à jour et on réactualise si c'est vieux.
   useEffect(() => {
     const wake = () => {
-      if (document.visibilityState !== "visible") return;
+      if (document.visibilityState !== "visible" || welcomeRef.current) return;
       setNowSec(Date.now() / 1000);
       const f = fcRef.current;
       if (!f || Date.now() - f.fetchedAt > STALE_AFTER_MS) refresh(configRef.current);
     };
-    const onOnline = () => refresh(configRef.current);
+    const onOnline = () => { if (!welcomeRef.current) refresh(configRef.current); };
     document.addEventListener("visibilitychange", wake);
     window.addEventListener("pageshow", wake);
     window.addEventListener("online", onOnline);
@@ -1567,7 +1780,7 @@ function App() {
     requestAnimationFrame(() => curveRef.current && curveRef.current.scrollIntoView({ block: "nearest", behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" }));
   };
 
-  const handleSave = cfg => { saveConfig(cfg); setConfig(cfg); };
+  const handleSave = cfg => { saveConfig(cfg); setConfig(cfg); setSetup("done"); };
 
   let content;
   if (!model && status === "loading") {
@@ -1656,17 +1869,32 @@ function App() {
     <//>`;
   }
 
+  if (setup === "demo") {
+    content = html`<${React.Fragment}>
+      <div className="demo-banner">
+        <p><strong>Exemple</strong> : une installation de ${nf1.format(config.dcPower)} kWc à Genval, près de Bruxelles.</p>
+        <button type="button" className="btn-primary" onClick=${() => setSetup("welcome")}>Régler sur mes panneaux</button>
+      </div>
+      ${content}
+    <//>`;
+  }
+
   return html`<div className="app">
     <header className="header">
       <h1 className="header-title">
         <span className="header-eyebrow">☀ Suncast</span>
-        <span className="header-location">${config.displayName}</span>
+        <span className="header-location">${welcome ? "Quand brancher quoi sur le soleil" : config.displayName}</span>
       </h1>
-      <button type="button" className="settings-btn" onClick=${() => setShowSettings(true)} aria-label="Réglages de l'installation">⚙</button>
-      <p className="header-sub">${nf1.format(config.dcPower)} kWc · ${config.tilt}° · ${orient ? orient.short : ""} · onduleur ${nf1.format(config.acPower)} kW</p>
+      ${!welcome && html`<${React.Fragment}>
+        <button type="button" className="settings-btn" aria-label="Réglages de l'installation"
+          onClick=${() => (setup === "demo" ? setSetup("welcome") : setShowSettings(true))}>⚙</button>
+        <p className="header-sub">${nf1.format(config.dcPower)} kWc · ${config.tilt}° · ${orient ? orient.short : ""} · onduleur ${nf1.format(config.acPower)} kW</p>
+      <//>`}
     </header>
 
-    <main id="contenu" tabIndex="-1">${content}</main>
+    <main id="contenu" tabIndex="-1" ref=${mainRef}>
+      ${welcome ? html`<${Welcome} onDone=${handleSave} onDemo=${() => setSetup("demo")} />` : content}
+    </main>
 
     <footer className="footer">
       <a className="powered-by" href="https://nuxo.be" target="_blank" rel="noopener noreferrer">
@@ -1674,8 +1902,10 @@ function App() {
       </a>
     </footer>
 
-    <${ReminderDialog} reminder=${reminder} tz=${tz} today=${model ? model.today : ""} fetchedAt=${fc ? fc.fetchedAt : Date.now()} onClose=${() => setReminder(null)} />
-    <${SettingsDialog} open=${showSettings} config=${config} onClose=${() => setShowSettings(false)} onSave=${handleSave} />
+    ${!welcome && html`<${React.Fragment}>
+      <${ReminderDialog} reminder=${reminder} tz=${tz} today=${model ? model.today : ""} fetchedAt=${fc ? fc.fetchedAt : Date.now()} onClose=${() => setReminder(null)} />
+      <${SettingsDialog} open=${showSettings} config=${config} onClose=${() => setShowSettings(false)} onSave=${handleSave} />
+    <//>`}
   </div>`;
 }
 
@@ -1763,7 +1993,7 @@ window.addEventListener('appinstalled', () => {
   deferredInstallPrompt = null;
 });
 
-maybeShowInstallBanner();
+// maybeShowInstallBanner() est appelée par l'app une fois les réglages faits.
 </script>
 </body>
 </html>
