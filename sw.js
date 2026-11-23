@@ -2,7 +2,7 @@
 //
 // À chaque mise en ligne, changer CACHE_NAME : c'est ce qui fait installer le
 // nouveau service worker sur les téléphones et supprimer les anciens caches.
-const CACHE_NAME = 'suncast-v3';
+const CACHE_NAME = 'suncast-v4';
 
 // Le code de l'app (tout est dans index.html). Réseau d'abord, pour qu'une mise
 // en ligne arrive au prochain lancement, avec repli sur le cache hors ligne.
@@ -17,6 +17,7 @@ const STATIC = [
   './vendor/react-18.2.0.production.min.js',
   './vendor/react-dom-18.2.0.production.min.js',
   './vendor/htm-3.1.1.umd.js',
+  './images/favicon.svg',
   './images/favicon-16x16.png',
   './images/favicon-32x32.png',
   './images/apple-touch-icon.png',
