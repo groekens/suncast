@@ -13,9 +13,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+  <!-- Copiés dans vendor/ (version dans le nom) : disponibles hors ligne via le service worker. -->
+  <script defer src="vendor/react-18.2.0.production.min.js"></script>
+  <script defer src="vendor/react-dom-18.2.0.production.min.js"></script>
+  <script defer src="vendor/htm-3.1.1.umd.js"></script>
 
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -295,9 +296,46 @@
     .powered-by { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; color: var(--text-dim); transition: opacity 0.15s; font-size: 0.72rem; font-weight: 500; }
     .powered-by:hover { opacity: 0.7; }
     .powered-by img { height: 22px; width: auto; display: block; }
+    /* ── v3 : éléments ajoutés ── */
+    .visually-hidden:where(:not(:focus-within, :active)) { position: absolute !important; clip-path: inset(50%) !important; overflow: hidden !important; width: 1px !important; height: 1px !important; margin: -1px !important; padding: 0 !important; border: 0 !important; white-space: nowrap !important; }
+    .skip-link:focus-visible { position: fixed; top: 12px; left: 12px; z-index: 1000; background: var(--card); color: var(--text); padding: 10px 16px; border-radius: var(--radius-sm); box-shadow: var(--shadow-md); }
+    main:focus { outline: none; }
+    .header { display: grid; grid-template-columns: 1fr auto; align-items: start; column-gap: 12px; }
+    .header-title { font: inherit; display: flex; flex-direction: column; min-width: 0; }
+    .header-sub { grid-column: 1 / -1; }
+    .status-line { margin: -8px 16px 14px; display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 12px; color: var(--text-dim); }
+    .status-line.status-stale { color: var(--warn); }
+    .status-refresh { flex-shrink: 0; background: none; border: 1px solid var(--border-dark); border-radius: 100px; padding: 5px 12px; font: inherit; color: var(--text-mid); cursor: pointer; }
+    .status-refresh:disabled { opacity: 0.5; cursor: default; }
+    .days-grid > li { display: flex; }
+    .day-bar { width: 100%; font: inherit; color: inherit; position: relative; }
+    .bar-fill { height: 100%; transform-origin: bottom; transition: transform 0.55s cubic-bezier(0.34, 1.4, 0.64, 1); }
+    .best-star { position: absolute; top: -7px; right: -3px; color: var(--sun); font-size: 13px; line-height: 1; }
+    .stat-card { display: flex; flex-direction: column; }
+    .chart-grid { stroke: #E8E2D6; stroke-width: 1; }
+    .chart-clip { stroke: #C0440A; stroke-width: 1; stroke-dasharray: 3 3; opacity: 0.5; }
+    .chart-line { fill: none; stroke: #E8960A; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+    .chart-peak-dot { fill: #E8960A; }
+    .chart-grad-top { stop-color: #FFC83A; stop-opacity: 0.55; }
+    .chart-grad-bottom { stop-color: #FFC83A; stop-opacity: 0.04; }
+    .chart-now line { stroke: var(--text-mid); stroke-width: 1; stroke-dasharray: 2 3; }
+    .chart-now text { font-size: 8.5px; fill: var(--text-mid); font-family: Outfit, sans-serif; }
+    dialog.sheet { margin: auto 0 0; padding: 0; border: none; background: transparent; width: 100%; max-width: 100%; max-height: 92dvh; overflow: visible; }
+    dialog.sheet::backdrop { background: #00000030; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
+    @media (min-width: 768px) { dialog.sheet { max-width: 640px; margin: auto auto 0; } }
+    body:has(dialog[open]) { overflow: hidden; }
+    .fieldset { border: none; padding: 0; margin: 0; min-width: 0; }
+    .panel-section-label.first { margin-top: 0; padding-top: 0; border-top: none; }
+    .field-error { margin-top: 8px; font-size: 13px; color: var(--warn); line-height: 1.4; }
+    .address-suggestions ul { list-style: none; }
+    .address-suggestion { display: block; width: 100%; text-align: left; background: none; border: none; font: inherit; color: inherit; }
+    .address-suggestion-main, .address-suggestion-sub { display: block; }
+    .range-val { display: block; }
+    .model-note-body a { color: inherit; text-decoration: underline; }
   </style>
 </head>
 <body>
+<a class="skip-link visually-hidden" href="#contenu">Aller au contenu</a>
 <!-- PWA install banner -->
 <div id="install-banner" role="dialog" aria-labelledby="install-banner-title">
   <button class="ib-close" onclick="dismissInstallBanner()" aria-label="Fermer">×</button>
@@ -428,24 +466,36 @@
   </div>
 </div>
 
-<script type="text/babel">
-const { useState, useEffect, useCallback, useRef } = React;
+<script type="module">
+// Suncast. React sans étape de build : htm traduit les gabarits html`…` en
+// appels React.createElement, ce qui évite de charger Babel (2,8 Mo) et de
+// compiler le JSX dans le téléphone à chaque lancement.
+const { useState, useEffect, useCallback, useRef, useMemo } = React;
+const html = htm.bind(React.createElement);
 
-// ── Constants ─────────────────────────────────────────────────────────────
-const DAYS_FR = ["Dim","Lun","Mar","Mer","Jeu","Ven","Sam"];
+// ── Constantes ────────────────────────────────────────────────────────────
+const DAYS_SHORT = ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"];
+const DAYS_LONG  = ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"];
+const MONTHS     = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"];
 const ORIENTATIONS = [
-  { value: 0,   label: "Nord (0°)" },
-  { value: 45,  label: "Nord-Est (45°)" },
-  { value: 90,  label: "Est (90°)" },
-  { value: 135, label: "Sud-Est (135°)" },
-  { value: 180, label: "Sud (180°) ← optimal" },
-  { value: 225, label: "Sud-Ouest (225°)" },
-  { value: 270, label: "Ouest (270°)" },
-  { value: 315, label: "Nord-Ouest (315°)" },
+  { value: 0,   label: "Nord (0°)",        short: "Nord" },
+  { value: 45,  label: "Nord-Est (45°)",   short: "Nord-Est" },
+  { value: 90,  label: "Est (90°)",        short: "Est" },
+  { value: 135, label: "Sud-Est (135°)",   short: "Sud-Est" },
+  { value: 180, label: "Sud (180°), idéal", short: "Sud" },
+  { value: 225, label: "Sud-Ouest (225°)", short: "Sud-Ouest" },
+  { value: 270, label: "Ouest (270°)",     short: "Ouest" },
+  { value: 315, label: "Nord-Ouest (315°)", short: "Nord-Ouest" },
 ];
-const STORAGE_KEY = "suncast_config_v3";
+const STORAGE_KEY  = "suncast_config_v3";
+const FORECAST_KEY = "suncast_forecast_v1";
+const STALE_AFTER_MS   = 30 * 60 * 1000; // au-delà, on réactualise au retour dans l'app
+const FETCH_TIMEOUT_MS = 12000;
+// Anciennes coordonnées par défaut : elles pointaient sur Mont-Saint-Guibert
+// alors que l'étiquette disait Genval.
+const OLD_DEFAULT = { lat: 50.637, lon: 4.611, displayName: "Genval, Belgique" };
 const DEFAULT_CONFIG = {
-  lat: 50.637, lon: 4.611,
+  lat: 50.722, lon: 4.503,
   displayName: "Genval, Belgique",
   dcPower: 3.3,
   acPower: 3.3,
@@ -454,120 +504,257 @@ const DEFAULT_CONFIG = {
   systemLoss: 0.10,
 };
 
-// ── Tooltip content ───────────────────────────────────────────────────────
+// ── Textes d'aide ─────────────────────────────────────────────────────────
 const TOOLTIPS = {
-  dcPower: (
-    <div>
-      <strong>Puissance DC (kWc)</strong> = somme de tous vos panneaux solaires.
-      <ul>
-        <li>Visible sur la <strong>fiche technique de l'installation</strong> remise par l'installateur</li>
-        <li>Ou dans l'app de votre onduleur (FusionSolar, SolarEdge, SMA…)</li>
-        <li>Exemple : 10 panneaux × 330 Wc = <strong>3,3 kWc</strong></li>
-      </ul>
-      <div style={{marginTop:6}}>💡 La puissance DC est souvent <em>supérieure</em> à la puissance AC de l'onduleur — c'est normal.</div>
-    </div>
-  ),
-  acPower: (
-    <div>
-      <strong>Puissance onduleur (kW)</strong> = puissance AC maximale que l'onduleur peut injecter.
-      <ul>
-        <li>Sur la <strong>plaque signalétique</strong> de l'onduleur (étiquette sur le boîtier)</li>
-        <li>Dans la documentation ou l'app constructeur</li>
-        <li>Souvent noté « Pnom » ou « Pout max »</li>
-      </ul>
-      <div style={{marginTop:6}}>💡 Si votre onduleur sature souvent à midi (plateau plat sur la courbe), c'est que la puissance DC dépasse cette limite — les prévisions en tiennent compte.</div>
-    </div>
-  ),
-  systemLoss: (
-    <div>
-      <strong>Pertes système</strong> = tout ce qui réduit la production réelle vs théorique.
-      <ul>
-        <li><strong>Câblage</strong> : ~1–2%</li>
-        <li><strong>Température panneaux</strong> : ~3–5% (panneaux chauds = moins efficaces)</li>
-        <li><strong>Salissures / ombrage partiel</strong> : 2–5%</li>
-        <li><strong>Vieillissement</strong> : +0,5%/an</li>
-      </ul>
-      <div style={{marginTop:6}}>💡 <strong>10–12%</strong> est une bonne valeur par défaut. Si votre toit est souvent ombragé ou rarement nettoyé, montez à 15–20%.</div>
-    </div>
-  ),
+  dcPower: html`<div>
+    <p><strong>Puissance DC (kWc)</strong> : la somme de tous vos panneaux.</p>
+    <ul>
+      <li>Sur la <strong>fiche technique</strong> remise par l'installateur</li>
+      <li>Ou dans l'app de l'onduleur (FusionSolar, SolarEdge, SMA…)</li>
+      <li>Exemple : 10 panneaux × 330 Wc = <strong>3,3 kWc</strong></li>
+    </ul>
+    <p>💡 La puissance DC est souvent <em>supérieure</em> à celle de l'onduleur (AC). C'est normal.</p>
+  </div>`,
+  acPower: html`<div>
+    <p><strong>Puissance de l'onduleur (kW)</strong> : la puissance AC maximale qu'il peut injecter.</p>
+    <ul>
+      <li>Sur la <strong>plaque signalétique</strong> de l'onduleur (étiquette sur le boîtier)</li>
+      <li>Dans la documentation ou l'app du fabricant</li>
+      <li>Souvent notée « Pnom » ou « Pout max »</li>
+    </ul>
+    <p>💡 Si la courbe fait un plateau à midi, l'onduleur sature : la puissance DC dépasse sa limite. Les prévisions en tiennent compte.</p>
+  </div>`,
+  systemLoss: html`<div>
+    <p><strong>Pertes système</strong> : tout ce qui sépare la production réelle de la production théorique.</p>
+    <ul>
+      <li><strong>Câblage</strong> : 1 à 2 %</li>
+      <li><strong>Chaleur des panneaux</strong> : 3 à 5 % (un panneau chaud produit moins)</li>
+      <li><strong>Saleté, ombre partielle</strong> : 2 à 5 %</li>
+      <li><strong>Vieillissement</strong> : environ 0,5 % de plus par an</li>
+    </ul>
+    <p>💡 <strong>10 à 12 %</strong> est une bonne valeur par défaut. Toit souvent ombragé ou rarement nettoyé : montez à 15 ou 20 %.</p>
+  </div>`,
 };
 
-// ── Persistence ───────────────────────────────────────────────────────────
+// ── Formats ───────────────────────────────────────────────────────────────
+const nf1 = new Intl.NumberFormat("fr-BE", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+const nf0 = new Intl.NumberFormat("fr-BE", { maximumFractionDigits: 0 });
+const fmtKwh = v => nf1.format(v);
+const capitalize = s => s.charAt(0).toUpperCase() + s.slice(1);
+
+// Heure locale du lieu choisi (pas celle du téléphone), changements d'heure compris.
+const dtfCache = new Map();
+function zoned(epochSec, tz) {
+  let f = dtfCache.get(tz);
+  if (!f) {
+    f = new Intl.DateTimeFormat("en-CA", { timeZone: tz, year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
+    dtfCache.set(tz, f);
+  }
+  const p = {};
+  for (const part of f.formatToParts(new Date(epochSec * 1000))) p[part.type] = part.value;
+  const hour = Number(p.hour) % 24, minute = Number(p.minute);
+  return { date: `${p.year}-${p.month}-${p.day}`, hour, minute, h: hour + minute / 60 };
+}
+const noonUtc = dateStr => new Date(dateStr + "T12:00:00Z");
+const daysBetween = (a, b) => Math.round((noonUtc(b) - noonUtc(a)) / 86400000);
+function fmtHour(epochSec, tz) {
+  const z = zoned(epochSec, tz);
+  return z.minute ? `${z.hour}h${String(z.minute).padStart(2, "0")}` : `${z.hour}h`;
+}
+const fmtClock = (epochSec, tz) => { const z = zoned(epochSec, tz); return `${z.hour}h${String(z.minute).padStart(2, "0")}`; };
+function fmtDateLong(dateStr) {
+  const d = noonUtc(dateStr);
+  return `${DAYS_LONG[d.getUTCDay()]} ${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]}`;
+}
+function dayName(dateStr, todayStr, short) {
+  const n = daysBetween(todayStr, dateStr);
+  if (n === 0) return short ? "Auj." : "aujourd'hui";
+  if (n === 1) return short ? "Dem." : "demain";
+  return (short ? DAYS_SHORT : DAYS_LONG)[noonUtc(dateStr).getUTCDay()];
+}
+// « Aujourd'hui, 23 novembre », « Demain, 24 novembre », « Jeudi 26 novembre »
+function heroDate(dateStr, todayStr) {
+  const n = daysBetween(todayStr, dateStr);
+  const d = noonUtc(dateStr);
+  const dm = `${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]}`;
+  if (n === 0) return `Aujourd'hui, ${dm}`;
+  if (n === 1) return `Demain, ${dm}`;
+  return capitalize(fmtDateLong(dateStr));
+}
+function describeFetchedAt(ms, tz) {
+  const sec = ms / 1000;
+  const n = daysBetween(zoned(sec, tz).date, zoned(Date.now() / 1000, tz).date);
+  const clock = fmtClock(sec, tz);
+  if (n === 0) return `à ${clock}`;
+  if (n === 1) return `hier à ${clock}`;
+  return `le ${fmtDateLong(zoned(sec, tz).date)} à ${clock}`;
+}
+
+// ── Réglages ──────────────────────────────────────────────────────────────
+function clampNum(v, min, max, fallback) {
+  const n = typeof v === "number" ? v : parseFloat(String(v).replace(",", "."));
+  return Number.isFinite(n) ? Math.min(max, Math.max(min, n)) : fallback;
+}
+function sanitizeConfig(c) {
+  const out = { ...DEFAULT_CONFIG, ...c };
+  out.lat = clampNum(out.lat, -90, 90, DEFAULT_CONFIG.lat);
+  out.lon = clampNum(out.lon, -180, 180, DEFAULT_CONFIG.lon);
+  out.dcPower = clampNum(out.dcPower, 0.1, 100, DEFAULT_CONFIG.dcPower);
+  out.acPower = clampNum(out.acPower, 0.1, 100, DEFAULT_CONFIG.acPower);
+  out.tilt = Math.round(clampNum(out.tilt, 0, 90, DEFAULT_CONFIG.tilt));
+  out.azimuth = ORIENTATIONS.some(o => o.value === Number(out.azimuth)) ? Number(out.azimuth) : DEFAULT_CONFIG.azimuth;
+  out.systemLoss = clampNum(out.systemLoss, 0, 0.5, DEFAULT_CONFIG.systemLoss);
+  if (typeof out.displayName !== "string" || !out.displayName.trim()) out.displayName = `${out.lat.toFixed(3)}, ${out.lon.toFixed(3)}`;
+  return out;
+}
 function loadConfig() {
-  try { const s = localStorage.getItem(STORAGE_KEY); return s ? { ...DEFAULT_CONFIG, ...JSON.parse(s) } : DEFAULT_CONFIG; }
-  catch { return DEFAULT_CONFIG; }
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
+    if (!saved) return sanitizeConfig({});
+    if (saved.lat === OLD_DEFAULT.lat && saved.lon === OLD_DEFAULT.lon && saved.displayName === OLD_DEFAULT.displayName) {
+      saved.lat = DEFAULT_CONFIG.lat; saved.lon = DEFAULT_CONFIG.lon;
+    }
+    return sanitizeConfig(saved);
+  } catch { return sanitizeConfig({}); }
 }
 function saveConfig(cfg) { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(cfg)); } catch {} }
 
-// ── Solar model ───────────────────────────────────────────────────────────
-function estimateACkWh(poaW, dcPower, acPower, systemLoss) {
-  if (poaW <= 0) return 0;
-  const dcKw = (poaW / 1000) * dcPower * (1 - systemLoss);
-  return Math.min(dcKw, acPower);
+// La prévision ne dépend que du lieu et de l'orientation des panneaux. Puissance
+// et pertes sont appliquées dans l'app, sans nouvel appel réseau.
+const locKey = c => [c.lat.toFixed(3), c.lon.toFixed(3), c.tilt, c.azimuth].join("|");
+function loadCachedForecast(key) {
+  try {
+    const f = JSON.parse(localStorage.getItem(FORECAST_KEY) || "null");
+    return f && f.v === 1 && f.key === key ? f : null;
+  } catch { return null; }
 }
+function saveCachedForecast(f) { try { localStorage.setItem(FORECAST_KEY, JSON.stringify(f)); } catch {} }
 
-// ── API ───────────────────────────────────────────────────────────────────
-async function fetchSolarForecast(cfg) {
+// ── API Open-Meteo ────────────────────────────────────────────────────────
+// Les rayonnements horaires d'Open-Meteo sont la moyenne de l'heure qui
+// PRÉCÈDE l'horodatage : la valeur de 12h couvre 11h-12h.
+async function fetchForecast(cfg) {
   const params = new URLSearchParams({
     latitude: cfg.lat, longitude: cfg.lon,
-    hourly: "direct_normal_irradiance,diffuse_radiation,global_tilted_irradiance,shortwave_radiation",
+    hourly: "global_tilted_irradiance,shortwave_radiation",
     daily: "sunrise,sunset",
     forecast_days: 7,
-    timezone: "Europe/Brussels",
+    timezone: "auto",
+    timeformat: "unixtime",
     tilt: cfg.tilt,
-    azimuth: cfg.azimuth - 180,
+    azimuth: cfg.azimuth - 180, // Open-Meteo : 0 = sud, -90 = est, 90 = ouest
   });
-  const res = await fetch(`https://api.open-meteo.com/v1/forecast?${params}`);
-  if (!res.ok) throw new Error(`Erreur API Open-Meteo (${res.status})`);
-  const data = await res.json();
-
-  const times = data.hourly.time;
-  const gti   = data.hourly.global_tilted_irradiance;
-  const ghi   = data.hourly.shortwave_radiation;
-  const dailyMap = {};
-
-  for (let i = 0; i < times.length; i++) {
-    const dateStr = times[i].substring(0, 10);
-    const hour    = parseInt(times[i].substring(11, 13));
-    const poaW    = (gti[i] !== null && gti[i] !== undefined) ? gti[i] : (ghi[i] ?? 0);
-    const acKw    = estimateACkWh(poaW, cfg.dcPower, cfg.acPower, cfg.systemLoss);
-    const clipped = acKw >= cfg.acPower * 0.98 && poaW > 100;
-
-    if (!dailyMap[dateStr]) dailyMap[dateStr] = { totalKwh: 0, hours: [], clippedHours: 0 };
-    dailyMap[dateStr].totalKwh += acKw;
-    dailyMap[dateStr].hours.push({ hour, poaW, acKw, clipped });
-    if (clipped) dailyMap[dateStr].clippedHours++;
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), FETCH_TIMEOUT_MS);
+  let res, data;
+  try {
+    res = await fetch(`https://api.open-meteo.com/v1/forecast?${params}`, { signal: ctrl.signal });
+    if (!res.ok) throw Object.assign(new Error(`Le service météo est indisponible (erreur ${res.status}).`), { http: true });
+    data = await res.json();
+  } catch (e) {
+    if (e.http) throw e;
+    if (e.name === "AbortError") throw new Error("Le service météo ne répond pas.");
+    throw new Error(navigator.onLine === false ? "Pas de connexion internet." : "Impossible de joindre le service météo.");
+  } finally {
+    clearTimeout(timer);
   }
-
-  for (let i = 0; i < data.daily.time.length; i++) {
-    const d = data.daily.time[i];
-    if (dailyMap[d]) { dailyMap[d].sunrise = data.daily.sunrise[i]; dailyMap[d].sunset = data.daily.sunset[i]; }
-  }
-  return Object.entries(dailyMap).map(([date, v]) => ({ date, ...v }));
+  if (!data || !data.hourly || !Array.isArray(data.hourly.time)) throw new Error("Réponse inattendue du service météo.");
+  return {
+    v: 1,
+    key: locKey(cfg),
+    fetchedAt: Date.now(),
+    timezone: data.timezone || "Europe/Brussels",
+    elevation: Number.isFinite(data.elevation) ? data.elevation : 0,
+    hourly: { time: data.hourly.time, gti: data.hourly.global_tilted_irradiance || [], ghi: data.hourly.shortwave_radiation || [] },
+    daily: { time: data.daily?.time || [], sunrise: data.daily?.sunrise || [], sunset: data.daily?.sunset || [] },
+  };
 }
 
-// ── Recommendation ────────────────────────────────────────────────────────
-function getRecommendation(days) {
-  if (!days.length) return null;
-  const today  = days[0];
-  const sorted = [...days].sort((a, b) => b.totalKwh - a.totalKwh);
-  const best   = sorted[0];
-  const bestDayStr  = DAYS_FR[new Date(best.date + "T12:00:00").getDay()];
-  const todayIsBest = best.date === today.date;
+// ── Modèle de production ──────────────────────────────────────────────────
+function acPowerKw(poaW, cfg) {
+  if (!(poaW > 0)) return 0;
+  return Math.min((poaW / 1000) * cfg.dcPower * (1 - cfg.systemLoss), cfg.acPower);
+}
 
-  if (today.totalKwh >= best.totalKwh * 0.85) {
-    return { quality: "great", icon: "⚡", title: "Aujourd'hui est optimal",
-      body: `Excellente production prévue aujourd'hui (${today.totalKwh.toFixed(1)} kWh). C'est le bon moment pour charger votre véhicule ou lancer vos gros appareils.`,
-      actions: ["🚗 Charger VE", "🧺 Lave-linge", "🍽️ Lave-vaisselle"] };
-  } else if (best.totalKwh > today.totalKwh * 1.2 && !todayIsBest) {
-    return { quality: "poor", icon: "⏳", title: `Attendre ${bestDayStr} sera plus rentable`,
-      body: `La production de ${bestDayStr} sera ~${best.totalKwh.toFixed(1)} kWh contre ${today.totalKwh.toFixed(1)} kWh aujourd'hui. Décaler votre recharge maximisera l'autoconsommation.`,
-      actions: ["📅 Reporter au " + bestDayStr] };
-  } else {
-    return { quality: "ok", icon: "🌤️", title: "Production correcte toute la semaine",
-      body: `La production oscillera entre ${Math.min(...days.map(d=>d.totalKwh)).toFixed(1)} et ${best.totalKwh.toFixed(1)} kWh/jour. ${todayIsBest ? "Aujourd'hui" : bestDayStr} reste légèrement meilleur.`,
-      actions: ["🚗 Charger VE", "🔌 Autoconsommation"] };
+function buildDays(fc, cfg, nowSec) {
+  const tz = fc.timezone;
+  const today = zoned(nowSec, tz).date;
+  const byDate = new Map();
+  const { time, gti, ghi } = fc.hourly;
+  for (let i = 0; i < time.length; i++) {
+    const end = time[i], start = end - 3600;
+    const z = zoned(start, tz);
+    const poa = gti[i] ?? ghi[i] ?? 0;
+    const kw = acPowerKw(poa, cfg);
+    const clipped = kw >= cfg.acPower * 0.98 && poa > 100;
+    let d = byDate.get(z.date);
+    if (!d) { d = { date: z.date, hours: [], totalKwh: 0, clippedHours: 0 }; byDate.set(z.date, d); }
+    d.hours.push({ start, end, h: z.h, kw, clipped });
+    d.totalKwh += kw; // moyenne sur 1 h en kW = énergie en kWh
+    if (clipped) d.clippedHours++;
   }
+  fc.daily.time.forEach((t, j) => {
+    const d = byDate.get(zoned(t, tz).date);
+    if (d) { d.sunrise = fc.daily.sunrise[j]; d.sunset = fc.daily.sunset[j]; }
+  });
+  const days = [...byDate.values()]
+    .filter(d => d.date >= today && d.hours.length >= 12)
+    .sort((a, b) => (a.date < b.date ? -1 : 1));
+  for (const d of days) {
+    d.offset = daysBetween(today, d.date);
+    // Ce qui reste à produire à partir de maintenant (l'heure entamée au prorata).
+    d.remainingKwh = d.hours.reduce((s, h) =>
+      s + (h.start >= nowSec ? h.kw : h.end > nowSec ? h.kw * (h.end - nowSec) / 3600 : 0), 0);
+  }
+  return { days, today, tz };
+}
+
+// Meilleure fenêtre de `hours` heures consécutives qui commence maintenant ou
+// plus tard. Score : énergie solaire qu'un appareil de `kw` kW peut réellement
+// absorber (au-delà de sa puissance, le surplus part sur le réseau).
+// On retient la fenêtre la plus PROCHE qui fait au moins 90 % de la meilleure :
+// une prévision à J+1 est plus sûre qu'une à J+5.
+function findSlot(days, nowSec, hours, kw) {
+  const all = days.flatMap(d => d.hours.map(h => ({ ...h, date: d.date, offset: d.offset })));
+  const windows = [];
+  for (let i = 0; i + hours <= all.length; i++) {
+    const first = all[i], last = all[i + hours - 1];
+    if (first.start < nowSec - 600) continue;              // déjà passée (10 min de tolérance)
+    if (last.start - first.start !== (hours - 1) * 3600) continue; // trou dans les données
+    let solar = 0;
+    for (let k = 0; k < hours; k++) solar += Math.min(all[i + k].kw, kw);
+    windows.push({ start: first.start, end: first.start + hours * 3600, solar, date: first.date, offset: first.offset });
+  }
+  if (!windows.length) return null;
+  const best = windows.reduce((a, b) => (b.solar > a.solar ? b : a));
+  if (best.solar < 0.05) return { pick: null, best: null };
+  const pick = windows.find(w => w.solar >= best.solar * 0.9);
+  return { pick, best, need: hours * kw };
+}
+
+// ── Recommandation ────────────────────────────────────────────────────────
+function getRecommendation(model, nowSec) {
+  const { days, today, tz } = model;
+  if (!days.length) return null;
+  const todayDay = days[0].offset === 0 ? days[0] : null;
+  const left = todayDay ? todayDay.remainingKwh : 0;
+  const upcoming = days.filter(d => d.offset >= 1);
+  const best = upcoming.length ? upcoming.reduce((a, b) => (b.totalKwh > a.totalKwh ? b : a)) : null;
+  const slot = findSlot(todayDay ? [todayDay] : [], nowSec, 2, Infinity);
+  const peak = slot && slot.pick ? `, surtout entre ${fmtHour(slot.pick.start, tz)} et ${fmtHour(slot.pick.end, tz)}` : "";
+
+  if (todayDay && left >= 0.1 && (!best || left >= best.totalKwh * 0.85)) {
+    return { quality: "great", icon: "⚡", title: "Profitez d'aujourd'hui",
+      body: `Il reste environ ${fmtKwh(left)} kWh de soleil aujourd'hui${peak}. Les jours suivants ne feront pas mieux : c'est le moment pour les gros appareils.` };
+  }
+  if (best && best.totalKwh >= 0.1) {
+    const name = dayName(best.date, today, false);
+    const todayPart = todayDay && left >= 0.05 ? ` contre ${fmtKwh(left)} kWh encore possibles aujourd'hui` : "";
+    return { quality: "poor", icon: "⏳", title: `Mieux vaut attendre ${name}`,
+      body: `${capitalize(name)}, environ ${fmtKwh(best.totalKwh)} kWh sont prévus${todayPart}. Décaler les gros appareils augmentera votre autoconsommation.` };
+  }
+  return { quality: "ok", icon: "☁️", title: "Très peu de soleil cette semaine",
+    body: "Aucun jour ne se détache. Lancez vos appareils quand ça vous arrange." };
 }
 
 function barColor(pct) {
@@ -575,495 +762,522 @@ function barColor(pct) {
   if (pct > 0.40) return "#FFC83A";
   return "#D4CBB8";
 }
-function fmtDate(d) { return new Date(d + "T12:00:00").toLocaleDateString("fr-BE", { day: "numeric", month: "short" }); }
-
 function getDayQuality(pct) {
-  if (pct >= 0.85) return { label: "Excellent", icon: "☀", cls: "quality-great" };
-  if (pct >= 0.60) return { label: "Bon",       icon: "🌤", cls: "quality-ok" };
+  if (pct >= 0.85) return { label: "Excellent", icon: "☀️", cls: "quality-great" };
+  if (pct >= 0.60) return { label: "Bon",       icon: "🌤️", cls: "quality-ok" };
   if (pct >= 0.35) return { label: "Moyen",     icon: "⛅", cls: "quality-mid" };
-  return             { label: "Faible",          icon: "🌧", cls: "quality-poor" };
+  return             { label: "Faible",    icon: "🌧️", cls: "quality-poor" };
 }
 
-// ── InfoButton — just the toggle button ──────────────────────────────────
-function InfoButton({ tooltipKey, openTooltip, setOpenTooltip }) {
-  const isOpen = openTooltip === tooltipKey;
-  return (
-    <button
-      className={`info-btn${isOpen ? " active" : ""}`}
-      onClick={e => { e.stopPropagation(); setOpenTooltip(isOpen ? null : tooltipKey); }}
-      aria-label="Plus d'informations"
-    >i</button>
-  );
+// ── Bouton « i » et son texte d'aide ──────────────────────────────────────
+function InfoButton({ id, label, openTooltip, setOpenTooltip }) {
+  const isOpen = openTooltip === id;
+  return html`<button type="button" className=${`info-btn${isOpen ? " active" : ""}`}
+    aria-expanded=${isOpen} aria-controls=${`tip-${id}`} aria-label=${`Aide : ${label}`}
+    onClick=${e => { e.stopPropagation(); setOpenTooltip(isOpen ? null : id); }}>i</button>`;
+}
+function TooltipBox({ id, openTooltip }) {
+  return html`<div id=${`tip-${id}`} className="tooltip-box" hidden=${openTooltip !== id}>${TOOLTIPS[id]}</div>`;
 }
 
-// ── TooltipBox — rendered inline below the field-header ──────────────────
-function TooltipBox({ tooltipKey, openTooltip }) {
-  if (openTooltip !== tooltipKey) return null;
-  return <div className="tooltip-box">{TOOLTIPS[tooltipKey]}</div>;
-}
-
-// ── Address search component ──────────────────────────────────────────────
+// ── Recherche d'adresse (Nominatim / OpenStreetMap) ───────────────────────
 function AddressSearch({ onSelect }) {
-  const [query,       setQuery]       = useState("");
+  const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState([]);
-  const [searching,   setSearching]   = useState(false);
+  const [state, setState] = useState("idle"); // idle | searching | empty | error
   const debounceRef = useRef(null);
+  const abortRef = useRef(null);
 
-  const search = useCallback(async (q) => {
-    if (q.length < 3) { setSuggestions([]); return; }
-    setSearching(true);
+  const search = useCallback(async q => {
+    if (abortRef.current) abortRef.current.abort();
+    if (q.trim().length < 3) { setSuggestions([]); setState("idle"); return; }
+    const ctrl = new AbortController();
+    abortRef.current = ctrl;
+    setState("searching");
     try {
-      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&limit=5&addressdetails=1&accept-language=fr`);
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&limit=5&addressdetails=1&accept-language=fr`, { signal: ctrl.signal });
       const data = await res.json();
-      setSuggestions(data.map(r => ({
+      const list = data.map(r => ({
         displayName: r.display_name,
-        short: [r.address.road, r.address.city || r.address.town || r.address.village, r.address.country].filter(Boolean).join(", "),
-        lat: parseFloat(r.lat),
-        lon: parseFloat(r.lon),
-      })));
-    } catch { setSuggestions([]); }
-    finally { setSearching(false); }
+        short: [r.address?.road, r.address?.city || r.address?.town || r.address?.village, r.address?.country].filter(Boolean).join(", "),
+        lat: parseFloat(r.lat), lon: parseFloat(r.lon),
+      }));
+      setSuggestions(list);
+      setState(list.length ? "idle" : "empty");
+    } catch (e) {
+      if (e.name !== "AbortError") { setSuggestions([]); setState("error"); }
+    }
   }, []);
 
-  const handleChange = (e) => {
+  const handleChange = e => {
     const v = e.target.value;
     setQuery(v);
     clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => search(v), 400);
+    debounceRef.current = setTimeout(() => search(v), 500); // Nominatim : 1 requête/s max
   };
-
-  const handleSelect = (s) => {
-    setQuery(s.short || s.displayName);
+  const handleSelect = s => {
+    const name = s.short || s.displayName.split(",").slice(0, 2).join(",");
+    setQuery(name);
     setSuggestions([]);
-    onSelect({ lat: s.lat, lon: s.lon, displayName: s.short || s.displayName.split(",").slice(0,2).join(",") });
+    onSelect({ lat: s.lat, lon: s.lon, displayName: name });
   };
 
-  return (
-    <div className="field">
-      <div className="field-header"><label>Rechercher une adresse</label></div>
-      <div className="address-search-wrap">
-        <input
-          type="text"
-          value={query}
-          onChange={handleChange}
-          placeholder="ex: Rue de la Loi 16, Bruxelles"
-          autoComplete="off"
-        />
-        {(suggestions.length > 0 || searching) && (
-          <div className="address-suggestions">
-            {searching && <div className="address-loading">Recherche…</div>}
-            {suggestions.map((s, i) => (
-              <div key={i} className="address-suggestion" onClick={() => handleSelect(s)}>
-                <div className="address-suggestion-main">{s.short || s.displayName.split(",")[0]}</div>
-                <div className="address-suggestion-sub">{s.displayName.split(",").slice(1,3).join(",").trim()}</div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+  return html`<div className="field">
+    <div className="field-header"><label htmlFor="address-input">Rechercher une adresse</label></div>
+    <div className="address-search-wrap">
+      <input id="address-input" type="search" value=${query} onChange=${handleChange}
+        placeholder="ex : Rue de la Loi 16, Bruxelles" autoComplete="street-address" enterKeyHint="search" />
+      ${(suggestions.length > 0 || state !== "idle") && html`<div className="address-suggestions">
+        ${state === "searching" && html`<p className="address-loading">Recherche…</p>`}
+        ${state === "empty" && html`<p className="address-loading">Aucune adresse trouvée.</p>`}
+        ${state === "error" && html`<p className="address-loading">Recherche impossible pour l'instant.</p>`}
+        ${suggestions.length > 0 && html`<ul role="list">
+          ${suggestions.map((s, i) => html`<li key=${i}>
+            <button type="button" className="address-suggestion" onClick=${() => handleSelect(s)}>
+              <span className="address-suggestion-main">${s.short || s.displayName.split(",")[0]}</span>
+              <span className="address-suggestion-sub">${s.displayName.split(",").slice(1, 3).join(",").trim()}</span>
+            </button>
+          </li>`)}
+        </ul>`}
+      </div>`}
     </div>
-  );
+  </div>`;
 }
 
-// ── Mini map component ────────────────────────────────────────────────────
+// ── Mini carte ────────────────────────────────────────────────────────────
 function MiniMap({ lat, lon, label }) {
-  if (!lat || !lon) return null;
-  const z    = 14;
-  const src  = `https://www.openstreetmap.org/export/embed.html?bbox=${lon-0.01},${lat-0.008},${lon+0.01},${lat+0.008}&layer=mapnik&marker=${lat},${lon}`;
-  return (
-    <div className="mini-map-wrap">
-      <iframe src={src} title="Position sur la carte" scrolling="no" />
-      <div className="mini-map-label">
-        📍 <span className="mini-map-label-addr">{label}</span>
-      </div>
-    </div>
-  );
+  if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null;
+  const src = `https://www.openstreetmap.org/export/embed.html?bbox=${lon - 0.01},${lat - 0.008},${lon + 0.01},${lat + 0.008}&layer=mapnik&marker=${lat},${lon}`;
+  return html`<div className="mini-map-wrap">
+    <iframe src=${src} title=${`Carte : ${label}`} loading="lazy"></iframe>
+    <p className="mini-map-label"><span aria-hidden="true">📍</span> <span className="mini-map-label-addr">${label}</span></p>
+  </div>`;
 }
 
-// ── HourlyChart SVG component ────────────────────────────────────────────
-function HourlyChart({ hours, acPower }) {
-  const dayHours = hours.filter(h => h.hour >= 5 && h.hour <= 22);
-  if (!dayHours.length) return null;
-
-  const W = 340, H = 110, PAD_L = 32, PAD_R = 10, PAD_T = 18, PAD_B = 24;
-  const plotW = W - PAD_L - PAD_R;
-  const plotH = H - PAD_T - PAD_B;
-  const maxKw = Math.max(...dayHours.map(h => h.acKw), acPower * 0.1);
-  const clipY  = acPower > 0 ? PAD_T + plotH * (1 - acPower / maxKw) : -1;
-
-  // Map hour -> x, kw -> y
-  const hMin = dayHours[0].hour;
-  const hMax = dayHours[dayHours.length - 1].hour;
-  const hSpan = Math.max(hMax - hMin, 1);
-  const xOf = h => PAD_L + ((h - hMin) / hSpan) * plotW;
+// ── Courbe horaire (SVG) ──────────────────────────────────────────────────
+function HourlyChart({ day, cfg, tz, nowSec }) {
+  const W = 340, H = 120, PAD_L = 34, PAD_R = 10, PAD_T = 18, PAD_B = 22;
+  const plotW = W - PAD_L - PAD_R, plotH = H - PAD_T - PAD_B;
+  const sunH = day.sunrise ? zoned(day.sunrise, tz).h : 6;
+  const setH = day.sunset ? zoned(day.sunset, tz).h : 20;
+  const x0 = Math.max(0, Math.floor(sunH) - 1), x1 = Math.min(24, Math.ceil(setH) + 1);
+  const xOf = h => PAD_L + ((h - x0) / (x1 - x0)) * plotW;
+  // Chaque valeur est la moyenne d'une heure : on la place au milieu de l'heure.
+  const pts = day.hours.filter(h => h.h + 1 >= x0 && h.h <= x1).map(h => ({ x: h.h + 0.5, kw: h.kw, h }));
+  if (!pts.length) return null;
+  const maxKw = Math.max(...pts.map(p => p.kw), cfg.acPower * 0.15, 0.05);
   const yOf = kw => PAD_T + plotH * (1 - Math.min(kw, maxKw) / maxKw);
+  const base = PAD_T + plotH;
+  const line = "M " + pts.map(p => `${xOf(p.x).toFixed(1)},${yOf(p.kw).toFixed(1)}`).join(" L ");
+  const area = `${line} L ${xOf(pts[pts.length - 1].x).toFixed(1)},${base} L ${xOf(pts[0].x).toFixed(1)},${base} Z`;
+  const peak = pts.reduce((a, b) => (b.kw > a.kw ? b : a));
+  const px = xOf(peak.x), py = yOf(peak.kw);
+  const ticks = [];
+  for (let t = Math.ceil(x0 / 2) * 2; t <= x1; t += 2) ticks.push(t);
+  const fmtKw = v => (v < 1 ? `${nf0.format(Math.round(v * 1000 / 10) * 10)} W` : `${nf1.format(v)} kW`);
+  const yTicks = [maxKw / 2, maxKw];
+  const clipY = cfg.acPower <= maxKw ? yOf(cfg.acPower) : null;
+  const nowH = day.offset === 0 ? zoned(nowSec, tz).h : null;
+  const showNow = nowH !== null && nowH > x0 && nowH < x1;
+  const peakTime = fmtHour(peak.h.start, tz);
+  const summary = peak.kw > 0.01
+    ? `Production horaire du ${fmtDateLong(day.date)} : pic d'environ ${fmtKw(peak.kw)} entre ${peakTime} et ${fmtHour(peak.h.end, tz)}, ${fmtKwh(day.totalKwh)} kWh sur la journée.`
+    : `Production quasi nulle le ${fmtDateLong(day.date)}.`;
 
-  // Build area path
-  const pts = dayHours.map(h => `${xOf(h.hour).toFixed(1)},${yOf(h.acKw).toFixed(1)}`);
-  const linePath = "M " + pts.join(" L ");
-  const firstX = xOf(dayHours[0].hour).toFixed(1);
-  const lastX  = xOf(dayHours[dayHours.length-1].hour).toFixed(1);
-  const areaPath = `${linePath} L ${lastX},${(PAD_T+plotH).toFixed(1)} L ${firstX},${(PAD_T+plotH).toFixed(1)} Z`;
-
-  // Peak point
-  const peakH = dayHours.reduce((a, b) => a.acKw > b.acKw ? a : b);
-  const px = xOf(peakH.hour), py = yOf(peakH.acKw);
-
-  // X-axis ticks: show every 2h
-  const tickHours = dayHours.filter(h => h.hour % 2 === 0).map(h => h.hour);
-
-  // Y-axis ticks
-  const yTicks = [0, Math.round(maxKw * 0.5 * 10) / 10, Math.round(maxKw * 10) / 10];
-
-  return (
-    <div className="hourly-chart-wrap">
-      <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none">
-        <defs>
-          <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#FFC83A" stopOpacity="0.55" />
-            <stop offset="100%" stopColor="#FFC83A" stopOpacity="0.04" />
-          </linearGradient>
-          <clipPath id="chartClip">
-            <rect x={PAD_L} y={PAD_T} width={plotW} height={plotH} />
-          </clipPath>
-        </defs>
-
-        {/* Y gridlines */}
-        {yTicks.slice(1).map((v, i) => {
-          const y = yOf(v).toFixed(1);
-          return <line key={i} x1={PAD_L} y1={y} x2={PAD_L+plotW} y2={y} stroke="#E8E2D6" strokeWidth="1" />;
-        })}
-
-        {/* Clip line */}
-        {clipY > PAD_T && clipY < PAD_T + plotH && (
-          <line x1={PAD_L} y1={clipY.toFixed(1)} x2={PAD_L+plotW} y2={clipY.toFixed(1)}
-            stroke="#C0440A" strokeWidth="1" strokeDasharray="3 3" opacity="0.5" />
-        )}
-
-        {/* Area fill */}
-        <path d={areaPath} fill="url(#areaGrad)" clipPath="url(#chartClip)" />
-
-        {/* Line */}
-        <path d={linePath} fill="none" stroke="#E8960A" strokeWidth="2"
-          strokeLinejoin="round" strokeLinecap="round" clipPath="url(#chartClip)" />
-
-        {/* Peak dot + label */}
-        <circle cx={px.toFixed(1)} cy={py.toFixed(1)} r="3.5" fill="#E8960A" />
-        <text x={Math.min(px + 4, W - PAD_R - 28)} y={(py - 6).toFixed(1)} className="chart-peak-label">
-          {(peakH.acKw * 1000).toFixed(0)}W
-        </text>
-
-        {/* X axis */}
-        {tickHours.map(h => (
-          <text key={h} x={xOf(h).toFixed(1)} y={(PAD_T + plotH + 13).toFixed(1)}
-            textAnchor="middle" className="chart-axis-label">{h}h</text>
-        ))}
-
-        {/* Y axis labels */}
-        {yTicks.filter(v => v > 0).map((v, i) => (
-          <text key={i} x={(PAD_L - 4).toFixed(1)} y={(yOf(v) + 3).toFixed(1)}
-            textAnchor="end" className="chart-axis-label">{v < 1 ? (v*1000).toFixed(0)+"W" : v.toFixed(1)+"k"}</text>
-        ))}
-
-        {/* Baseline */}
-        <line x1={PAD_L} y1={PAD_T+plotH} x2={PAD_L+plotW} y2={PAD_T+plotH} stroke="#E8E2D6" strokeWidth="1" />
-      </svg>
-    </div>
-  );
+  return html`<figure className="hourly-chart-wrap">
+    <svg viewBox=${`0 0 ${W} ${H}`} role="img" aria-label=${summary}>
+      <defs>
+        <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" className="chart-grad-top" />
+          <stop offset="100%" className="chart-grad-bottom" />
+        </linearGradient>
+      </defs>
+      ${yTicks.map((v, i) => html`<line key=${i} className="chart-grid" x1=${PAD_L} y1=${yOf(v).toFixed(1)} x2=${PAD_L + plotW} y2=${yOf(v).toFixed(1)} />`)}
+      ${clipY !== null && html`<line className="chart-clip" x1=${PAD_L} y1=${clipY.toFixed(1)} x2=${PAD_L + plotW} y2=${clipY.toFixed(1)} />`}
+      <path d=${area} fill="url(#areaGrad)" />
+      <path d=${line} className="chart-line" />
+      ${showNow && html`<g className="chart-now">
+        <line x1=${xOf(nowH).toFixed(1)} y1=${PAD_T} x2=${xOf(nowH).toFixed(1)} y2=${base} />
+        <text x=${(xOf(nowH) + (nowH > (x0 + x1) / 2 ? -3 : 3)).toFixed(1)} y=${base - 4} textAnchor=${nowH > (x0 + x1) / 2 ? "end" : "start"}>maintenant</text>
+      </g>`}
+      ${peak.kw > 0.01 && html`<g>
+        <circle cx=${px.toFixed(1)} cy=${py.toFixed(1)} r="3.5" className="chart-peak-dot" />
+        <text x=${Math.min(px + 5, W - PAD_R - 34).toFixed(1)} y=${Math.max(py - 6, 10).toFixed(1)} className="chart-peak-label">${fmtKw(peak.kw)}</text>
+      </g>`}
+      ${ticks.map(t => html`<text key=${t} x=${xOf(t).toFixed(1)} y=${base + 14} textAnchor="middle" className="chart-axis-label">${t}h</text>`)}
+      ${yTicks.map((v, i) => html`<text key=${i} x=${PAD_L - 4} y=${(yOf(v) + 3).toFixed(1)} textAnchor="end" className="chart-axis-label">${fmtKw(v)}</text>`)}
+      <line className="chart-grid" x1=${PAD_L} y1=${base} x2=${PAD_L + plotW} y2=${base} />
+    </svg>
+  </figure>`;
 }
 
-// ── Main App ──────────────────────────────────────────────────────────────
-function App() {
-  const [config,       setConfig]       = useState(loadConfig);
-  const [draftConfig,  setDraftConfig]  = useState(loadConfig);
-  const [days,         setDays]         = useState([]);
-  const [selectedDay,  setSelectedDay]  = useState(0);
-  const [loading,      setLoading]      = useState(true);
-  const [error,        setError]        = useState(null);
-  const [showSettings, setShowSettings] = useState(false);
-  const [locMode,      setLocMode]      = useState("gps");
-  const [locating,     setLocating]     = useState(false);
-  const [openTooltip,  setOpenTooltip]  = useState(null);
+// ── Ligne d'état (fraîcheur des données) ──────────────────────────────────
+function StatusLine({ status, fc, error, onRefresh }) {
+  if (!fc) return null;
+  const when = describeFetchedAt(fc.fetchedAt, fc.timezone);
+  const stale = status === "offline";
+  const text = status === "loading" ? "Actualisation…"
+    : stale ? `${error || "Hors ligne."} Prévisions reçues ${when}.`
+    : `Prévisions mises à jour ${when}`;
+  return html`<div className=${`status-line${stale ? " status-stale" : ""}`}>
+    <p role="status">${stale && html`<span aria-hidden="true">⚠️ </span>`}${text}</p>
+    <button type="button" className="status-refresh" onClick=${onRefresh} disabled=${status === "loading"}>Actualiser</button>
+  </div>`;
+}
 
-  // Swipe-down to close panel
-  const panelRef       = useRef(null);
-  const touchStartY    = useRef(null);
-  const touchStartSY   = useRef(null); // scrollTop at touch start
+// ── Réglages (feuille du bas, élément <dialog> natif) ─────────────────────
+const toDraft = c => ({ ...c, dcPower: String(c.dcPower), acPower: String(c.acPower) });
 
-  const handlePanelTouchStart = useCallback((e) => {
-    touchStartY.current  = e.touches[0].clientY;
-    touchStartSY.current = panelRef.current ? panelRef.current.scrollTop : 0;
-  }, []);
+function SettingsDialog({ open, config, onClose, onSave }) {
+  const ref = useRef(null);
+  const sheetRef = useRef(null);
+  const [draft, setDraft] = useState(() => toDraft(config));
+  const [locMode, setLocMode] = useState("gps");
+  const [locating, setLocating] = useState(false);
+  const [gpsError, setGpsError] = useState("");
+  const [openTooltip, setOpenTooltip] = useState(null);
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
 
-  const handlePanelTouchMove = useCallback((e) => {
-    if (touchStartY.current === null) return;
-    const dy = e.touches[0].clientY - touchStartY.current;
-    // Only allow drag-down when panel is scrolled to top
-    if (dy > 0 && touchStartSY.current <= 0 && panelRef.current) {
-      panelRef.current.style.transform = `translateY(${Math.min(dy, 220)}px)`;
-      panelRef.current.style.transition = "none";
-    }
-  }, []);
-
-  const handlePanelTouchEnd = useCallback((e) => {
-    if (!panelRef.current) return;
-    const dy = e.changedTouches[0].clientY - (touchStartY.current || 0);
-    panelRef.current.style.transform = "";
-    panelRef.current.style.transition = "";
-    if (dy > 80 && touchStartSY.current <= 0) {
-      setShowSettings(false);
-    }
-    touchStartY.current = null;
-  }, []);
-
-  // Close tooltip when clicking elsewhere
   useEffect(() => {
-    const close = () => setOpenTooltip(null);
-    document.addEventListener("click", close);
-    return () => document.removeEventListener("click", close);
+    const dlg = ref.current;
+    if (!dlg) return;
+    if (open && !dlg.open) {
+      setDraft(toDraft(config)); setOpenTooltip(null); setGpsError("");
+      dlg.showModal();
+    } else if (!open && dlg.open) dlg.close();
+  }, [open]);
+
+  useEffect(() => {
+    const dlg = ref.current;
+    const handle = () => onCloseRef.current();
+    dlg.addEventListener("close", handle);
+    return () => dlg.removeEventListener("close", handle);
   }, []);
 
-  const load = useCallback(async (cfg) => {
-    setLoading(true); setError(null);
-    try { const r = await fetchSolarForecast(cfg); setDays(r); setSelectedDay(0); }
-    catch (e) { setError(e.message); }
-    finally { setLoading(false); }
-  }, []);
-
-  useEffect(() => { load(config); }, [config]);
+  // Glisser vers le bas pour fermer (quand la feuille est en haut de son défilement)
+  const touch = useRef({ y: null, scroll: 0 });
+  const onTouchStart = e => { touch.current = { y: e.touches[0].clientY, scroll: sheetRef.current ? sheetRef.current.scrollTop : 0 }; };
+  const onTouchMove = e => {
+    const t = touch.current;
+    if (t.y === null || !sheetRef.current) return;
+    const dy = e.touches[0].clientY - t.y;
+    if (dy > 0 && t.scroll <= 0) {
+      sheetRef.current.style.translate = `0 ${Math.min(dy, 220)}px`;
+      sheetRef.current.style.transition = "none";
+    }
+  };
+  const onTouchEnd = e => {
+    const t = touch.current;
+    if (!sheetRef.current) return;
+    const dy = e.changedTouches[0].clientY - (t.y ?? 0);
+    sheetRef.current.style.translate = "";
+    sheetRef.current.style.transition = "";
+    if (dy > 80 && t.scroll <= 0) ref.current.close();
+    touch.current = { y: null, scroll: 0 };
+  };
 
   const handleGPS = () => {
-    if (!navigator.geolocation) return;
-    setLocating(true);
+    if (!navigator.geolocation) { setGpsError("La localisation n'est pas disponible sur cet appareil."); return; }
+    setLocating(true); setGpsError("");
     navigator.geolocation.getCurrentPosition(
-      pos => {
+      async pos => {
         const lat = parseFloat(pos.coords.latitude.toFixed(5));
         const lon = parseFloat(pos.coords.longitude.toFixed(5));
-        setDraftConfig(d => ({ ...d, lat, lon, displayName: `${lat}, ${lon}` }));
+        let name = `${lat}, ${lon}`;
+        try {
+          const r = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=14&accept-language=fr`);
+          const a = (await r.json()).address || {};
+          const place = a.village || a.town || a.city || a.municipality || a.suburb;
+          if (place) name = [place, a.country].filter(Boolean).join(", ");
+        } catch {}
+        setDraft(d => ({ ...d, lat, lon, displayName: name }));
         setLocating(false);
       },
-      () => setLocating(false),
-      { timeout: 10000 }
+      err => {
+        setLocating(false);
+        setGpsError(err.code === 1 ? "Accès à la position refusé. Autorisez-le dans les réglages du navigateur, ou cherchez une adresse." : "Position introuvable pour l'instant. Réessayez ou cherchez une adresse.");
+      },
+      { timeout: 10000, maximumAge: 600000 }
     );
   };
 
-  const handleAddressSelect = ({ lat, lon, displayName }) => {
-    setDraftConfig(d => ({ ...d, lat, lon, displayName }));
+  const set = patch => setDraft(d => ({ ...d, ...patch }));
+  const submit = e => {
+    e.preventDefault();
+    onSave(sanitizeConfig({ ...draft, dcPower: draft.dcPower, acPower: draft.acPower }));
+    ref.current.close();
   };
 
-  const handleSave = () => { saveConfig(draftConfig); setConfig(draftConfig); setShowSettings(false); };
-
-  const maxKwh      = Math.max(...days.map(d => d.totalKwh), 0.1);
-  const sel         = days[selectedDay];
-  const rec         = days.length ? getRecommendation([...days]) : null;
-  const orientLabel = ORIENTATIONS.find(o => o.value === config.azimuth)?.label.split(" ")[0] ?? "";
-  const selPct      = sel && maxKwh > 0 ? sel.totalKwh / maxKwh : 0;
-  const selQuality  = getDayQuality(selPct);
-
-  return (
-    <div className="app">
-      <div className="header">
-        <div>
-          <div className="header-eyebrow">☀ Suncast</div>
-          <div className="header-location">{config.displayName}</div>
-          <div className="header-sub">{config.dcPower} kWc · {config.tilt}° · {orientLabel} · onduleur {config.acPower} kW</div>
-        </div>
-        <button className="settings-btn" onClick={() => { setDraftConfig(config); setShowSettings(true); setOpenTooltip(null); }} aria-label="Paramètres">⚙</button>
-      </div>
-
-      {loading ? (
-        <div className="loading-wrap"><div className="sun-spin" /><div className="loading-text">Chargement des prévisions…</div></div>
-      ) : error ? (
-        <div className="error-card"><div className="error-icon">⚠️</div><div className="error-msg">{error}</div><button className="error-retry" onClick={() => load(config)}>Réessayer</button></div>
-      ) : (
-        <>
-          {sel && (
-            <div className="hero">
-              <div className="hero-sun-bg" />
-              <div className="hero-label">{fmtDate(sel.date)}</div>
-              <div className={`hero-quality ${selQuality.cls}`}>
-                <span className="hero-quality-icon">{selQuality.icon}</span>
-                <span className="hero-quality-label">{selQuality.label}</span>
-              </div>
-              <div className="hero-pct">
-                {selPct >= 0.99 ? "Meilleur jour de la semaine" : `${Math.round(selPct * 100)}% du meilleur jour`}
-              </div>
-              <div className="hero-kwh-secondary">~{sel.totalKwh.toFixed(1)} kWh estimé</div>
-              <div className="hero-sub">
-                {sel.sunrise ? `🌅 ${sel.sunrise.substring(11,16)}` : ""}
-                {sel.sunset  ? ` · 🌇 ${sel.sunset.substring(11,16)}` : ""}
-                {sel.clippedHours > 0 ? ` · ⚡ onduleur saturé ~${sel.clippedHours}h` : ""}
-              </div>
-              {rec && <div className={`hero-badge badge-${rec.quality}`}><div className="badge-dot" />{rec.icon} {rec.title}</div>}
-            </div>
-          )}
-
-          <div className="section">
-            <div className="section-title">Prévision 7 jours</div>
-            <div className="days-grid">
-              {days.map((d, i) => {
-                const pct = d.totalKwh / maxKwh;
-                const active = i === selectedDay;
-                const isBest = d.totalKwh === maxKwh;
-                const dName = i === 0 ? "Auj." : DAYS_FR[new Date(d.date+"T12:00:00").getDay()];
-                const classes = ["day-bar", active && "active", isBest && "best"].filter(Boolean).join(" ");
-                return (
-                  <div key={d.date} className={classes} onClick={() => setSelectedDay(i)}>
-                    <div className="day-name">{isBest ? "⭐" : dName}</div>
-                    <div className="bar-wrap">
-                      <div className="bar-fill" style={{ height: `${Math.max(pct*100,4)}%`, background: isBest ? `linear-gradient(to top,#E8960A,#FFC83A)` : active ? `linear-gradient(to top,${barColor(pct)},${barColor(pct)}BB)` : barColor(pct)+"99" }} />
-                    </div>
-                    <div className="day-kwh">{d.totalKwh.toFixed(1)}</div>
-                  </div>
-                );
-              })}
-            </div>
+  return html`<dialog ref=${ref} className="sheet" aria-labelledby="settings-title"
+      onClick=${e => { if (e.target === ref.current) ref.current.close(); }}>
+    <div className="panel" ref=${sheetRef} onClick=${() => setOpenTooltip(null)}
+        onTouchStart=${onTouchStart} onTouchMove=${onTouchMove} onTouchEnd=${onTouchEnd}>
+      <div className="panel-handle-area" aria-hidden="true"><div className="panel-handle"></div></div>
+      <h2 id="settings-title" className="panel-title">Mon installation</h2>
+      <form onSubmit=${submit}>
+        <fieldset className="fieldset">
+          <legend className="panel-section-label first">📍 Lieu</legend>
+          <div className="loc-tabs">
+            <button type="button" className=${`loc-tab${locMode === "gps" ? " active" : ""}`} aria-pressed=${locMode === "gps"} onClick=${() => setLocMode("gps")}>Position GPS</button>
+            <button type="button" className=${`loc-tab${locMode === "address" ? " active" : ""}`} aria-pressed=${locMode === "address"} onClick=${() => setLocMode("address")}>Adresse</button>
           </div>
+          ${locMode === "gps"
+            ? html`<button type="button" className="gps-btn" onClick=${handleGPS} disabled=${locating}>
+                ${locating ? "Localisation en cours…" : "📍 Détecter ma position"}
+              </button>
+              ${gpsError && html`<p className="field-error" role="alert">${gpsError}</p>`}`
+            : html`<${AddressSearch} onSelect=${({ lat, lon, displayName }) => set({ lat, lon, displayName })} />`}
+          ${open && html`<${MiniMap} lat=${draft.lat} lon=${draft.lon} label=${draft.displayName} />`}
+        </fieldset>
 
-          {sel && (
-            <div className="section">
-              <div className="section-title">Courbe horaire · {DAYS_FR[new Date(sel.date+"T12:00:00").getDay()]} {fmtDate(sel.date)}</div>
-              <HourlyChart hours={sel.hours} acPower={config.acPower} />
-            </div>
-          )}
-
-          <div className="section">
-            <div className="section-title">Résumé semaine</div>
-            <div className="stats-row">
-              <div className="stat-card"><div className="stat-val">{days.reduce((s,d)=>s+d.totalKwh,0).toFixed(0)}</div><div className="stat-lbl">kWh total 7 jours</div></div>
-              <div className="stat-card"><div className="stat-val">{maxKwh.toFixed(1)}</div><div className="stat-lbl">kWh meilleur jour</div></div>
-              <div className="stat-card"><div className="stat-val">{(days.reduce((s,d)=>s+d.totalKwh,0)/Math.max(days.length,1)).toFixed(1)}</div><div className="stat-lbl">kWh/j moyenne</div></div>
-            </div>
-          </div>
-
-          {rec && (
-            <div className="section">
-              <div className="section-title">Recommandation</div>
-              <div className={`rec-card ${rec.quality}`}>
-                <div className="rec-title">{rec.icon} {rec.title}</div>
-                <div className="rec-body">{rec.body}</div>
-                <div className="rec-action">{rec.actions.map(a => <div key={a} className="action-chip">{a}</div>)}</div>
-              </div>
-            </div>
-          )}
-
-          <div className="section">
-            <div className="model-note">
-              <div className="model-note-title">🔬 Modèle de calcul</div>
-              <div className="model-note-body">Rayonnement GTI via Open-Meteo · Clipping onduleur à {config.acPower} kW · Pertes système {Math.round(config.systemLoss*100)}%</div>
-            </div>
-          </div>
-
-          <div className="footer">
-            <a className="powered-by" href="https://nuxo.be" target="_blank" rel="noopener noreferrer">
-              Powered by <img src="images/logo-nuxo.svg" alt="Nuxo" />
-            </a>
-          </div>
-        </>
-      )}
-
-      {/* ── Settings Panel ── */}
-      {showSettings && (
-        <div className="panel-overlay" onClick={e => e.target===e.currentTarget && setShowSettings(false)}>
-          <div
-            className="panel"
-            onClick={() => setOpenTooltip(null)}
-            ref={panelRef}
-            onTouchStart={handlePanelTouchStart}
-            onTouchMove={handlePanelTouchMove}
-            onTouchEnd={handlePanelTouchEnd}
-          >
-            <div className="panel-handle-area" onTouchStart={handlePanelTouchStart}>
-              <div className="panel-handle" />
-            </div>
-            <div className="panel-title">Configuration installation</div>
-
-            {/* Location */}
-            <div className="loc-tabs">
-              <button className={`loc-tab${locMode==="gps"?" active":""}`} onClick={() => setLocMode("gps")}>📍 Position GPS</button>
-              <button className={`loc-tab${locMode==="address"?" active":""}`} onClick={() => setLocMode("address")}>🔍 Adresse</button>
-            </div>
-
-            {locMode === "gps" ? (
-              <>
-                <button className="gps-btn" onClick={handleGPS} disabled={locating}>
-                  {locating ? "⏳ Localisation en cours…" : "📍 Détecter ma position GPS"}
-                </button>
-                <MiniMap lat={draftConfig.lat} lon={draftConfig.lon} label={draftConfig.displayName} />
-              </>
-            ) : (
-              <>
-                <AddressSearch onSelect={handleAddressSelect} />
-                <MiniMap lat={draftConfig.lat} lon={draftConfig.lon} label={draftConfig.displayName} />
-              </>
-            )}
-
-            {/* PV System */}
-            <div className="panel-section-label">⚡ Installation photovoltaïque</div>
-
-            <div className="two-col">
-              <div className="field">
-                <div className="field-header">
-                  <label>Puissance DC (kWc)</label>
-                  <InfoButton tooltipKey="dcPower" openTooltip={openTooltip} setOpenTooltip={setOpenTooltip} />
-                </div>
-                <TooltipBox tooltipKey="dcPower" openTooltip={openTooltip} />
-                <input type="number" step="0.1" min="0.5" max="50" value={draftConfig.dcPower}
-                  onChange={e => setDraftConfig(d=>({...d, dcPower:parseFloat(e.target.value)||0}))} />
-              </div>
-              <div className="field">
-                <div className="field-header">
-                  <label>Onduleur AC (kW)</label>
-                  <InfoButton tooltipKey="acPower" openTooltip={openTooltip} setOpenTooltip={setOpenTooltip} />
-                </div>
-                <TooltipBox tooltipKey="acPower" openTooltip={openTooltip} />
-                <input type="number" step="0.1" min="0.5" max="50" value={draftConfig.acPower}
-                  onChange={e => setDraftConfig(d=>({...d, acPower:parseFloat(e.target.value)||0}))} />
-              </div>
-            </div>
-
-            <div className="field">
-              <div className="field-header"><label>Inclinaison des panneaux</label></div>
-              <input type="range" min="0" max="60" step="5" value={draftConfig.tilt}
-                onChange={e => setDraftConfig(d=>({...d, tilt:parseInt(e.target.value)}))} />
-              <div className="range-val">{draftConfig.tilt}°</div>
-              <div className="tilt-hints">
-                <span>0° — plat</span>
-                <span>30–35° — optimal BE</span>
-                <span>60° — quasi-vertical</span>
-              </div>
-            </div>
-
-            <div className="field">
-              <div className="field-header"><label>Orientation (azimut)</label></div>
-              <select value={draftConfig.azimuth} onChange={e => setDraftConfig(d=>({...d, azimuth:parseInt(e.target.value)}))}>
-                {ORIENTATIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-              </select>
-            </div>
-
+        <fieldset className="fieldset">
+          <legend className="panel-section-label">⚡ Installation photovoltaïque</legend>
+          <div className="two-col">
             <div className="field">
               <div className="field-header">
-                <label>Pertes système</label>
-                <InfoButton tooltipKey="systemLoss" openTooltip={openTooltip} setOpenTooltip={setOpenTooltip} />
+                <label htmlFor="dc-power">Puissance DC (kWc)</label>
+                <${InfoButton} id="dcPower" label="puissance DC" openTooltip=${openTooltip} setOpenTooltip=${setOpenTooltip} />
               </div>
-              <TooltipBox tooltipKey="systemLoss" openTooltip={openTooltip} />
-              <input type="range" min="0.03" max="0.25" step="0.01" value={draftConfig.systemLoss}
-                onChange={e => setDraftConfig(d=>({...d, systemLoss:parseFloat(e.target.value)}))} />
-              <div className="range-val">{Math.round(draftConfig.systemLoss*100)}%</div>
+              <${TooltipBox} id="dcPower" openTooltip=${openTooltip} />
+              <input id="dc-power" type="number" inputMode="decimal" step="0.1" min="0.1" max="100" required
+                value=${draft.dcPower} onChange=${e => set({ dcPower: e.target.value })} />
             </div>
-
-            <div className="btn-row">
-              <button className="btn-secondary" onClick={() => setShowSettings(false)}>Annuler</button>
-              <button className="btn-primary" onClick={handleSave}>Appliquer</button>
+            <div className="field">
+              <div className="field-header">
+                <label htmlFor="ac-power">Onduleur AC (kW)</label>
+                <${InfoButton} id="acPower" label="puissance de l'onduleur" openTooltip=${openTooltip} setOpenTooltip=${setOpenTooltip} />
+              </div>
+              <${TooltipBox} id="acPower" openTooltip=${openTooltip} />
+              <input id="ac-power" type="number" inputMode="decimal" step="0.1" min="0.1" max="100" required
+                value=${draft.acPower} onChange=${e => set({ acPower: e.target.value })} />
             </div>
           </div>
+
+          <div className="field">
+            <div className="field-header"><label htmlFor="tilt">Inclinaison des panneaux</label></div>
+            <input id="tilt" type="range" min="0" max="90" step="5" value=${draft.tilt}
+              aria-describedby="tilt-hints" onChange=${e => set({ tilt: parseInt(e.target.value, 10) })} />
+            <output className="range-val" htmlFor="tilt">${draft.tilt}°</output>
+            <p className="tilt-hints" id="tilt-hints">
+              <span>0° : à plat</span><span>30 à 35° : idéal en Belgique</span><span>90° : vertical</span>
+            </p>
+          </div>
+
+          <div className="field">
+            <div className="field-header"><label htmlFor="azimuth">Orientation</label></div>
+            <select id="azimuth" value=${draft.azimuth} onChange=${e => set({ azimuth: parseInt(e.target.value, 10) })}>
+              ${ORIENTATIONS.map(o => html`<option key=${o.value} value=${o.value}>${o.label}</option>`)}
+            </select>
+          </div>
+
+          <div className="field">
+            <div className="field-header">
+              <label htmlFor="loss">Pertes système</label>
+              <${InfoButton} id="systemLoss" label="pertes système" openTooltip=${openTooltip} setOpenTooltip=${setOpenTooltip} />
+            </div>
+            <${TooltipBox} id="systemLoss" openTooltip=${openTooltip} />
+            <input id="loss" type="range" min="0.03" max="0.25" step="0.01" value=${draft.systemLoss}
+              onChange=${e => set({ systemLoss: parseFloat(e.target.value) })} />
+            <output className="range-val" htmlFor="loss">${Math.round(draft.systemLoss * 100)} %</output>
+          </div>
+        </fieldset>
+
+        <div className="btn-row">
+          <button type="button" className="btn-secondary" onClick=${() => ref.current.close()}>Annuler</button>
+          <button type="submit" className="btn-primary">Appliquer</button>
         </div>
-      )}
+      </form>
     </div>
-  );
+  </dialog>`;
 }
 
-ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+// ── App ───────────────────────────────────────────────────────────────────
+function App() {
+  const [config, setConfig] = useState(loadConfig);
+  const key = locKey(config);
+  const [fc, setFc] = useState(() => loadCachedForecast(key));
+  const [status, setStatus] = useState("loading"); // loading | ok | offline | error
+  const [error, setError] = useState(null);
+  const [nowSec, setNowSec] = useState(() => Date.now() / 1000);
+  const [selected, setSelected] = useState(null);
+  const [showSettings, setShowSettings] = useState(false);
+
+  const fcRef = useRef(fc); fcRef.current = fc;
+  const configRef = useRef(config); configRef.current = config;
+  const reqId = useRef(0);
+
+  const refresh = useCallback(async cfg => {
+    const id = ++reqId.current;
+    setStatus("loading"); setError(null);
+    try {
+      const data = await fetchForecast(cfg);
+      if (id !== reqId.current) return;
+      saveCachedForecast(data);
+      setFc(data); setStatus("ok");
+    } catch (e) {
+      if (id !== reqId.current) return;
+      setError(e.message);
+      setStatus(fcRef.current && fcRef.current.key === locKey(cfg) ? "offline" : "error");
+    } finally {
+      if (id === reqId.current) setNowSec(Date.now() / 1000);
+    }
+  }, []);
+
+  // Au lancement, puis à chaque changement de lieu ou d'orientation.
+  useEffect(() => {
+    const cached = loadCachedForecast(key);
+    setFc(cached);
+    fcRef.current = cached;
+    refresh(configRef.current);
+  }, [key]);
+
+  // Une app installée peut rester ouverte en arrière-plan pendant des jours :
+  // au retour, on remet l'heure à jour et on réactualise si c'est vieux.
+  useEffect(() => {
+    const wake = () => {
+      if (document.visibilityState !== "visible") return;
+      setNowSec(Date.now() / 1000);
+      const f = fcRef.current;
+      if (!f || Date.now() - f.fetchedAt > STALE_AFTER_MS) refresh(configRef.current);
+    };
+    const onOnline = () => refresh(configRef.current);
+    document.addEventListener("visibilitychange", wake);
+    window.addEventListener("pageshow", wake);
+    window.addEventListener("online", onOnline);
+    const tick = setInterval(wake, 5 * 60 * 1000);
+    return () => {
+      document.removeEventListener("visibilitychange", wake);
+      window.removeEventListener("pageshow", wake);
+      window.removeEventListener("online", onOnline);
+      clearInterval(tick);
+    };
+  }, [refresh]);
+
+  const model = useMemo(() => (fc ? buildDays(fc, config, nowSec) : null), [fc, config, nowSec]);
+  const days = model ? model.days : [];
+  const tz = model ? model.tz : "Europe/Brussels";
+  const sel = days.find(d => d.date === selected) || days[0];
+  const maxKwh = Math.max(...days.map(d => d.totalKwh), 0.1);
+  const rec = model ? getRecommendation(model, nowSec) : null;
+  const orient = ORIENTATIONS.find(o => o.value === config.azimuth);
+  const selPct = sel ? sel.totalKwh / maxKwh : 0;
+  const selQuality = getDayQuality(selPct);
+  const weekTotal = days.reduce((s, d) => s + d.totalKwh, 0);
+
+  const handleSave = cfg => { saveConfig(cfg); setConfig(cfg); };
+
+  let content;
+  if (!model && status === "loading") {
+    content = html`<div className="loading-wrap" role="status">
+      <div className="sun-spin" aria-hidden="true"></div>
+      <p className="loading-text">Chargement des prévisions…</p>
+    </div>`;
+  } else if (!model || !days.length) {
+    content = html`<div className="error-card" role="alert">
+      <p className="error-icon" aria-hidden="true">⚠️</p>
+      <p className="error-msg">${error || "Pas de prévision disponible."}</p>
+      <button type="button" className="error-retry" onClick=${() => refresh(config)}>Réessayer</button>
+    </div>`;
+  } else {
+    content = html`<${React.Fragment}>
+      <${StatusLine} status=${status} fc=${fc} error=${error} onRefresh=${() => refresh(config)} />
+
+      ${sel && html`<section className="hero" aria-labelledby="hero-title">
+        <div className="hero-sun-bg" aria-hidden="true"></div>
+        <h2 id="hero-title" className="hero-label">${heroDate(sel.date, model.today)}</h2>
+        <p className=${`hero-quality ${selQuality.cls}`}>
+          <span className="hero-quality-icon" aria-hidden="true">${selQuality.icon}</span>
+          <span className="hero-quality-label">${selQuality.label}</span>
+        </p>
+        <p className="hero-pct">${selPct >= 0.99 ? "Meilleur jour de la semaine" : `${Math.round(selPct * 100)} % du meilleur jour`}</p>
+        <p className="hero-kwh-secondary">
+          Environ ${fmtKwh(sel.totalKwh)} kWh sur la journée${sel.offset === 0 && sel.remainingKwh < sel.totalKwh - 0.05 ? `, dont ${fmtKwh(sel.remainingKwh)} kWh encore à venir` : ""}
+        </p>
+        <p className="hero-sub">
+          ${sel.sunrise ? `🌅 ${fmtClock(sel.sunrise, tz)}` : ""}${sel.sunset ? ` · 🌇 ${fmtClock(sel.sunset, tz)}` : ""}${sel.clippedHours > 0 ? ` · ⚡ onduleur saturé environ ${sel.clippedHours} h` : ""}
+        </p>
+      </section>`}
+
+      <section className="section" aria-labelledby="week-title">
+        <h2 id="week-title" className="section-title">Prévision 7 jours</h2>
+        <ul className="days-grid" role="list">
+          ${days.map(d => {
+            const pct = d.totalKwh / maxKwh;
+            const active = d === sel;
+            const isBest = d.totalKwh === maxKwh;
+            const cls = ["day-bar", active && "active", isBest && "best"].filter(Boolean).join(" ");
+            const fill = isBest ? "linear-gradient(to top,#E8960A,#FFC83A)" : barColor(pct) + (active ? "" : "99");
+            return html`<li key=${d.date}>
+              <button type="button" className=${cls} aria-pressed=${active} onClick=${() => setSelected(d.date)}
+                aria-label=${`${capitalize(dayName(d.date, model.today, false))} : ${fmtKwh(d.totalKwh)} kWh${isBest ? ", meilleur jour" : ""}`}>
+                <span className="day-name">${dayName(d.date, model.today, true)}</span>
+                <span className="bar-wrap"><span className="bar-fill" style=${{ transform: `scaleY(${Math.max(pct, 0.04)})`, background: fill }}></span></span>
+                <span className="day-kwh">${fmtKwh(d.totalKwh)}</span>
+                ${isBest && html`<span className="best-star" aria-hidden="true">★</span>`}
+              </button>
+            </li>`;
+          })}
+        </ul>
+      </section>
+
+      ${sel && html`<section className="section" aria-labelledby="curve-title">
+        <h2 id="curve-title" className="section-title">Courbe horaire · ${fmtDateLong(sel.date)}</h2>
+        <${HourlyChart} day=${sel} cfg=${config} tz=${tz} nowSec=${nowSec} />
+      </section>`}
+
+      ${rec && html`<section className="section" aria-labelledby="rec-title">
+        <h2 id="rec-title" className="section-title">Recommandation</h2>
+        <div className=${`rec-card ${rec.quality}`}>
+          <p className="rec-title"><span aria-hidden="true">${rec.icon} </span>${rec.title}</p>
+          <p className="rec-body">${rec.body}</p>
+        </div>
+      </section>`}
+
+      <section className="section" aria-labelledby="stats-title">
+        <h2 id="stats-title" className="section-title">Résumé de la semaine</h2>
+        <ul className="stats-row" role="list">
+          <li className="stat-card"><span className="stat-val">${nf0.format(weekTotal)}</span><span className="stat-lbl">kWh sur ${days.length} jours</span></li>
+          <li className="stat-card"><span className="stat-val">${fmtKwh(maxKwh)}</span><span className="stat-lbl">kWh le meilleur jour</span></li>
+          <li className="stat-card"><span className="stat-val">${fmtKwh(weekTotal / Math.max(days.length, 1))}</span><span className="stat-lbl">kWh par jour en moyenne</span></li>
+        </ul>
+      </section>
+
+      <section className="section">
+        <div className="model-note">
+          <h2 className="model-note-title">🔬 Modèle de calcul</h2>
+          <p className="model-note-body">
+            Rayonnement sur le plan des panneaux (GTI) prévu par <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a>, moyenne de chaque heure.
+            Onduleur plafonné à ${nf1.format(config.acPower)} kW, pertes système ${Math.round(config.systemLoss * 100)} %.
+          </p>
+        </div>
+      </section>
+    <//>`;
+  }
+
+  return html`<div className="app">
+    <header className="header">
+      <h1 className="header-title">
+        <span className="header-eyebrow">☀ Suncast</span>
+        <span className="header-location">${config.displayName}</span>
+      </h1>
+      <button type="button" className="settings-btn" onClick=${() => setShowSettings(true)} aria-label="Réglages de l'installation">⚙</button>
+      <p className="header-sub">${nf1.format(config.dcPower)} kWc · ${config.tilt}° · ${orient ? orient.short : ""} · onduleur ${nf1.format(config.acPower)} kW</p>
+    </header>
+
+    <main id="contenu" tabIndex="-1">${content}</main>
+
+    <footer className="footer">
+      <a className="powered-by" href="https://nuxo.be" target="_blank" rel="noopener noreferrer">
+        Powered by <img src="images/logo-nuxo.svg" alt="Nuxo" width="93" height="22" />
+      </a>
+    </footer>
+
+    <${SettingsDialog} open=${showSettings} config=${config} onClose=${() => setShowSettings(false)} onSave=${handleSave} />
+  </div>`;
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(html`<${App} />`);
 </script>
 
 <script>
